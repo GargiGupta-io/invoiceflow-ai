@@ -54,6 +54,7 @@ Primary use cases:
 - Step 6 complete: document ingestion added for PDF and text-based fixtures through `app/ingest/pdf_reader.py`.
 - Step 7 complete: OCR fallback added for scanned or image-based PDF pages through `app/ingest/ocr.py`.
 - Step 8 complete: extractor agent added with a strict schema-aligned output path, heuristic development mode, and LLM-ready prompt.
+- Step 9 complete: schema validation retry path added for extraction, including local repair and LLM repair prompt flow.
 
 ## Success Criteria
 
@@ -107,7 +108,7 @@ Primary use cases:
 6. Build PDF text extraction and email text ingestion [done]
 7. Add OCR fallback for scanned invoices [done]
 8. Implement the extractor agent that converts raw content into strict JSON [done]
-9. Add validation and retry behavior when extraction output fails schema checks
+9. Add validation and retry behavior when extraction output fails schema checks [done]
 
 ### Phase 3: Retrieval And Case Routing
 
@@ -150,7 +151,7 @@ Phase 2
   Step 6  Build PDF text extraction [done]
   Step 7  Add OCR fallback for scanned invoices [done]
   Step 8  Build extractor agent with strict JSON output [done]
-  Step 9  Add schema validation and retry behavior
+  Step 9  Add schema validation and retry behavior [done]
 
 Phase 3
   Step 10 Chunk and index the finance KB
