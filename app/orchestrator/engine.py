@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from time import perf_counter
 from typing import Any
 
 from ..agents import (
@@ -20,6 +21,7 @@ from ..agents import (
 from ..ingest import read_document_text
 from ..rag import build_knowledge_index, load_knowledge_index, save_knowledge_index
 from ..schemas.decision import WorkflowResult, WorkflowType
+from .audit import build_workflow_audit_trail
 from .router import route_workflow
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -109,21 +111,38 @@ def run_workflow_from_path(
 ) -> dict[str, Any]:
     """Run ingestion, extraction, routing, retrieval, and final decision flow."""
 
+    workflow_started = perf_counter()
+    stage_latencies_ms: dict[str, float] = {}
     source_path = Path(path).expanduser().resolve()
+    stage_started = perf_counter()
     index = _load_or_build_knowledge_index()
+    stage_latencies_ms["knowledge_index"] = _elapsed_ms(stage_started)
     extractor_kwargs: dict[str, Any] = {"mode": extractor_mode}
     if prompt_path is not None:
         extractor_kwargs["prompt_path"] = Path(prompt_path).expanduser().resolve()
     extractor = ExtractorAgent(**extractor_kwargs)
 
+    stage_started = perf_counter()
     document = read_document_text(source_path)
+    stage_latencies_ms["ingestion"] = _elapsed_ms(stage_started)
+
+    stage_started = perf_counter()
     extraction = extractor.extract(document)
+    stage_latencies_ms["extraction"] = _elapsed_ms(stage_started)
+
+    stage_started = perf_counter()
     route = route_workflow(extraction)
+    stage_latencies_ms["routing"] = _elapsed_ms(stage_started)
+
+    stage_started = perf_counter()
     context = assemble_grounded_policy_context(extraction, route, index)
+    stage_latencies_ms["grounding"] = _elapsed_ms(stage_started)
 
     assessment_payload: dict[str, Any]
     workflow_result: WorkflowResult
+    decision: Any
 
+    stage_started = perf_counter()
     if route.workflow_type == WorkflowType.AP:
         assessment = assess_accounts_payable(extraction, context)
         decision = decide_accounts_payable(extraction, context)
@@ -142,6 +161,20 @@ def run_workflow_from_path(
             ar_decision=decision,
         )
         assessment_payload = _serialize_ar_assessment(assessment)
+    stage_latencies_ms["decision"] = _elapsed_ms(stage_started)
+
+    total_latency_ms = _elapsed_ms(workflow_started)
+    audit_trail = build_workflow_audit_trail(
+        requested_extractor_mode=extractor.mode,
+        effective_extractor_mode=extractor.last_mode_used or extractor.mode.lower().strip(),
+        prompt_path=extractor.prompt_path,
+        repair_prompt_path=extractor.repair_prompt_path,
+        route=route,
+        context=context,
+        decision=decision,
+        stage_latencies_ms=stage_latencies_ms,
+        total_latency_ms=total_latency_ms,
+    )
 
     return {
         "source": {
@@ -149,6 +182,7 @@ def run_workflow_from_path(
             "path": str(source_path),
             "filename": original_filename or source_path.name,
         },
+        "audit_trail": audit_trail.to_dict(),
         "route": route.to_dict(),
         "grounded_context": context.to_dict(),
         "policy_assessment": assessment_payload,
@@ -183,3 +217,7 @@ def _serialize_ar_assessment(assessment: ARWorkflowAssessment) -> dict[str, Any]
         "prior_reminders": assessment.prior_reminders,
         "trigger_codes": list(assessment.trigger_codes),
     }
+
+
+def _elapsed_ms(started_at: float) -> float:
+    return round((perf_counter() - started_at) * 1000, 2)
