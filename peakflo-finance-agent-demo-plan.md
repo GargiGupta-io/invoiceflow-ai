@@ -60,6 +60,7 @@ Primary use cases:
 - Step 12 complete: deterministic workflow routing added so extracted cases resolve into AP or AR before decision logic runs.
 - Step 13 complete: grounded policy-context assembly added so decision layers receive route-aware evidence bundles instead of raw retrieval hits.
 - Step 14 complete: AP decision logic added for approve, review, and missing-info outcomes, including anomaly flags and reviewer summaries.
+- Step 15 complete: AR drafting flow added for reminder, escalation, and payment-confirmation follow-up cases.
 
 ## Success Criteria
 
@@ -125,7 +126,7 @@ Primary use cases:
 ### Phase 4: Agent Workflow And Business Actions
 
 14. Build the AP decision flow for approve / review / reject / missing-info recommendations [done]
-15. Build the AR drafting flow for overdue follow-up emails
+15. Build the AR drafting flow for overdue follow-up emails [done]
 16. Add anomaly flags such as missing PO, amount mismatch, duplicate invoice number, or overdue escalation triggers
 17. Wire the full multi-agent flow behind FastAPI endpoints
 
@@ -166,7 +167,7 @@ Phase 3
 
 Phase 4
   Step 14 Build AP recommendation flow [done]
-  Step 15 Build AR follow-up drafting flow
+  Step 15 Build AR follow-up drafting flow [done]
   Step 16 Add anomaly flags and escalation triggers
   Step 17 Expose the full flow through FastAPI endpoints
 

@@ -6,8 +6,8 @@ A focused finance workflow AI demo built to show OCR-assisted extraction, retrie
 
 Scaffolded. Core workflows, schemas, knowledge-base docs, sample data, document
 ingestion, structured extraction, knowledge indexing, citeable retrieval,
-workflow routing, grounded policy assembly, and AP decision logic are in place.
-AR drafting and endpoint wiring are the main pending pieces now.
+workflow routing, grounded policy assembly, AP decision logic, and AR drafting
+are in place. Endpoint wiring and evaluation polish are the main pending pieces now.
 
 ## Goal
 
@@ -184,6 +184,6 @@ This initial scaffold includes:
 
 ## Next Steps
 
-1. Add the AR drafting flow
-2. Add anomaly detection and shared workflow reasoning
-3. Wire the workflow behind FastAPI endpoints
+1. Add shared anomaly/workflow reasoning polish
+2. Wire the workflow behind FastAPI endpoints
+3. Add evaluation and operator-facing UI
