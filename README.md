@@ -5,8 +5,8 @@ A focused finance workflow AI demo built to show OCR-assisted extraction, retrie
 ## Status
 
 Scaffolded. Core workflows, schemas, knowledge-base docs, sample data, document
-ingestion, and structured extraction are in place. Validation/retry is now
-implemented, with retrieval and routing still pending.
+ingestion, structured extraction, and knowledge indexing are in place.
+Retrieval and routing are the main pending pieces now.
 
 ## Goal
 
@@ -183,6 +183,6 @@ This initial scaffold includes:
 
 ## Next Steps
 
-1. Chunk and index the finance knowledge base
-2. Add retrieval with source citations
-3. Add routing and decision workflows
+1. Add retrieval with source citations
+2. Add routing and decision workflows
+3. Wire the workflow behind FastAPI endpoints

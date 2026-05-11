@@ -1,0 +1,2718 @@
+{
+  "chunks": [
+    {
+      "chunk_id": "AP-APPROVAL-001",
+      "section_code": "AP-APPROVAL-001",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AP-APPROVAL-001 Standard Thresholds",
+      "text": "Use the gross invoice amount in base currency for routing decisions.\n\n| Amount Range | Required Action | Approver |\n| --- | --- | --- |\n| Up to 5,000 | Auto-approve if all validation checks pass | AP Ops |\n| 5,001 to 20,000 | Manual review required | Finance Manager |\n| 20,001 to 75,000 | Senior approval required | Head of Finance |\n| Above 75,000 | Executive approval required | CFO |",
+      "tokens": [
+        "ap",
+        "approval",
+        "001",
+        "standard",
+        "thresholds",
+        "use",
+        "the",
+        "gross",
+        "invoice",
+        "amount",
+        "in",
+        "base",
+        "currency",
+        "for",
+        "routing",
+        "decisions",
+        "range",
+        "required",
+        "action",
+        "approver",
+        "up",
+        "to",
+        "000",
+        "auto",
+        "approve",
+        "if",
+        "all",
+        "validation",
+        "checks",
+        "pass",
+        "ops",
+        "20",
+        "manual",
+        "review",
+        "finance",
+        "manager",
+        "75",
+        "senior",
+        "head",
+        "of",
+        "above",
+        "executive",
+        "cfo"
+      ]
+    },
+    {
+      "chunk_id": "AP-APPROVAL-002",
+      "section_code": "AP-APPROVAL-002",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AP-APPROVAL-002 Purchase Order Policy",
+      "text": "- A purchase order is required for all vendor invoices above 3,000.\n- If the invoice amount is above 3,000 and the PO number is missing, route the\n  case to `missing_info`.\n- Services invoices can proceed without a PO only if the vendor is explicitly\n  marked as `services-exempt` in the vendor terms document.",
+      "tokens": [
+        "ap",
+        "approval",
+        "002",
+        "purchase",
+        "order",
+        "policy",
+        "is",
+        "required",
+        "for",
+        "all",
+        "vendor",
+        "invoices",
+        "above",
+        "000",
+        "if",
+        "the",
+        "invoice",
+        "amount",
+        "and",
+        "po",
+        "number",
+        "missing",
+        "route",
+        "case",
+        "to",
+        "info",
+        "services",
+        "can",
+        "proceed",
+        "without",
+        "only",
+        "explicitly",
+        "marked",
+        "as",
+        "exempt",
+        "in",
+        "terms",
+        "document"
+      ]
+    },
+    {
+      "chunk_id": "AP-APPROVAL-003",
+      "section_code": "AP-APPROVAL-003",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AP-APPROVAL-003 Duplicate Risk Rule",
+      "text": "- If the invoice number matches a previously recorded invoice from the same\n  vendor, the case should not be approved automatically.\n- A duplicate match should be flagged as `review` unless a clear correction note\n  is present in the supporting context.",
+      "tokens": [
+        "ap",
+        "approval",
+        "003",
+        "duplicate",
+        "risk",
+        "rule",
+        "if",
+        "the",
+        "invoice",
+        "number",
+        "matches",
+        "previously",
+        "recorded",
+        "from",
+        "same",
+        "vendor",
+        "case",
+        "should",
+        "not",
+        "be",
+        "approved",
+        "automatically",
+        "match",
+        "flagged",
+        "as",
+        "review",
+        "unless",
+        "clear",
+        "correction",
+        "note",
+        "is",
+        "present",
+        "in",
+        "supporting",
+        "context"
+      ]
+    },
+    {
+      "chunk_id": "AP-APPROVAL-004",
+      "section_code": "AP-APPROVAL-004",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AP-APPROVAL-004 Terms Mismatch Handling",
+      "text": "- If the invoice payment terms differ from the vendor's agreed master terms,\n  route the case to `review`.\n- If the invoice shortens the agreed payment window without a justification\n  note, add a medium-severity anomaly.",
+      "tokens": [
+        "ap",
+        "approval",
+        "004",
+        "terms",
+        "mismatch",
+        "handling",
+        "if",
+        "the",
+        "invoice",
+        "payment",
+        "differ",
+        "from",
+        "vendor",
+        "agreed",
+        "master",
+        "route",
+        "case",
+        "to",
+        "review",
+        "shortens",
+        "window",
+        "without",
+        "justification",
+        "note",
+        "add",
+        "medium",
+        "severity",
+        "anomaly"
+      ]
+    },
+    {
+      "chunk_id": "AR-ESCALATION-001",
+      "section_code": "AR-ESCALATION-001",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AR-ESCALATION-001 Reminder Cadence",
+      "text": "Use the number of overdue days and prior reminders to determine escalation.\n\n| Condition | Escalation Level | Expected Action |\n| --- | --- | --- |\n| 1 to 7 days overdue, no prior reminder | none | Send first reminder |\n| 8 to 21 days overdue or one prior reminder | low | Send second reminder |\n| 22 to 45 days overdue or two prior reminders | medium | Escalate tone, request payment timeline |\n| More than 45 days overdue or three or more reminders | high | Escalate to finance lead |",
+      "tokens": [
+        "ar",
+        "escalation",
+        "001",
+        "reminder",
+        "cadence",
+        "use",
+        "the",
+        "number",
+        "of",
+        "overdue",
+        "days",
+        "and",
+        "prior",
+        "reminders",
+        "to",
+        "determine",
+        "condition",
+        "level",
+        "expected",
+        "action",
+        "no",
+        "none",
+        "send",
+        "first",
+        "21",
+        "or",
+        "one",
+        "low",
+        "second",
+        "22",
+        "45",
+        "two",
+        "medium",
+        "escalate",
+        "tone",
+        "request",
+        "payment",
+        "timeline",
+        "more",
+        "than",
+        "three",
+        "high",
+        "finance",
+        "lead"
+      ]
+    },
+    {
+      "chunk_id": "AR-ESCALATION-002",
+      "section_code": "AR-ESCALATION-002",
+      "source_file": "approval_matrix.md",
+      "source_title": "Approval Matrix",
+      "section_title": "AR-ESCALATION-002 Payment Confirmation Exception",
+      "text": "- If the customer claims payment has been made but no remittance proof or bank\n  confirmation is attached, do not escalate to collections language.\n- Ask for transaction reference, transfer date, and payment confirmation.",
+      "tokens": [
+        "ar",
+        "escalation",
+        "002",
+        "payment",
+        "confirmation",
+        "exception",
+        "if",
+        "the",
+        "customer",
+        "claims",
+        "has",
+        "been",
+        "made",
+        "but",
+        "no",
+        "remittance",
+        "proof",
+        "or",
+        "bank",
+        "is",
+        "attached",
+        "do",
+        "not",
+        "escalate",
+        "to",
+        "collections",
+        "language",
+        "ask",
+        "for",
+        "transaction",
+        "reference",
+        "transfer",
+        "date",
+        "and"
+      ]
+    },
+    {
+      "chunk_id": "AP-POLICY-001",
+      "section_code": "AP-POLICY-001",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AP-POLICY-001 Required Fields",
+      "text": "An invoice should be treated as incomplete if any of the following are missing:\n\n- vendor name\n- invoice number\n- invoice amount\n- currency\n- due date\n\nMissing required fields should produce a `missing_info` recommendation unless\nthe missing field can be recovered from trusted case context.",
+      "tokens": [
+        "ap",
+        "policy",
+        "001",
+        "required",
+        "fields",
+        "an",
+        "invoice",
+        "should",
+        "be",
+        "treated",
+        "as",
+        "incomplete",
+        "if",
+        "any",
+        "of",
+        "the",
+        "following",
+        "are",
+        "missing",
+        "vendor",
+        "name",
+        "number",
+        "amount",
+        "currency",
+        "due",
+        "date",
+        "produce",
+        "info",
+        "recommendation",
+        "unless",
+        "field",
+        "can",
+        "recovered",
+        "from",
+        "trusted",
+        "case",
+        "context"
+      ]
+    },
+    {
+      "chunk_id": "AP-POLICY-002",
+      "section_code": "AP-POLICY-002",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AP-POLICY-002 Extraction Expectations",
+      "text": "- Structured outputs must normalize currency codes to ISO-style short forms such\n  as `USD`, `EUR`, `INR`, `SGD`, and `GBP`.\n- Dates should be captured in `YYYY-MM-DD` format when possible.\n- If OCR or parsing quality is low, record that in the extraction warnings\n  instead of silently guessing.",
+      "tokens": [
+        "ap",
+        "policy",
+        "002",
+        "extraction",
+        "expectations",
+        "structured",
+        "outputs",
+        "must",
+        "normalize",
+        "currency",
+        "codes",
+        "to",
+        "iso",
+        "style",
+        "short",
+        "forms",
+        "such",
+        "as",
+        "usd",
+        "eur",
+        "inr",
+        "sgd",
+        "and",
+        "gbp",
+        "dates",
+        "should",
+        "be",
+        "captured",
+        "in",
+        "yyyy",
+        "mm",
+        "dd",
+        "format",
+        "when",
+        "possible",
+        "if",
+        "ocr",
+        "or",
+        "parsing",
+        "quality",
+        "is",
+        "low",
+        "record",
+        "that",
+        "the",
+        "warnings",
+        "instead",
+        "of",
+        "silently",
+        "guessing"
+      ]
+    },
+    {
+      "chunk_id": "AP-POLICY-003",
+      "section_code": "AP-POLICY-003",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AP-POLICY-003 Validation Checks",
+      "text": "Each invoice review should evaluate:\n\n1. whether the invoice has all required fields\n2. whether the PO requirement applies and is satisfied\n3. whether payment terms match vendor master terms\n4. whether the invoice appears to be a duplicate\n5. whether the amount crosses an approval threshold",
+      "tokens": [
+        "ap",
+        "policy",
+        "003",
+        "validation",
+        "checks",
+        "each",
+        "invoice",
+        "review",
+        "should",
+        "evaluate",
+        "whether",
+        "the",
+        "has",
+        "all",
+        "required",
+        "fields",
+        "po",
+        "requirement",
+        "applies",
+        "and",
+        "is",
+        "satisfied",
+        "payment",
+        "terms",
+        "match",
+        "vendor",
+        "master",
+        "appears",
+        "to",
+        "be",
+        "duplicate",
+        "amount",
+        "crosses",
+        "an",
+        "approval",
+        "threshold"
+      ]
+    },
+    {
+      "chunk_id": "AP-POLICY-004",
+      "section_code": "AP-POLICY-004",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AP-POLICY-004 Recommendation Meanings",
+      "text": "- `approve`: validation checks passed and the case fits policy for approval\n- `review`: the case has a policy conflict, duplicate risk, or threshold-based\n  manual approval requirement\n- `reject`: the invoice is clearly invalid or unsupported\n- `missing_info`: the invoice lacks information needed for a policy decision",
+      "tokens": [
+        "ap",
+        "policy",
+        "004",
+        "recommendation",
+        "meanings",
+        "approve",
+        "validation",
+        "checks",
+        "passed",
+        "and",
+        "the",
+        "case",
+        "fits",
+        "for",
+        "approval",
+        "review",
+        "has",
+        "conflict",
+        "duplicate",
+        "risk",
+        "or",
+        "threshold",
+        "based",
+        "manual",
+        "requirement",
+        "reject",
+        "invoice",
+        "is",
+        "clearly",
+        "invalid",
+        "unsupported",
+        "missing",
+        "info",
+        "lacks",
+        "information",
+        "needed",
+        "decision"
+      ]
+    },
+    {
+      "chunk_id": "AP-POLICY-005",
+      "section_code": "AP-POLICY-005",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AP-POLICY-005 Reviewer Summary",
+      "text": "The reviewer summary should be concise and operational. It should mention:\n\n- the top decision reason\n- the highest-severity anomaly if one exists\n- the next action for the finance team",
+      "tokens": [
+        "ap",
+        "policy",
+        "005",
+        "reviewer",
+        "summary",
+        "the",
+        "should",
+        "be",
+        "concise",
+        "and",
+        "operational",
+        "it",
+        "mention",
+        "top",
+        "decision",
+        "reason",
+        "highest",
+        "severity",
+        "anomaly",
+        "if",
+        "one",
+        "exists",
+        "next",
+        "action",
+        "for",
+        "finance",
+        "team"
+      ]
+    },
+    {
+      "chunk_id": "AR-POLICY-001",
+      "section_code": "AR-POLICY-001",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AR-POLICY-001 Follow-Up Rules",
+      "text": "Overdue follow-up drafts must:\n\n- stay professional and non-hostile\n- mention invoice number, amount, and due date when available\n- ask for a payment timeline or payment confirmation\n- avoid threatening language unless the escalation level is high",
+      "tokens": [
+        "ar",
+        "policy",
+        "001",
+        "follow",
+        "up",
+        "rules",
+        "overdue",
+        "drafts",
+        "must",
+        "stay",
+        "professional",
+        "and",
+        "non",
+        "hostile",
+        "mention",
+        "invoice",
+        "number",
+        "amount",
+        "due",
+        "date",
+        "when",
+        "available",
+        "ask",
+        "for",
+        "payment",
+        "timeline",
+        "or",
+        "confirmation",
+        "avoid",
+        "threatening",
+        "language",
+        "unless",
+        "the",
+        "escalation",
+        "level",
+        "is",
+        "high"
+      ]
+    },
+    {
+      "chunk_id": "AR-POLICY-002",
+      "section_code": "AR-POLICY-002",
+      "source_file": "invoice_policy.md",
+      "source_title": "Invoice Processing Policy",
+      "section_title": "AR-POLICY-002 Grounding Requirement",
+      "text": "Any follow-up or recommendation should be grounded in:\n\n- extracted invoice/case details\n- at least one policy or reminder rule\n- cited evidence from the retrieved context",
+      "tokens": [
+        "ar",
+        "policy",
+        "002",
+        "grounding",
+        "requirement",
+        "any",
+        "follow",
+        "up",
+        "or",
+        "recommendation",
+        "should",
+        "be",
+        "grounded",
+        "in",
+        "extracted",
+        "invoice",
+        "case",
+        "details",
+        "at",
+        "least",
+        "one",
+        "reminder",
+        "rule",
+        "cited",
+        "evidence",
+        "from",
+        "the",
+        "retrieved",
+        "context"
+      ]
+    },
+    {
+      "chunk_id": "AR-TEMPLATE-001",
+      "section_code": "AR-TEMPLATE-001",
+      "source_file": "reminder_templates.md",
+      "source_title": "Reminder Templates And Escalation Guidance",
+      "section_title": "AR-TEMPLATE-001 First Reminder",
+      "text": "Use for low-friction cases that are only slightly overdue.\n\nSubject pattern:\n`Friendly reminder: invoice {invoice_number} was due on {due_date}`\n\nTone guidance:\n\n- assume good intent\n- keep the message short\n- ask whether payment has already been initiated\n\nSuggested body pattern:\n\n> Hello {customer_name},\n> This is a quick reminder that invoice {invoice_number} for {amount}\n> was due on {due_date}. If payment has already been initiated, please share\n> the transfer details. Otherwise, could you let us know the expected payment\n> date?",
+      "tokens": [
+        "ar",
+        "template",
+        "001",
+        "first",
+        "reminder",
+        "use",
+        "for",
+        "low",
+        "friction",
+        "cases",
+        "that",
+        "are",
+        "only",
+        "slightly",
+        "overdue",
+        "subject",
+        "pattern",
+        "friendly",
+        "invoice",
+        "number",
+        "was",
+        "due",
+        "on",
+        "date",
+        "tone",
+        "guidance",
+        "assume",
+        "good",
+        "intent",
+        "keep",
+        "the",
+        "message",
+        "short",
+        "ask",
+        "whether",
+        "payment",
+        "has",
+        "already",
+        "been",
+        "initiated",
+        "suggested",
+        "body",
+        "hello",
+        "customer",
+        "name",
+        "this",
+        "is",
+        "quick",
+        "amount",
+        "if",
+        "please",
+        "share",
+        "transfer",
+        "details",
+        "otherwise",
+        "could",
+        "you",
+        "let",
+        "us",
+        "know",
+        "expected"
+      ]
+    },
+    {
+      "chunk_id": "AR-TEMPLATE-002",
+      "section_code": "AR-TEMPLATE-002",
+      "source_file": "reminder_templates.md",
+      "source_title": "Reminder Templates And Escalation Guidance",
+      "section_title": "AR-TEMPLATE-002 Second Reminder",
+      "text": "Use when the invoice is materially overdue or one reminder has already been sent.\n\nSubject pattern:\n`Second reminder: invoice {invoice_number} remains unpaid`\n\nTone guidance:\n\n- stay polite but more direct\n- ask for a firm timeline\n- mention previous follow-up where relevant",
+      "tokens": [
+        "ar",
+        "template",
+        "002",
+        "second",
+        "reminder",
+        "use",
+        "when",
+        "the",
+        "invoice",
+        "is",
+        "materially",
+        "overdue",
+        "or",
+        "one",
+        "has",
+        "already",
+        "been",
+        "sent",
+        "subject",
+        "pattern",
+        "number",
+        "remains",
+        "unpaid",
+        "tone",
+        "guidance",
+        "stay",
+        "polite",
+        "but",
+        "more",
+        "direct",
+        "ask",
+        "for",
+        "firm",
+        "timeline",
+        "mention",
+        "previous",
+        "follow",
+        "up",
+        "where",
+        "relevant"
+      ]
+    },
+    {
+      "chunk_id": "AR-TEMPLATE-003",
+      "section_code": "AR-TEMPLATE-003",
+      "source_file": "reminder_templates.md",
+      "source_title": "Reminder Templates And Escalation Guidance",
+      "section_title": "AR-TEMPLATE-003 Escalated Follow-Up",
+      "text": "Use for medium or high escalation cases.\n\nSubject pattern:\n`Action requested: overdue invoice {invoice_number}`\n\nTone guidance:\n\n- state overdue status clearly\n- ask for immediate confirmation or a payment plan\n- mention escalation to finance stakeholders when required",
+      "tokens": [
+        "ar",
+        "template",
+        "003",
+        "escalated",
+        "follow",
+        "up",
+        "use",
+        "for",
+        "medium",
+        "or",
+        "high",
+        "escalation",
+        "cases",
+        "subject",
+        "pattern",
+        "action",
+        "requested",
+        "overdue",
+        "invoice",
+        "number",
+        "tone",
+        "guidance",
+        "state",
+        "status",
+        "clearly",
+        "ask",
+        "immediate",
+        "confirmation",
+        "payment",
+        "plan",
+        "mention",
+        "to",
+        "finance",
+        "stakeholders",
+        "when",
+        "required"
+      ]
+    },
+    {
+      "chunk_id": "AR-TEMPLATE-004",
+      "section_code": "AR-TEMPLATE-004",
+      "source_file": "reminder_templates.md",
+      "source_title": "Reminder Templates And Escalation Guidance",
+      "section_title": "AR-TEMPLATE-004 Payment Claim Without Proof",
+      "text": "If a customer says payment has already been made but there is no confirmation:\n\n- acknowledge the update\n- ask for bank reference, transfer date, and remittance proof\n- avoid accusing the customer of non-payment\n\nSuggested body pattern:\n\n> Hello {customer_name},\n> Thanks for the update. We have not yet been able to match the payment for\n> invoice {invoice_number} in our records. Could you please share the transfer\n> date, transaction reference, and remittance advice so we can reconcile it?",
+      "tokens": [
+        "ar",
+        "template",
+        "004",
+        "payment",
+        "claim",
+        "without",
+        "proof",
+        "if",
+        "customer",
+        "says",
+        "has",
+        "already",
+        "been",
+        "made",
+        "but",
+        "there",
+        "is",
+        "no",
+        "confirmation",
+        "acknowledge",
+        "the",
+        "update",
+        "ask",
+        "for",
+        "bank",
+        "reference",
+        "transfer",
+        "date",
+        "and",
+        "remittance",
+        "avoid",
+        "accusing",
+        "of",
+        "non",
+        "suggested",
+        "body",
+        "pattern",
+        "hello",
+        "name",
+        "thanks",
+        "we",
+        "have",
+        "not",
+        "yet",
+        "able",
+        "to",
+        "match",
+        "invoice",
+        "number",
+        "in",
+        "our",
+        "records",
+        "could",
+        "you",
+        "please",
+        "share",
+        "transaction",
+        "advice",
+        "so",
+        "can",
+        "reconcile",
+        "it"
+      ]
+    },
+    {
+      "chunk_id": "AR-TEMPLATE-005",
+      "section_code": "AR-TEMPLATE-005",
+      "source_file": "reminder_templates.md",
+      "source_title": "Reminder Templates And Escalation Guidance",
+      "section_title": "AR-TEMPLATE-005 Escalation Notes",
+      "text": "- `none`: first reminder language only\n- `low`: second reminder language, still collaborative\n- `medium`: request explicit timeline and mention internal follow-up\n- `high`: escalate to finance lead and ask for urgent resolution",
+      "tokens": [
+        "ar",
+        "template",
+        "005",
+        "escalation",
+        "notes",
+        "none",
+        "first",
+        "reminder",
+        "language",
+        "only",
+        "low",
+        "second",
+        "still",
+        "collaborative",
+        "medium",
+        "request",
+        "explicit",
+        "timeline",
+        "and",
+        "mention",
+        "internal",
+        "follow",
+        "up",
+        "high",
+        "escalate",
+        "to",
+        "finance",
+        "lead",
+        "ask",
+        "for",
+        "urgent",
+        "resolution"
+      ]
+    },
+    {
+      "chunk_id": "VENDOR-001",
+      "section_code": "VENDOR-001",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "VENDOR-001 Northstar Office Supplies",
+      "text": "- Vendor category: office-supplies\n- Standard payment terms: Net 30\n- Currency: USD\n- PO required above: 3,000\n- Services exempt: no\n- Duplicate matching key: vendor name + invoice number",
+      "tokens": [
+        "vendor",
+        "001",
+        "northstar",
+        "office",
+        "supplies",
+        "category",
+        "standard",
+        "payment",
+        "terms",
+        "net",
+        "30",
+        "currency",
+        "usd",
+        "po",
+        "required",
+        "above",
+        "000",
+        "services",
+        "exempt",
+        "no",
+        "duplicate",
+        "matching",
+        "key",
+        "name",
+        "invoice",
+        "number"
+      ]
+    },
+    {
+      "chunk_id": "VENDOR-002",
+      "section_code": "VENDOR-002",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "VENDOR-002 Bluewave Logistics",
+      "text": "- Vendor category: logistics\n- Standard payment terms: Net 45\n- Currency: USD\n- PO required above: 5,000\n- Services exempt: no\n- Duplicate matching key: vendor name + invoice number",
+      "tokens": [
+        "vendor",
+        "002",
+        "bluewave",
+        "logistics",
+        "category",
+        "standard",
+        "payment",
+        "terms",
+        "net",
+        "45",
+        "currency",
+        "usd",
+        "po",
+        "required",
+        "above",
+        "000",
+        "services",
+        "exempt",
+        "no",
+        "duplicate",
+        "matching",
+        "key",
+        "name",
+        "invoice",
+        "number"
+      ]
+    },
+    {
+      "chunk_id": "VENDOR-003",
+      "section_code": "VENDOR-003",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "VENDOR-003 Lumina Creative Studio",
+      "text": "- Vendor category: professional-services\n- Standard payment terms: Net 15\n- Currency: SGD\n- PO required above: none\n- Services exempt: yes\n- Duplicate matching key: vendor name + invoice number",
+      "tokens": [
+        "vendor",
+        "003",
+        "lumina",
+        "creative",
+        "studio",
+        "category",
+        "professional",
+        "services",
+        "standard",
+        "payment",
+        "terms",
+        "net",
+        "15",
+        "currency",
+        "sgd",
+        "po",
+        "required",
+        "above",
+        "none",
+        "exempt",
+        "yes",
+        "duplicate",
+        "matching",
+        "key",
+        "name",
+        "invoice",
+        "number"
+      ]
+    },
+    {
+      "chunk_id": "VENDOR-004",
+      "section_code": "VENDOR-004",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "VENDOR-004 Quartz Cloud Systems",
+      "text": "- Vendor category: software\n- Standard payment terms: Net 30\n- Currency: USD\n- PO required above: 3,000\n- Services exempt: no\n- Duplicate matching key: vendor name + invoice number",
+      "tokens": [
+        "vendor",
+        "004",
+        "quartz",
+        "cloud",
+        "systems",
+        "category",
+        "software",
+        "standard",
+        "payment",
+        "terms",
+        "net",
+        "30",
+        "currency",
+        "usd",
+        "po",
+        "required",
+        "above",
+        "000",
+        "services",
+        "exempt",
+        "no",
+        "duplicate",
+        "matching",
+        "key",
+        "name",
+        "invoice",
+        "number"
+      ]
+    },
+    {
+      "chunk_id": "CUSTOMER-001",
+      "section_code": "CUSTOMER-001",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "CUSTOMER-001 Aster Retail",
+      "text": "- Reminder cadence: standard\n- Escalation owner after 45 overdue days: AR Lead\n- Preferred reminder tone: professional and direct",
+      "tokens": [
+        "customer",
+        "001",
+        "aster",
+        "retail",
+        "reminder",
+        "cadence",
+        "standard",
+        "escalation",
+        "owner",
+        "after",
+        "45",
+        "overdue",
+        "days",
+        "ar",
+        "lead",
+        "preferred",
+        "tone",
+        "professional",
+        "and",
+        "direct"
+      ]
+    },
+    {
+      "chunk_id": "CUSTOMER-002",
+      "section_code": "CUSTOMER-002",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "CUSTOMER-002 Horizon Health Group",
+      "text": "- Reminder cadence: gentle-first\n- Escalation owner after 30 overdue days: Finance Manager\n- Preferred reminder tone: collaborative",
+      "tokens": [
+        "customer",
+        "002",
+        "horizon",
+        "health",
+        "group",
+        "reminder",
+        "cadence",
+        "gentle",
+        "first",
+        "escalation",
+        "owner",
+        "after",
+        "30",
+        "overdue",
+        "days",
+        "finance",
+        "manager",
+        "preferred",
+        "tone",
+        "collaborative"
+      ]
+    },
+    {
+      "chunk_id": "CUSTOMER-003",
+      "section_code": "CUSTOMER-003",
+      "source_file": "vendor_terms.md",
+      "source_title": "Vendor Terms And Master Data",
+      "section_title": "CUSTOMER-003 Meridian Industrial",
+      "text": "- Reminder cadence: standard\n- Escalation owner after 45 overdue days: AR Lead\n- Preferred reminder tone: concise and firm",
+      "tokens": [
+        "customer",
+        "003",
+        "meridian",
+        "industrial",
+        "reminder",
+        "cadence",
+        "standard",
+        "escalation",
+        "owner",
+        "after",
+        "45",
+        "overdue",
+        "days",
+        "ar",
+        "lead",
+        "preferred",
+        "tone",
+        "concise",
+        "and",
+        "firm"
+      ]
+    }
+  ],
+  "token_to_chunk_ids": {
+    "ap": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AP-POLICY-005"
+    ],
+    "approval": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-003",
+      "AP-POLICY-004"
+    ],
+    "001": [
+      "AP-APPROVAL-001",
+      "AR-ESCALATION-001",
+      "AP-POLICY-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "VENDOR-001",
+      "CUSTOMER-001"
+    ],
+    "standard": [
+      "AP-APPROVAL-001",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004",
+      "CUSTOMER-001",
+      "CUSTOMER-003"
+    ],
+    "thresholds": [
+      "AP-APPROVAL-001"
+    ],
+    "use": [
+      "AP-APPROVAL-001",
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003"
+    ],
+    "the": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AP-POLICY-005",
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "gross": [
+      "AP-APPROVAL-001"
+    ],
+    "invoice": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-001",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "amount": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AP-POLICY-003",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001"
+    ],
+    "in": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-POLICY-002",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-004"
+    ],
+    "base": [
+      "AP-APPROVAL-001"
+    ],
+    "currency": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "for": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AR-ESCALATION-002",
+      "AP-POLICY-004",
+      "AP-POLICY-005",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005"
+    ],
+    "routing": [
+      "AP-APPROVAL-001"
+    ],
+    "decisions": [
+      "AP-APPROVAL-001"
+    ],
+    "range": [
+      "AP-APPROVAL-001"
+    ],
+    "required": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AP-POLICY-003",
+      "AR-TEMPLATE-003",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "action": [
+      "AP-APPROVAL-001",
+      "AR-ESCALATION-001",
+      "AP-POLICY-005",
+      "AR-TEMPLATE-003"
+    ],
+    "approver": [
+      "AP-APPROVAL-001"
+    ],
+    "up": [
+      "AP-APPROVAL-001",
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005"
+    ],
+    "to": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-004",
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005"
+    ],
+    "000": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-004"
+    ],
+    "auto": [
+      "AP-APPROVAL-001"
+    ],
+    "approve": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-004"
+    ],
+    "if": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AR-ESCALATION-002",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-005",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "all": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "AP-POLICY-003"
+    ],
+    "validation": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-003",
+      "AP-POLICY-004"
+    ],
+    "checks": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-003",
+      "AP-POLICY-004"
+    ],
+    "pass": [
+      "AP-APPROVAL-001"
+    ],
+    "ops": [
+      "AP-APPROVAL-001"
+    ],
+    "20": [
+      "AP-APPROVAL-001"
+    ],
+    "manual": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-004"
+    ],
+    "review": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-003",
+      "AP-POLICY-004"
+    ],
+    "finance": [
+      "AP-APPROVAL-001",
+      "AR-ESCALATION-001",
+      "AP-POLICY-005",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-002"
+    ],
+    "manager": [
+      "AP-APPROVAL-001",
+      "CUSTOMER-002"
+    ],
+    "75": [
+      "AP-APPROVAL-001"
+    ],
+    "senior": [
+      "AP-APPROVAL-001"
+    ],
+    "head": [
+      "AP-APPROVAL-001"
+    ],
+    "of": [
+      "AP-APPROVAL-001",
+      "AR-ESCALATION-001",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AR-TEMPLATE-004"
+    ],
+    "above": [
+      "AP-APPROVAL-001",
+      "AP-APPROVAL-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "executive": [
+      "AP-APPROVAL-001"
+    ],
+    "cfo": [
+      "AP-APPROVAL-001"
+    ],
+    "002": [
+      "AP-APPROVAL-002",
+      "AR-ESCALATION-002",
+      "AP-POLICY-002",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-002",
+      "VENDOR-002",
+      "CUSTOMER-002"
+    ],
+    "purchase": [
+      "AP-APPROVAL-002"
+    ],
+    "order": [
+      "AP-APPROVAL-002"
+    ],
+    "policy": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AP-POLICY-005",
+      "AR-POLICY-001",
+      "AR-POLICY-002"
+    ],
+    "is": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AR-ESCALATION-002",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "vendor": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-001",
+      "AP-POLICY-003",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "invoices": [
+      "AP-APPROVAL-002"
+    ],
+    "and": [
+      "AP-APPROVAL-002",
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AP-POLICY-005",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-001",
+      "CUSTOMER-003"
+    ],
+    "po": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-003",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "number": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AR-ESCALATION-001",
+      "AP-POLICY-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "missing": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AP-POLICY-004"
+    ],
+    "route": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-004"
+    ],
+    "case": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-001",
+      "AP-POLICY-004",
+      "AR-POLICY-002"
+    ],
+    "info": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AP-POLICY-004"
+    ],
+    "services": [
+      "AP-APPROVAL-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "can": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-001",
+      "AR-TEMPLATE-004"
+    ],
+    "proceed": [
+      "AP-APPROVAL-002"
+    ],
+    "without": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-004",
+      "AR-TEMPLATE-004"
+    ],
+    "only": [
+      "AP-APPROVAL-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-005"
+    ],
+    "explicitly": [
+      "AP-APPROVAL-002"
+    ],
+    "marked": [
+      "AP-APPROVAL-002"
+    ],
+    "as": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-003",
+      "AP-POLICY-001",
+      "AP-POLICY-002"
+    ],
+    "exempt": [
+      "AP-APPROVAL-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "terms": [
+      "AP-APPROVAL-002",
+      "AP-APPROVAL-004",
+      "AP-POLICY-003",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "document": [
+      "AP-APPROVAL-002"
+    ],
+    "003": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-003",
+      "AR-TEMPLATE-003",
+      "VENDOR-003",
+      "CUSTOMER-003"
+    ],
+    "duplicate": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "risk": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-004"
+    ],
+    "rule": [
+      "AP-APPROVAL-003",
+      "AR-POLICY-002"
+    ],
+    "matches": [
+      "AP-APPROVAL-003"
+    ],
+    "previously": [
+      "AP-APPROVAL-003"
+    ],
+    "recorded": [
+      "AP-APPROVAL-003"
+    ],
+    "from": [
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004",
+      "AP-POLICY-001",
+      "AR-POLICY-002"
+    ],
+    "same": [
+      "AP-APPROVAL-003"
+    ],
+    "should": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-005",
+      "AR-POLICY-002"
+    ],
+    "not": [
+      "AP-APPROVAL-003",
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "be": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-001",
+      "AP-POLICY-002",
+      "AP-POLICY-003",
+      "AP-POLICY-005",
+      "AR-POLICY-002"
+    ],
+    "approved": [
+      "AP-APPROVAL-003"
+    ],
+    "automatically": [
+      "AP-APPROVAL-003"
+    ],
+    "match": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-003",
+      "AR-TEMPLATE-004"
+    ],
+    "flagged": [
+      "AP-APPROVAL-003"
+    ],
+    "unless": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-001",
+      "AR-POLICY-001"
+    ],
+    "clear": [
+      "AP-APPROVAL-003"
+    ],
+    "correction": [
+      "AP-APPROVAL-003"
+    ],
+    "note": [
+      "AP-APPROVAL-003",
+      "AP-APPROVAL-004"
+    ],
+    "present": [
+      "AP-APPROVAL-003"
+    ],
+    "supporting": [
+      "AP-APPROVAL-003"
+    ],
+    "context": [
+      "AP-APPROVAL-003",
+      "AP-POLICY-001",
+      "AR-POLICY-002"
+    ],
+    "004": [
+      "AP-APPROVAL-004",
+      "AP-POLICY-004",
+      "AR-TEMPLATE-004",
+      "VENDOR-004"
+    ],
+    "mismatch": [
+      "AP-APPROVAL-004"
+    ],
+    "handling": [
+      "AP-APPROVAL-004"
+    ],
+    "payment": [
+      "AP-APPROVAL-004",
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AP-POLICY-003",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "differ": [
+      "AP-APPROVAL-004"
+    ],
+    "agreed": [
+      "AP-APPROVAL-004"
+    ],
+    "master": [
+      "AP-APPROVAL-004",
+      "AP-POLICY-003"
+    ],
+    "shortens": [
+      "AP-APPROVAL-004"
+    ],
+    "window": [
+      "AP-APPROVAL-004"
+    ],
+    "justification": [
+      "AP-APPROVAL-004"
+    ],
+    "add": [
+      "AP-APPROVAL-004"
+    ],
+    "medium": [
+      "AP-APPROVAL-004",
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005"
+    ],
+    "severity": [
+      "AP-APPROVAL-004",
+      "AP-POLICY-005"
+    ],
+    "anomaly": [
+      "AP-APPROVAL-004",
+      "AP-POLICY-005"
+    ],
+    "ar": [
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-001",
+      "CUSTOMER-003"
+    ],
+    "escalation": [
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "reminder": [
+      "AR-ESCALATION-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "cadence": [
+      "AR-ESCALATION-001",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "overdue": [
+      "AR-ESCALATION-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "days": [
+      "AR-ESCALATION-001",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "prior": [
+      "AR-ESCALATION-001"
+    ],
+    "reminders": [
+      "AR-ESCALATION-001"
+    ],
+    "determine": [
+      "AR-ESCALATION-001"
+    ],
+    "condition": [
+      "AR-ESCALATION-001"
+    ],
+    "level": [
+      "AR-ESCALATION-001",
+      "AR-POLICY-001"
+    ],
+    "expected": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-001"
+    ],
+    "no": [
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-004"
+    ],
+    "none": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-005",
+      "VENDOR-003"
+    ],
+    "send": [
+      "AR-ESCALATION-001"
+    ],
+    "first": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-002"
+    ],
+    "21": [
+      "AR-ESCALATION-001"
+    ],
+    "or": [
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AP-POLICY-002",
+      "AP-POLICY-004",
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003"
+    ],
+    "one": [
+      "AR-ESCALATION-001",
+      "AP-POLICY-005",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-002"
+    ],
+    "low": [
+      "AR-ESCALATION-001",
+      "AP-POLICY-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-005"
+    ],
+    "second": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-005"
+    ],
+    "22": [
+      "AR-ESCALATION-001"
+    ],
+    "45": [
+      "AR-ESCALATION-001",
+      "VENDOR-002",
+      "CUSTOMER-001",
+      "CUSTOMER-003"
+    ],
+    "two": [
+      "AR-ESCALATION-001"
+    ],
+    "escalate": [
+      "AR-ESCALATION-001",
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-005"
+    ],
+    "tone": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "request": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-005"
+    ],
+    "timeline": [
+      "AR-ESCALATION-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-005"
+    ],
+    "more": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-002"
+    ],
+    "than": [
+      "AR-ESCALATION-001"
+    ],
+    "three": [
+      "AR-ESCALATION-001"
+    ],
+    "high": [
+      "AR-ESCALATION-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005"
+    ],
+    "lead": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-005",
+      "CUSTOMER-001",
+      "CUSTOMER-003"
+    ],
+    "confirmation": [
+      "AR-ESCALATION-002",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004"
+    ],
+    "exception": [
+      "AR-ESCALATION-002"
+    ],
+    "customer": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004",
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "claims": [
+      "AR-ESCALATION-002"
+    ],
+    "has": [
+      "AR-ESCALATION-002",
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "been": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "made": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "but": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "remittance": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "proof": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "bank": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "attached": [
+      "AR-ESCALATION-002"
+    ],
+    "do": [
+      "AR-ESCALATION-002"
+    ],
+    "collections": [
+      "AR-ESCALATION-002"
+    ],
+    "language": [
+      "AR-ESCALATION-002",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-005"
+    ],
+    "ask": [
+      "AR-ESCALATION-002",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005"
+    ],
+    "transaction": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "reference": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004"
+    ],
+    "transfer": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "date": [
+      "AR-ESCALATION-002",
+      "AP-POLICY-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "fields": [
+      "AP-POLICY-001",
+      "AP-POLICY-003"
+    ],
+    "an": [
+      "AP-POLICY-001",
+      "AP-POLICY-003"
+    ],
+    "treated": [
+      "AP-POLICY-001"
+    ],
+    "incomplete": [
+      "AP-POLICY-001"
+    ],
+    "any": [
+      "AP-POLICY-001",
+      "AR-POLICY-002"
+    ],
+    "following": [
+      "AP-POLICY-001"
+    ],
+    "are": [
+      "AP-POLICY-001",
+      "AR-TEMPLATE-001"
+    ],
+    "name": [
+      "AP-POLICY-001",
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "due": [
+      "AP-POLICY-001",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-001"
+    ],
+    "produce": [
+      "AP-POLICY-001"
+    ],
+    "recommendation": [
+      "AP-POLICY-001",
+      "AP-POLICY-004",
+      "AR-POLICY-002"
+    ],
+    "field": [
+      "AP-POLICY-001"
+    ],
+    "recovered": [
+      "AP-POLICY-001"
+    ],
+    "trusted": [
+      "AP-POLICY-001"
+    ],
+    "extraction": [
+      "AP-POLICY-002"
+    ],
+    "expectations": [
+      "AP-POLICY-002"
+    ],
+    "structured": [
+      "AP-POLICY-002"
+    ],
+    "outputs": [
+      "AP-POLICY-002"
+    ],
+    "must": [
+      "AP-POLICY-002",
+      "AR-POLICY-001"
+    ],
+    "normalize": [
+      "AP-POLICY-002"
+    ],
+    "codes": [
+      "AP-POLICY-002"
+    ],
+    "iso": [
+      "AP-POLICY-002"
+    ],
+    "style": [
+      "AP-POLICY-002"
+    ],
+    "short": [
+      "AP-POLICY-002",
+      "AR-TEMPLATE-001"
+    ],
+    "forms": [
+      "AP-POLICY-002"
+    ],
+    "such": [
+      "AP-POLICY-002"
+    ],
+    "usd": [
+      "AP-POLICY-002",
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-004"
+    ],
+    "eur": [
+      "AP-POLICY-002"
+    ],
+    "inr": [
+      "AP-POLICY-002"
+    ],
+    "sgd": [
+      "AP-POLICY-002",
+      "VENDOR-003"
+    ],
+    "gbp": [
+      "AP-POLICY-002"
+    ],
+    "dates": [
+      "AP-POLICY-002"
+    ],
+    "captured": [
+      "AP-POLICY-002"
+    ],
+    "yyyy": [
+      "AP-POLICY-002"
+    ],
+    "mm": [
+      "AP-POLICY-002"
+    ],
+    "dd": [
+      "AP-POLICY-002"
+    ],
+    "format": [
+      "AP-POLICY-002"
+    ],
+    "when": [
+      "AP-POLICY-002",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003"
+    ],
+    "possible": [
+      "AP-POLICY-002"
+    ],
+    "ocr": [
+      "AP-POLICY-002"
+    ],
+    "parsing": [
+      "AP-POLICY-002"
+    ],
+    "quality": [
+      "AP-POLICY-002"
+    ],
+    "record": [
+      "AP-POLICY-002"
+    ],
+    "that": [
+      "AP-POLICY-002",
+      "AR-TEMPLATE-001"
+    ],
+    "warnings": [
+      "AP-POLICY-002"
+    ],
+    "instead": [
+      "AP-POLICY-002"
+    ],
+    "silently": [
+      "AP-POLICY-002"
+    ],
+    "guessing": [
+      "AP-POLICY-002"
+    ],
+    "each": [
+      "AP-POLICY-003"
+    ],
+    "evaluate": [
+      "AP-POLICY-003"
+    ],
+    "whether": [
+      "AP-POLICY-003",
+      "AR-TEMPLATE-001"
+    ],
+    "requirement": [
+      "AP-POLICY-003",
+      "AP-POLICY-004",
+      "AR-POLICY-002"
+    ],
+    "applies": [
+      "AP-POLICY-003"
+    ],
+    "satisfied": [
+      "AP-POLICY-003"
+    ],
+    "appears": [
+      "AP-POLICY-003"
+    ],
+    "crosses": [
+      "AP-POLICY-003"
+    ],
+    "threshold": [
+      "AP-POLICY-003",
+      "AP-POLICY-004"
+    ],
+    "meanings": [
+      "AP-POLICY-004"
+    ],
+    "passed": [
+      "AP-POLICY-004"
+    ],
+    "fits": [
+      "AP-POLICY-004"
+    ],
+    "conflict": [
+      "AP-POLICY-004"
+    ],
+    "based": [
+      "AP-POLICY-004"
+    ],
+    "reject": [
+      "AP-POLICY-004"
+    ],
+    "clearly": [
+      "AP-POLICY-004",
+      "AR-TEMPLATE-003"
+    ],
+    "invalid": [
+      "AP-POLICY-004"
+    ],
+    "unsupported": [
+      "AP-POLICY-004"
+    ],
+    "lacks": [
+      "AP-POLICY-004"
+    ],
+    "information": [
+      "AP-POLICY-004"
+    ],
+    "needed": [
+      "AP-POLICY-004"
+    ],
+    "decision": [
+      "AP-POLICY-004",
+      "AP-POLICY-005"
+    ],
+    "005": [
+      "AP-POLICY-005",
+      "AR-TEMPLATE-005"
+    ],
+    "reviewer": [
+      "AP-POLICY-005"
+    ],
+    "summary": [
+      "AP-POLICY-005"
+    ],
+    "concise": [
+      "AP-POLICY-005",
+      "CUSTOMER-003"
+    ],
+    "operational": [
+      "AP-POLICY-005"
+    ],
+    "it": [
+      "AP-POLICY-005",
+      "AR-TEMPLATE-004"
+    ],
+    "mention": [
+      "AP-POLICY-005",
+      "AR-POLICY-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005"
+    ],
+    "top": [
+      "AP-POLICY-005"
+    ],
+    "reason": [
+      "AP-POLICY-005"
+    ],
+    "highest": [
+      "AP-POLICY-005"
+    ],
+    "exists": [
+      "AP-POLICY-005"
+    ],
+    "next": [
+      "AP-POLICY-005"
+    ],
+    "team": [
+      "AP-POLICY-005"
+    ],
+    "follow": [
+      "AR-POLICY-001",
+      "AR-POLICY-002",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-005"
+    ],
+    "rules": [
+      "AR-POLICY-001"
+    ],
+    "drafts": [
+      "AR-POLICY-001"
+    ],
+    "stay": [
+      "AR-POLICY-001",
+      "AR-TEMPLATE-002"
+    ],
+    "professional": [
+      "AR-POLICY-001",
+      "VENDOR-003",
+      "CUSTOMER-001"
+    ],
+    "non": [
+      "AR-POLICY-001",
+      "AR-TEMPLATE-004"
+    ],
+    "hostile": [
+      "AR-POLICY-001"
+    ],
+    "available": [
+      "AR-POLICY-001"
+    ],
+    "avoid": [
+      "AR-POLICY-001",
+      "AR-TEMPLATE-004"
+    ],
+    "threatening": [
+      "AR-POLICY-001"
+    ],
+    "grounding": [
+      "AR-POLICY-002"
+    ],
+    "grounded": [
+      "AR-POLICY-002"
+    ],
+    "extracted": [
+      "AR-POLICY-002"
+    ],
+    "details": [
+      "AR-POLICY-002",
+      "AR-TEMPLATE-001"
+    ],
+    "at": [
+      "AR-POLICY-002"
+    ],
+    "least": [
+      "AR-POLICY-002"
+    ],
+    "cited": [
+      "AR-POLICY-002"
+    ],
+    "evidence": [
+      "AR-POLICY-002"
+    ],
+    "retrieved": [
+      "AR-POLICY-002"
+    ],
+    "template": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004",
+      "AR-TEMPLATE-005"
+    ],
+    "friction": [
+      "AR-TEMPLATE-001"
+    ],
+    "cases": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-003"
+    ],
+    "slightly": [
+      "AR-TEMPLATE-001"
+    ],
+    "subject": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003"
+    ],
+    "pattern": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003",
+      "AR-TEMPLATE-004"
+    ],
+    "friendly": [
+      "AR-TEMPLATE-001"
+    ],
+    "was": [
+      "AR-TEMPLATE-001"
+    ],
+    "on": [
+      "AR-TEMPLATE-001"
+    ],
+    "guidance": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-003"
+    ],
+    "assume": [
+      "AR-TEMPLATE-001"
+    ],
+    "good": [
+      "AR-TEMPLATE-001"
+    ],
+    "intent": [
+      "AR-TEMPLATE-001"
+    ],
+    "keep": [
+      "AR-TEMPLATE-001"
+    ],
+    "message": [
+      "AR-TEMPLATE-001"
+    ],
+    "already": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-002",
+      "AR-TEMPLATE-004"
+    ],
+    "initiated": [
+      "AR-TEMPLATE-001"
+    ],
+    "suggested": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "body": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "hello": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "this": [
+      "AR-TEMPLATE-001"
+    ],
+    "quick": [
+      "AR-TEMPLATE-001"
+    ],
+    "please": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "share": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "otherwise": [
+      "AR-TEMPLATE-001"
+    ],
+    "could": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "you": [
+      "AR-TEMPLATE-001",
+      "AR-TEMPLATE-004"
+    ],
+    "let": [
+      "AR-TEMPLATE-001"
+    ],
+    "us": [
+      "AR-TEMPLATE-001"
+    ],
+    "know": [
+      "AR-TEMPLATE-001"
+    ],
+    "materially": [
+      "AR-TEMPLATE-002"
+    ],
+    "sent": [
+      "AR-TEMPLATE-002"
+    ],
+    "remains": [
+      "AR-TEMPLATE-002"
+    ],
+    "unpaid": [
+      "AR-TEMPLATE-002"
+    ],
+    "polite": [
+      "AR-TEMPLATE-002"
+    ],
+    "direct": [
+      "AR-TEMPLATE-002",
+      "CUSTOMER-001"
+    ],
+    "firm": [
+      "AR-TEMPLATE-002",
+      "CUSTOMER-003"
+    ],
+    "previous": [
+      "AR-TEMPLATE-002"
+    ],
+    "where": [
+      "AR-TEMPLATE-002"
+    ],
+    "relevant": [
+      "AR-TEMPLATE-002"
+    ],
+    "escalated": [
+      "AR-TEMPLATE-003"
+    ],
+    "requested": [
+      "AR-TEMPLATE-003"
+    ],
+    "state": [
+      "AR-TEMPLATE-003"
+    ],
+    "status": [
+      "AR-TEMPLATE-003"
+    ],
+    "immediate": [
+      "AR-TEMPLATE-003"
+    ],
+    "plan": [
+      "AR-TEMPLATE-003"
+    ],
+    "stakeholders": [
+      "AR-TEMPLATE-003"
+    ],
+    "claim": [
+      "AR-TEMPLATE-004"
+    ],
+    "says": [
+      "AR-TEMPLATE-004"
+    ],
+    "there": [
+      "AR-TEMPLATE-004"
+    ],
+    "acknowledge": [
+      "AR-TEMPLATE-004"
+    ],
+    "update": [
+      "AR-TEMPLATE-004"
+    ],
+    "accusing": [
+      "AR-TEMPLATE-004"
+    ],
+    "thanks": [
+      "AR-TEMPLATE-004"
+    ],
+    "we": [
+      "AR-TEMPLATE-004"
+    ],
+    "have": [
+      "AR-TEMPLATE-004"
+    ],
+    "yet": [
+      "AR-TEMPLATE-004"
+    ],
+    "able": [
+      "AR-TEMPLATE-004"
+    ],
+    "our": [
+      "AR-TEMPLATE-004"
+    ],
+    "records": [
+      "AR-TEMPLATE-004"
+    ],
+    "advice": [
+      "AR-TEMPLATE-004"
+    ],
+    "so": [
+      "AR-TEMPLATE-004"
+    ],
+    "reconcile": [
+      "AR-TEMPLATE-004"
+    ],
+    "notes": [
+      "AR-TEMPLATE-005"
+    ],
+    "still": [
+      "AR-TEMPLATE-005"
+    ],
+    "collaborative": [
+      "AR-TEMPLATE-005",
+      "CUSTOMER-002"
+    ],
+    "explicit": [
+      "AR-TEMPLATE-005"
+    ],
+    "internal": [
+      "AR-TEMPLATE-005"
+    ],
+    "urgent": [
+      "AR-TEMPLATE-005"
+    ],
+    "resolution": [
+      "AR-TEMPLATE-005"
+    ],
+    "northstar": [
+      "VENDOR-001"
+    ],
+    "office": [
+      "VENDOR-001"
+    ],
+    "supplies": [
+      "VENDOR-001"
+    ],
+    "category": [
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "net": [
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "30": [
+      "VENDOR-001",
+      "VENDOR-004",
+      "CUSTOMER-002"
+    ],
+    "matching": [
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "key": [
+      "VENDOR-001",
+      "VENDOR-002",
+      "VENDOR-003",
+      "VENDOR-004"
+    ],
+    "bluewave": [
+      "VENDOR-002"
+    ],
+    "logistics": [
+      "VENDOR-002"
+    ],
+    "lumina": [
+      "VENDOR-003"
+    ],
+    "creative": [
+      "VENDOR-003"
+    ],
+    "studio": [
+      "VENDOR-003"
+    ],
+    "15": [
+      "VENDOR-003"
+    ],
+    "yes": [
+      "VENDOR-003"
+    ],
+    "quartz": [
+      "VENDOR-004"
+    ],
+    "cloud": [
+      "VENDOR-004"
+    ],
+    "systems": [
+      "VENDOR-004"
+    ],
+    "software": [
+      "VENDOR-004"
+    ],
+    "aster": [
+      "CUSTOMER-001"
+    ],
+    "retail": [
+      "CUSTOMER-001"
+    ],
+    "owner": [
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "after": [
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "preferred": [
+      "CUSTOMER-001",
+      "CUSTOMER-002",
+      "CUSTOMER-003"
+    ],
+    "horizon": [
+      "CUSTOMER-002"
+    ],
+    "health": [
+      "CUSTOMER-002"
+    ],
+    "group": [
+      "CUSTOMER-002"
+    ],
+    "gentle": [
+      "CUSTOMER-002"
+    ],
+    "meridian": [
+      "CUSTOMER-003"
+    ],
+    "industrial": [
+      "CUSTOMER-003"
+    ]
+  }
+}

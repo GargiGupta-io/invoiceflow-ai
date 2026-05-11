@@ -55,6 +55,7 @@ Primary use cases:
 - Step 7 complete: OCR fallback added for scanned or image-based PDF pages through `app/ingest/ocr.py`.
 - Step 8 complete: extractor agent added with a strict schema-aligned output path, heuristic development mode, and LLM-ready prompt.
 - Step 9 complete: schema validation retry path added for extraction, including local repair and LLM repair prompt flow.
+- Step 10 complete: KB markdown files now chunk into citeable sections and build into a deterministic lexical index for retrieval.
 
 ## Success Criteria
 
@@ -112,7 +113,7 @@ Primary use cases:
 
 ### Phase 3: Retrieval And Case Routing
 
-10. Chunk and index the finance knowledge base
+10. Chunk and index the finance knowledge base [done]
 11. Implement retrieval with scored evidence and source references
 12. Build a router that classifies cases into AP or AR workflows
 13. Add policy assembly logic so the downstream decision is always grounded in retrieved context
@@ -154,7 +155,7 @@ Phase 2
   Step 9  Add schema validation and retry behavior [done]
 
 Phase 3
-  Step 10 Chunk and index the finance KB
+  Step 10 Chunk and index the finance KB [done]
   Step 11 Build retrieval with citations
   Step 12 Route cases into AP or AR flows
   Step 13 Assemble grounded policy context for downstream decisions
