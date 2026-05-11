@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -48,6 +48,7 @@ class ExtractorAgent:
     llm_client: Any | None = None
     excerpt_chars: int = 500
     max_validation_retries: int = 2
+    last_mode_used: str | None = field(default=None, init=False)
 
     def extract(self, document: DocumentText) -> InvoiceExtraction:
         """Extract structured fields from a loaded document."""
@@ -57,12 +58,16 @@ class ExtractorAgent:
             raise ExtractionError(f"Unsupported extractor mode: {self.mode}")
 
         if mode == "heuristic":
+            self.last_mode_used = "heuristic"
             return self._extract_with_heuristics(document)
         if mode == "llm":
+            self.last_mode_used = "llm"
             return self._extract_with_llm(document)
 
         if self._has_llm_configuration():
+            self.last_mode_used = "llm"
             return self._extract_with_llm(document)
+        self.last_mode_used = "heuristic"
         return self._extract_with_heuristics(document)
 
     def _extract_with_llm(self, document: DocumentText) -> InvoiceExtraction:
