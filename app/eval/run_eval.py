@@ -17,6 +17,7 @@ def run_evaluation(
     dataset_path: str | Path = DEFAULT_DATASET_PATH,
     *,
     extractor_mode_override: str | None = None,
+    prompt_path_override: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run the evaluation dataset and return a structured summary."""
 
@@ -31,12 +32,14 @@ def run_evaluation(
                 case=case,
                 dataset_file=dataset_file,
                 extractor_mode=extractor_mode,
+                prompt_path=prompt_path_override,
             )
         )
 
     return {
         "dataset_name": dataset.get("dataset_name", dataset_file.stem),
         "extractor_mode": extractor_mode,
+        "prompt_path": str(Path(prompt_path_override).expanduser().resolve()) if prompt_path_override else None,
         "summary": _build_summary(case_results),
         "cases": case_results,
     }
@@ -47,13 +50,18 @@ def _evaluate_case(
     case: dict[str, Any],
     dataset_file: Path,
     extractor_mode: str,
+    prompt_path: str | Path | None,
 ) -> dict[str, Any]:
     sample_id = case["sample_id"]
     expected_output_path = _resolve_expected_output_path(dataset_file, case["expected_output"])
     expected = json.loads(expected_output_path.read_text(encoding="utf-8"))
 
     started = time.perf_counter()
-    actual = run_workflow_from_sample(sample_id, extractor_mode=extractor_mode)
+    actual = run_workflow_from_sample(
+        sample_id,
+        extractor_mode=extractor_mode,
+        prompt_path=prompt_path,
+    )
     latency_ms = round((time.perf_counter() - started) * 1000, 2)
 
     workflow_result = actual["workflow_result"]

@@ -68,6 +68,7 @@ Primary use cases:
 - Step 20 complete: README rewritten with architecture, workflow, setup, UI/API usage, evaluation, limitations, and demo instructions.
 - Step 21 complete: showcase assets added for a 60-90 second demo, resume bullets, and application-ready project summary.
 - Step 22 complete: TTS-safe AR subject and follow-up output added for readable dates, amounts, and identifiers.
+- Step 23 complete: extractor prompt A/B comparison added with a second prompt variant, structural audit, and optional runtime eval path.
 
 ## Success Criteria
 
@@ -147,7 +148,7 @@ Primary use cases:
 ### Phase 6: Stretch Goals
 
 22. Add TTS-safe follow-up text formatting for dates, amounts, and identifiers [done]
-23. Add prompt version comparison or A/B evaluation
+23. Add prompt version comparison or A/B evaluation [done]
 24. Add an audit trail showing retrieved chunks, prompt version, latency, and final recommendation
 
 ## Step Order
@@ -186,7 +187,7 @@ Phase 5
 
 Phase 6
   Step 22 Add TTS-safe follow-up formatting [done]
-  Step 23 Add prompt A/B evaluation
+  Step 23 Add prompt A/B evaluation [done]
   Step 24 Add audit trail for evidence, prompt version, and latency
 ```
 

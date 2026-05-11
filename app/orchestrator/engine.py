@@ -58,11 +58,21 @@ def resolve_sample_path(sample_id: str) -> Path:
     raise FileNotFoundError(f"Unknown sample id: {sample_id}")
 
 
-def run_workflow_from_sample(sample_id: str, *, extractor_mode: str = "heuristic") -> dict[str, Any]:
+def run_workflow_from_sample(
+    sample_id: str,
+    *,
+    extractor_mode: str = "heuristic",
+    prompt_path: str | Path | None = None,
+) -> dict[str, Any]:
     """Run the full workflow using one of the built-in sample cases."""
 
     sample_path = resolve_sample_path(sample_id)
-    return run_workflow_from_path(sample_path, extractor_mode=extractor_mode, source_kind="sample")
+    return run_workflow_from_path(
+        sample_path,
+        extractor_mode=extractor_mode,
+        prompt_path=prompt_path,
+        source_kind="sample",
+    )
 
 
 def run_workflow_from_upload(
@@ -93,6 +103,7 @@ def run_workflow_from_path(
     path: str | Path,
     *,
     extractor_mode: str = "auto",
+    prompt_path: str | Path | None = None,
     source_kind: str = "file",
     original_filename: str | None = None,
 ) -> dict[str, Any]:
@@ -100,7 +111,10 @@ def run_workflow_from_path(
 
     source_path = Path(path).expanduser().resolve()
     index = _load_or_build_knowledge_index()
-    extractor = ExtractorAgent(mode=extractor_mode)
+    extractor_kwargs: dict[str, Any] = {"mode": extractor_mode}
+    if prompt_path is not None:
+        extractor_kwargs["prompt_path"] = Path(prompt_path).expanduser().resolve()
+    extractor = ExtractorAgent(**extractor_kwargs)
 
     document = read_document_text(source_path)
     extraction = extractor.extract(document)

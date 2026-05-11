@@ -220,6 +220,17 @@ The eval runner checks:
 - AR draft mention coverage
 - case latency
 
+Prompt A/B comparison:
+
+```bash
+python -m app.eval.prompt_ab
+```
+
+That script:
+- compares `extractor_v1` vs `extractor_v2`
+- always runs a structural prompt audit
+- runs dataset-level runtime comparison too when `OPENAI_API_KEY` is configured
+
 The current heuristic baseline already shows:
 - workflow routing is correct
 - anomaly checks are strong
@@ -265,6 +276,7 @@ Best short walkthrough:
 
 - improve evidence selection so expected policy IDs are covered more reliably
 - tighten AR subject/body phrasing against eval expectations
+- run prompt A/B comparison with a configured LLM path and keep the stronger extractor prompt
 - add deployment instructions and live hosting
 - record a short demo video
 - add a final pass on README screenshots and operator flow
