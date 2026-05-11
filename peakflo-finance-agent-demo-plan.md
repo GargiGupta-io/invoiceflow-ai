@@ -62,6 +62,7 @@ Primary use cases:
 - Step 14 complete: AP decision logic added for approve, review, and missing-info outcomes, including anomaly flags and reviewer summaries.
 - Step 15 complete: AR drafting flow added for reminder, escalation, and payment-confirmation follow-up cases.
 - Step 16 complete: shared workflow policy assessment added for AP anomalies, line-item amount mismatch, and AR escalation triggers.
+- Step 17 complete: full extraction, routing, retrieval, and decision flow wired behind FastAPI sample and upload endpoints.
 
 ## Success Criteria
 
@@ -129,7 +130,7 @@ Primary use cases:
 14. Build the AP decision flow for approve / review / reject / missing-info recommendations [done]
 15. Build the AR drafting flow for overdue follow-up emails [done]
 16. Add anomaly flags such as missing PO, amount mismatch, duplicate invoice number, or overdue escalation triggers [done]
-17. Wire the full multi-agent flow behind FastAPI endpoints
+17. Wire the full multi-agent flow behind FastAPI endpoints [done]
 
 ### Phase 5: Evaluation, UI, And Submission Polish
 
@@ -170,7 +171,7 @@ Phase 4
   Step 14 Build AP recommendation flow [done]
   Step 15 Build AR follow-up drafting flow [done]
   Step 16 Add anomaly flags and escalation triggers [done]
-  Step 17 Expose the full flow through FastAPI endpoints
+  Step 17 Expose the full flow through FastAPI endpoints [done]
 
 Phase 5
   Step 18 Build eval dataset and eval runner
