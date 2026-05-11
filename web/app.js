@@ -108,6 +108,7 @@ function populateSamples(samples) {
 
 function renderResult(payload) {
   const workflow = payload.workflow_result || {};
+  const audit = payload.audit_trail || {};
   const route = payload.route || {};
   const context = payload.grounded_context || {};
   const policy = payload.policy_assessment || {};
@@ -140,9 +141,7 @@ function renderResult(payload) {
   renderEvidence(evidenceList, evidence);
 
   evidenceCount.textContent = String(evidence.length);
-  confidenceText.textContent = finalDecision.confidence != null
-    ? `Confidence ${finalDecision.confidence}`
-    : "No confidence returned.";
+  confidenceText.textContent = buildAuditMeta(finalDecision.confidence, audit);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
 }
@@ -228,6 +227,24 @@ function prettifyWorkflow(value) {
     return "Accounts Receivable";
   }
   return value;
+}
+
+function buildAuditMeta(confidence, audit) {
+  const parts = [];
+  if (confidence != null) {
+    parts.push(`Confidence ${confidence}`);
+  }
+  if (audit.total_latency_ms != null) {
+    parts.push(`Latency ${audit.total_latency_ms} ms`);
+  }
+  if (audit.prompt_version) {
+    const mode = audit.effective_extractor_mode ? ` (${audit.effective_extractor_mode})` : "";
+    parts.push(`Prompt ${audit.prompt_version}${mode}`);
+  }
+  if (parts.length === 0) {
+    return "No confidence returned.";
+  }
+  return parts.join(" | ");
 }
 
 function formatError(error) {

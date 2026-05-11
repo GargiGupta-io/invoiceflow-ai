@@ -49,6 +49,7 @@ Implemented:
 - AP decision flow
 - AR drafting flow
 - TTS-safe AR follow-up variants for dates, amounts, and identifiers
+- workflow audit trail with prompt version, stage timings, retrieved chunks, and final action
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -183,6 +184,7 @@ Use `/ui` to:
 - run built-in sample workflows
 - upload a local file
 - inspect route, decision, anomalies/triggers, evidence, and raw JSON
+- inspect latency and prompt-version metadata in the summary line
 
 ### API Routes
 
@@ -192,6 +194,16 @@ Use `/ui` to:
 - `GET /samples`
 - `POST /workflow/sample`
 - `POST /workflow/upload`
+
+Workflow responses now include:
+- `audit_trail.requested_extractor_mode`
+- `audit_trail.effective_extractor_mode`
+- `audit_trail.prompt_version`
+- `audit_trail.stage_latencies_ms`
+- `audit_trail.total_latency_ms`
+- `audit_trail.final_recommendation`
+- `audit_trail.evidence_sources`
+- `audit_trail.retrieved_chunks`
 
 ### Sample Run
 
