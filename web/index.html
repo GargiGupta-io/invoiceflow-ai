@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peakflo Finance Agent Demo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Peakflo-Shaped Workflow Demo</p>
+        <h1>Finance operations console for AP approvals and AR follow-ups.</h1>
+        <p class="hero-text">
+          Run the full extraction, routing, retrieval, and decision flow from built-in sample cases
+          or upload a document to inspect grounded workflow output.
+        </p>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-label">Workflows</span>
+          <strong>AP + AR</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Grounding</span>
+          <strong>Cited policy evidence</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Output</span>
+          <strong>Structured decisions</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel controls-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Run Samples</p>
+            <h2>Built-in scenarios</h2>
+          </div>
+          <span class="status-pill" id="sample-status">Idle</span>
+        </div>
+        <form id="sample-form" class="form-stack">
+          <label class="field">
+            <span>Sample case</span>
+            <select id="sample-select" name="sample_id"></select>
+          </label>
+          <label class="field">
+            <span>Extractor mode</span>
+            <select id="sample-mode" name="extractor_mode">
+              <option value="heuristic">heuristic</option>
+              <option value="auto">auto</option>
+              <option value="llm">llm</option>
+            </select>
+          </label>
+          <button type="submit" class="primary-button">Run sample workflow</button>
+        </form>
+      </section>
+
+      <section class="panel controls-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Upload</p>
+            <h2>Operator file check</h2>
+          </div>
+          <span class="status-pill" id="upload-status">Idle</span>
+        </div>
+        <form id="upload-form" class="form-stack">
+          <label class="field">
+            <span>Document file</span>
+            <input id="upload-file" name="file" type="file" accept=".txt,.md,.pdf">
+          </label>
+          <label class="field">
+            <span>Extractor mode</span>
+            <select id="upload-mode" name="extractor_mode">
+              <option value="auto">auto</option>
+              <option value="heuristic">heuristic</option>
+              <option value="llm">llm</option>
+            </select>
+          </label>
+          <button type="submit" class="secondary-button">Upload and run workflow</button>
+        </form>
+      </section>
+
+      <section class="panel results-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Workflow Output</p>
+            <h2>Result overview</h2>
+          </div>
+          <span class="status-pill neutral" id="result-kind">No result</span>
+        </div>
+        <div class="result-grid">
+          <article class="result-card">
+            <span class="result-label">Route</span>
+            <strong id="route-value">-</strong>
+            <p id="route-reason">Run a sample or upload a file to see the workflow route.</p>
+          </article>
+          <article class="result-card">
+            <span class="result-label">Final action</span>
+            <strong id="decision-value">-</strong>
+            <p id="decision-summary">No decision has been generated yet.</p>
+          </article>
+          <article class="result-card">
+            <span class="result-label">Evidence count</span>
+            <strong id="evidence-count">0</strong>
+            <p id="confidence-text">Confidence will appear here after a run.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel detail-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Grounded Detail</p>
+            <h2>Evidence and policy checks</h2>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-column">
+            <h3>Anomalies / Triggers</h3>
+            <div id="anomaly-list" class="tag-list empty-state">No anomalies yet.</div>
+            <h3>Matched signals</h3>
+            <div id="signal-list" class="tag-list empty-state">No signals yet.</div>
+          </div>
+          <div class="detail-column">
+            <h3>Evidence</h3>
+            <div id="evidence-list" class="evidence-list empty-state">No evidence yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel raw-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Raw Output</p>
+            <h2>Structured JSON</h2>
+          </div>
+        </div>
+        <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
+
+WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 
 app = FastAPI(
     title="Peakflo Finance Agent Demo",
@@ -15,6 +21,8 @@ app = FastAPI(
         "retrieves grounded policy evidence, routes AP/AR cases, and returns a final decision."
     ),
 )
+
+app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
 
 class SampleWorkflowRequest(BaseModel):
@@ -31,12 +39,18 @@ def root() -> dict:
         "name": "Peakflo Finance Agent Demo",
         "version": "0.1.0",
         "endpoints": [
+            "/ui",
             "/health",
             "/samples",
             "/workflow/sample",
             "/workflow/upload",
         ],
     }
+
+
+@app.get("/ui", response_class=FileResponse)
+def ui() -> FileResponse:
+    return FileResponse(WEB_DIR / "index.html")
 
 
 @app.get("/health")

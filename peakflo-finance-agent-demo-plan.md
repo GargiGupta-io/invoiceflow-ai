@@ -64,6 +64,7 @@ Primary use cases:
 - Step 16 complete: shared workflow policy assessment added for AP anomalies, line-item amount mismatch, and AR escalation triggers.
 - Step 17 complete: full extraction, routing, retrieval, and decision flow wired behind FastAPI sample and upload endpoints.
 - Step 18 complete: evaluation dataset and eval runner added for extraction checks, decision checks, citation coverage, and latency scoring.
+- Step 19 complete: minimal operator UI added for running sample/upload workflows and inspecting route, decision, anomaly, evidence, and raw JSON output.
 
 ## Success Criteria
 
@@ -136,7 +137,7 @@ Primary use cases:
 ### Phase 5: Evaluation, UI, And Submission Polish
 
 18. Build a small evaluation dataset and a script for structured-output validity, grounding quality, and latency [done]
-19. Build a minimal UI for upload, retrieved evidence, and final decision display
+19. Build a minimal UI for upload, retrieved evidence, and final decision display [done]
 20. Update the README with architecture, workflow, evaluation, known limitations, and demo instructions
 21. Record a 60-90 second demo and prepare resume/project bullets
 
@@ -176,7 +177,7 @@ Phase 4
 
 Phase 5
   Step 18 Build eval dataset and eval runner [done]
-  Step 19 Build minimal upload/results UI
+  Step 19 Build minimal upload/results UI [done]
   Step 20 Finish README with architecture, eval, and limitations
   Step 21 Record demo and prep resume/project bullets
 
