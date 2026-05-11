@@ -66,6 +66,7 @@ Primary use cases:
 - Step 18 complete: evaluation dataset and eval runner added for extraction checks, decision checks, citation coverage, and latency scoring.
 - Step 19 complete: minimal operator UI added for running sample/upload workflows and inspecting route, decision, anomaly, evidence, and raw JSON output.
 - Step 20 complete: README rewritten with architecture, workflow, setup, UI/API usage, evaluation, limitations, and demo instructions.
+- Step 21 complete: showcase assets added for a 60-90 second demo, resume bullets, and application-ready project summary.
 
 ## Success Criteria
 
@@ -140,7 +141,7 @@ Primary use cases:
 18. Build a small evaluation dataset and a script for structured-output validity, grounding quality, and latency [done]
 19. Build a minimal UI for upload, retrieved evidence, and final decision display [done]
 20. Update the README with architecture, workflow, evaluation, known limitations, and demo instructions [done]
-21. Record a 60-90 second demo and prepare resume/project bullets
+21. Record a 60-90 second demo and prepare resume/project bullets [done]
 
 ### Phase 6: Stretch Goals
 
@@ -180,7 +181,7 @@ Phase 5
   Step 18 Build eval dataset and eval runner [done]
   Step 19 Build minimal upload/results UI [done]
   Step 20 Finish README with architecture, eval, and limitations [done]
-  Step 21 Record demo and prep resume/project bullets
+  Step 21 Record demo and prep resume/project bullets [done]
 
 Phase 6
   Step 22 Add TTS-safe follow-up formatting

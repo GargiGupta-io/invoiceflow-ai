@@ -135,6 +135,8 @@ Output:
 peakflo-finance-agent-demo/
 |- api/
 |  `- main.py
+|- docs/
+|  `- showcase.md
 |- app/
 |  |- agents/
 |  |- eval/
@@ -150,6 +152,10 @@ peakflo-finance-agent-demo/
 |  `- invoices/
 `- web/
 ```
+
+## Showcase Assets
+
+- `docs/showcase.md` contains the demo script, recorder checklist, resume bullets, and application blurb for this project.
 
 ## Quick Start
 
