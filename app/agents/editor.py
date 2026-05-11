@@ -8,6 +8,7 @@ from typing import Any, Protocol
 from ..schemas.decision import ARDecision, EscalationLevel
 from .policy import ARWorkflowAssessment, assess_accounts_receivable
 from .research import GroundedPolicyContext
+from .tts import tts_safe_amount_text, tts_safe_date_text, tts_safe_identifier
 
 
 class ARExtractionLike(Protocol):
@@ -38,6 +39,11 @@ def draft_accounts_receivable(
         extraction=extraction,
         assessment=assessment,
     )
+    subject_tts = _build_subject_tts(extraction, assessment)
+    draft_tts = _build_followup_draft_tts(
+        extraction=extraction,
+        assessment=assessment,
+    )
     confidence = _estimate_confidence(context, assessment)
     evidence = _select_evidence(context)
 
@@ -45,6 +51,8 @@ def draft_accounts_receivable(
         escalation_level=escalation_level,
         followup_subject=subject,
         followup_draft=draft,
+        followup_subject_tts=subject_tts,
+        followup_draft_tts=draft_tts,
         evidence=evidence,
         confidence=confidence,
     )
@@ -120,6 +128,78 @@ def _build_followup_draft(
         f"Invoice {invoice_number} for {amount_text} is now significantly overdue beyond {due_date_text}. "
         "We need urgent confirmation of payment status or a firm resolution plan today so this can be closed without further escalation.\n\n"
         f"{tone_line}"
+    )
+
+
+def _build_subject_tts(
+    extraction: ARExtractionLike,
+    assessment: ARWorkflowAssessment,
+) -> str:
+    invoice_number_text = tts_safe_identifier(extraction.invoice_number, label="invoice")
+    if assessment.payment_claim:
+        return f"Follow-up on payment confirmation for {invoice_number_text}"
+    if assessment.escalation_level == EscalationLevel.NONE:
+        return f"Friendly reminder. {invoice_number_text} was due on {tts_safe_date_text(extraction.due_date)}"
+    if assessment.escalation_level == EscalationLevel.LOW:
+        return f"Second reminder. {invoice_number_text} remains unpaid"
+    return f"Action requested. Overdue {invoice_number_text}"
+
+
+def _build_followup_draft_tts(
+    *,
+    extraction: ARExtractionLike,
+    assessment: ARWorkflowAssessment,
+) -> str:
+    customer_name = extraction.customer_name or "team"
+    invoice_number_text = tts_safe_identifier(extraction.invoice_number, label="invoice number")
+    amount_text = tts_safe_amount_text(extraction.amount, extraction.currency)
+    due_date_text = tts_safe_date_text(extraction.due_date)
+    tone_line = _tone_sentence(assessment.customer_policy.preferred_tone)
+
+    if assessment.payment_claim:
+        return (
+            f"Hello {customer_name}. "
+            f"This is a follow-up on {invoice_number_text} for {amount_text}. "
+            "We have not matched the payment in our records yet. "
+            "Please share the transfer date, transaction reference, and remittance advice so we can reconcile it."
+            f" {tone_line}"
+        )
+
+    if assessment.escalation_level == EscalationLevel.NONE:
+        return (
+            f"Hello {customer_name}. "
+            f"This is a quick reminder that {invoice_number_text} for {amount_text} was due on {due_date_text}. "
+            "If payment has already been initiated, please share the transfer details. "
+            "Otherwise, please let us know the expected payment date."
+            f" {tone_line}"
+        )
+
+    if assessment.escalation_level == EscalationLevel.LOW:
+        reminder_line = ""
+        if (assessment.prior_reminders or 0) >= 1:
+            reminder_line = "This follows our earlier reminder on the same invoice. "
+        return (
+            f"Hello {customer_name}. "
+            f"{invoice_number_text} for {amount_text} remains unpaid after its due date of {due_date_text}. "
+            f"{reminder_line}"
+            "Please share a firm payment timeline or let us know if there is any issue on your side."
+            f" {tone_line}"
+        )
+
+    if assessment.escalation_level == EscalationLevel.MEDIUM:
+        return (
+            f"Hello {customer_name}. "
+            f"{invoice_number_text} for {amount_text} remains overdue since {due_date_text}. "
+            "We have already followed up and still do not have a confirmed payment date. "
+            "Please send immediate confirmation of status or share a payment plan so we can align next steps."
+            f" {tone_line}"
+        )
+
+    return (
+        f"Hello {customer_name}. "
+        f"{invoice_number_text} for {amount_text} is now significantly overdue beyond {due_date_text}. "
+        "We need urgent confirmation of payment status or a firm resolution plan today so this can be closed without further escalation."
+        f" {tone_line}"
     )
 
 

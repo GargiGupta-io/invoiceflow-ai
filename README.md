@@ -48,6 +48,7 @@ Implemented:
 - AP vs AR routing
 - AP decision flow
 - AR drafting flow
+- TTS-safe AR follow-up variants for dates, amounts, and identifiers
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -127,6 +128,7 @@ Output:
 - escalation level
 - subject line
 - follow-up email draft
+- TTS-safe subject and follow-up draft
 - cited evidence
 
 ## Repository Layout
@@ -255,6 +257,7 @@ Best short walkthrough:
   runtime configuration.
 - Citation selection is not yet strong enough to satisfy every strict eval
   target.
+- TTS-safe output is currently implemented for AR follow-up text only.
 - The UI is intentionally minimal and optimized for inspection, not production
   polish.
 

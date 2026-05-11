@@ -67,6 +67,7 @@ Primary use cases:
 - Step 19 complete: minimal operator UI added for running sample/upload workflows and inspecting route, decision, anomaly, evidence, and raw JSON output.
 - Step 20 complete: README rewritten with architecture, workflow, setup, UI/API usage, evaluation, limitations, and demo instructions.
 - Step 21 complete: showcase assets added for a 60-90 second demo, resume bullets, and application-ready project summary.
+- Step 22 complete: TTS-safe AR subject and follow-up output added for readable dates, amounts, and identifiers.
 
 ## Success Criteria
 
@@ -145,7 +146,7 @@ Primary use cases:
 
 ### Phase 6: Stretch Goals
 
-22. Add TTS-safe follow-up text formatting for dates, amounts, and identifiers
+22. Add TTS-safe follow-up text formatting for dates, amounts, and identifiers [done]
 23. Add prompt version comparison or A/B evaluation
 24. Add an audit trail showing retrieved chunks, prompt version, latency, and final recommendation
 
@@ -184,7 +185,7 @@ Phase 5
   Step 21 Record demo and prep resume/project bullets [done]
 
 Phase 6
-  Step 22 Add TTS-safe follow-up formatting
+  Step 22 Add TTS-safe follow-up formatting [done]
   Step 23 Add prompt A/B evaluation
   Step 24 Add audit trail for evidence, prompt version, and latency
 ```

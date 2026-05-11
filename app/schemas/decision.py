@@ -59,6 +59,8 @@ class ARDecision(BaseModel):
     escalation_level: EscalationLevel = Field(..., description="Recommended AR escalation level.")
     followup_subject: str = Field(..., min_length=5, description="Suggested email subject line.")
     followup_draft: str = Field(..., min_length=40, description="Grounded follow-up email body.")
+    followup_subject_tts: str = Field(..., min_length=5, description="Voice-safe subject line for TTS or calling workflows.")
+    followup_draft_tts: str = Field(..., min_length=40, description="Voice-safe follow-up body with readable dates, amounts, and identifiers.")
     evidence: list[EvidenceItem] = Field(..., min_length=1, description="Grounding evidence supporting the draft.")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Estimated model confidence from 0 to 1.")
 
