@@ -1,191 +1,261 @@
 # Peakflo Finance Agent Demo
 
-A focused finance workflow AI demo built to show OCR-assisted extraction, retrieval-grounded reasoning, agent-style orchestration, and Python backend engineering in a form that closely matches the Peakflo ML Engineer Intern role.
+A finance workflow AI demo built to match the shape of the Peakflo ML Engineer
+Intern role: document ingestion, structured extraction, retrieval-grounded
+reasoning, workflow routing, and business-action output for AP and AR cases.
 
-## Status
+## What It Does
 
-Scaffolded. Core workflows, schemas, knowledge-base docs, sample data, document
-ingestion, structured extraction, knowledge indexing, citeable retrieval,
-workflow routing, grounded policy assembly, AP decision logic, AR drafting,
-shared anomaly/workflow assessment, FastAPI endpoint wiring, evaluation, and a
-minimal operator UI are in place. Final demo packaging and README polish are the
-main pending pieces now.
-
-## Goal
-
-Build a small but credible workflow system that can:
-- ingest an invoice PDF or finance-related email
-- extract structured fields
-- retrieve policy and approval context
-- route the case into AP or AR workflow
-- return a grounded recommendation or follow-up draft
-
-## Target Workflows
+The project supports two narrow workflows:
 
 ### Accounts Payable
-- invoice ingestion
-- structured extraction
-- policy retrieval
-- approval / review / reject recommendation
+- ingest an invoice document
+- extract structured fields
+- retrieve approval and vendor policy context
+- return one of:
+  - `approve`
+  - `review`
+  - `reject`
+  - `missing_info`
 
 ### Accounts Receivable
-- overdue invoice context review
-- reminder and escalation retrieval
-- grounded follow-up email drafting
+- ingest an overdue invoice case or customer finance email
+- retrieve reminder and escalation guidance
+- draft a grounded follow-up email
+- return an escalation level plus evidence
 
-## Locked Workflow Scope
+## Why This Project Exists
 
-This project supports exactly two business flows:
+This repo is intentionally shaped around the kind of problems Peakflo is hiring
+for:
 
-### Flow A: AP Invoice Review
+- OCR-assisted document ingestion
+- structured extraction
+- retrieval-grounded workflow reasoning
+- policy-aware automation
+- Python backend systems
+- evaluation and reliability thinking
 
-Input:
-- invoice PDF or scanned invoice
-- optional vendor context
+## Current Status
 
-Output:
-- extracted structured invoice fields
-- detected anomalies
-- approval recommendation: `approve`, `review`, `reject`, or `missing_info`
-- cited policy evidence
-- short reviewer summary
+Implemented:
+- sample and upload ingestion
+- PDF parsing with OCR fallback hooks
+- strict extraction schema
+- deterministic development extractor
+- retrieval-ready finance knowledge base
+- policy retrieval with citations
+- AP vs AR routing
+- AP decision flow
+- AR drafting flow
+- shared anomaly and escalation assessment
+- FastAPI backend
+- operator UI at `/ui`
+- evaluation dataset and runner
 
-Core checks:
-- missing purchase order
-- amount above approval threshold
-- duplicate invoice identifier
-- payment terms mismatch
-- incomplete vendor details
+Still worth improving:
+- citation coverage against the strict eval targets
+- AR subject/draft phrasing coverage
+- production-grade OCR/runtime setup
+- live deployment and final demo recording
 
-### Flow B: AR Overdue Follow-Up
-
-Input:
-- overdue invoice record or customer finance email
-- reminder history and escalation rules
-
-Output:
-- extracted case context
-- follow-up status assessment
-- recommended escalation level
-- grounded follow-up email draft
-- cited policy evidence
-
-Core checks:
-- invoice age vs reminder policy
-- previous reminder count
-- escalation threshold crossed
-- missing payment confirmation
-
-## Demo Scenarios
-
-The demo should focus on a small fixed set of believable cases instead of open-ended chat.
-
-### AP Scenarios
-
-1. Clean invoice under threshold
-- expected result: `approve`
-- reason: fields complete, no policy conflicts
-
-2. Invoice missing PO number
-- expected result: `missing_info`
-- reason: required procurement reference absent
-
-3. Invoice above manual approval threshold
-- expected result: `review`
-- reason: amount triggers extra approval step
-
-4. Duplicate invoice number
-- expected result: `review`
-- reason: possible duplicate payment risk
-
-### AR Scenarios
-
-5. First overdue reminder
-- expected result: polite follow-up email
-- reason: overdue but not yet escalated
-
-6. Repeated overdue case past escalation window
-- expected result: stronger escalation-aware follow-up
-- reason: reminder threshold exceeded
-
-7. Customer claims payment sent but no confirmation exists
-- expected result: evidence-seeking follow-up
-- reason: ambiguous payment status
-
-## Planned Architecture
+## Architecture
 
 ```text
-[PDF / Email Input]
-        |
-        v
-[Ingestion Layer]
-        |
-        v
-[Extractor Agent] ---> structured JSON
-        |
-        v
-[Router: AP or AR]
-        |
-        +-------------------+
-        |                   |
-        v                   v
-[Research/Policy]      [Research/Policy]
-        |                   |
-        v                   v
-[Decision Agent]       [Editor Agent]
-        |                   |
-        +---------+---------+
+[Document Input: PDF / text / email fixture]
                   |
                   v
-      [Validated response + evidence]
+         [Ingestion Layer]
+                  |
+                  v
+         [Extractor Agent]
+                  |
+                  v
+         [Workflow Router]
+                  |
+          +-------+-------+
+          |               |
+          v               v
+ [Grounded Policy Context] [Grounded Policy Context]
+          |               |
+          v               v
+   [AP Decision Flow]   [AR Drafting Flow]
+          |               |
+          +-------+-------+
+                  |
+                  v
+      [Structured Result + Evidence]
 ```
+
+## Workflow Design
+
+### AP Flow
+
+Input:
+- invoice PDF or text fixture
+- vendor-specific policy context
+
+Checks:
+- missing required invoice fields
+- purchase order requirement
+- duplicate invoice hints
+- payment terms mismatch
+- approval threshold
+- invalid/void invoice wording
+- line-item total mismatch
+
+Output:
+- recommendation
+- anomaly list
+- reviewer summary
+- cited evidence
+
+### AR Flow
+
+Input:
+- overdue invoice case or customer reply
+- customer tone and escalation context
+
+Checks:
+- overdue-day band
+- prior reminder count
+- payment-claimed-without-proof case
+- missing due date / invoice number
+- escalation trigger set
+
+Output:
+- escalation level
+- subject line
+- follow-up email draft
+- cited evidence
 
 ## Repository Layout
 
 ```text
 peakflo-finance-agent-demo/
 |- api/
+|  `- main.py
 |- app/
-|  |- schemas/
-|  |- ingest/
-|  |- rag/
 |  |- agents/
+|  |- eval/
+|  |- ingest/
 |  |- orchestrator/
 |  |- prompts/
-|  `- eval/
+|  |- rag/
+|  `- schemas/
 |- kb/
 |- samples/
-|  |- invoices/
 |  |- emails/
-|  `- expected_outputs/
-|- web/
-|- tests/
-|- .env.example
-|- .gitignore
-|- README.md
-`- requirements.txt
+|  |- expected_outputs/
+|  `- invoices/
+`- web/
 ```
 
-## Planned Tech Stack
+## Quick Start
 
-- Python
-- FastAPI
-- Pydantic
-- ChromaDB
-- OpenAI-compatible LLM API
-- PDF/OCR ingestion
-- Minimal web UI
+From the project root:
 
-## Step 1 Output
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn api.main:app --reload
+```
 
-This initial scaffold includes:
-- repository structure
-- environment template
-- dependency baseline
-- initial README
+Then open:
 
-## Next Steps
+- API root: `http://127.0.0.1:8000/`
+- Operator UI: `http://127.0.0.1:8000/ui`
 
-1. Add final README/demo polish
-2. Record the short walkthrough demo
-3. Tighten eval weak spots if needed
+## UI And API
+
+### UI
+
+Use `/ui` to:
+- run built-in sample workflows
+- upload a local file
+- inspect route, decision, anomalies/triggers, evidence, and raw JSON
+
+### API Routes
+
+- `GET /`
+- `GET /ui`
+- `GET /health`
+- `GET /samples`
+- `POST /workflow/sample`
+- `POST /workflow/upload`
+
+### Sample Run
+
+Good sample cases to show:
+
+- `ap_002_missing_po`
+- `ap_004_duplicate_invoice`
+- `ar_001_first_followup`
+- `ar_003_payment_claim_no_proof`
+
+## Evaluation
+
+Run the built-in evaluation suite from the repo root:
+
+```bash
+python -m app.eval.run_eval
+```
+
+The eval runner checks:
+- workflow-type match
+- extraction field match rate
+- AP/AR final decision match
+- citation coverage
+- anomaly coverage
+- AR subject coverage
+- AR draft mention coverage
+- case latency
+
+The current heuristic baseline already shows:
+- workflow routing is correct
+- anomaly checks are strong
+- extraction is mostly correct
+- citation coverage still needs improvement
+- some AR phrasing still misses strict expected text fragments
+
+## Demo Path
+
+Best short walkthrough:
+
+1. Start the API with `uvicorn api.main:app --reload`
+2. Open `/ui`
+3. Run `ap_002_missing_po`
+4. Show:
+   - structured extraction
+   - route to AP
+   - policy evidence
+   - `missing_info` recommendation
+5. Run `ar_003_payment_claim_no_proof`
+6. Show:
+   - route to AR
+   - escalation level
+   - grounded follow-up draft
+7. Run `python -m app.eval.run_eval`
+8. Point out the current weak spots and what you would improve next
+
+## Known Limitations
+
+- The local environment still needs dependencies installed to run the full stack
+  normally.
+- OCR fallback depends on Tesseract being installed on the host machine.
+- The `heuristic` extractor path is intentionally tuned for the sample fixtures.
+- The `llm` extractor/repair path requires an OpenAI-compatible API key and
+  runtime configuration.
+- Citation selection is not yet strong enough to satisfy every strict eval
+  target.
+- The UI is intentionally minimal and optimized for inspection, not production
+  polish.
+
+## Next Improvements
+
+- improve evidence selection so expected policy IDs are covered more reliably
+- tighten AR subject/body phrasing against eval expectations
+- add deployment instructions and live hosting
+- record a short demo video
+- add a final pass on README screenshots and operator flow
