@@ -1,0 +1,25 @@
+{
+  "sample_id": "ap_003_threshold_review",
+  "workflow_type": "accounts_payable",
+  "expected_extraction": {
+    "document_type": "invoice",
+    "vendor_name": "Bluewave Logistics",
+    "invoice_number": "BWL-6021",
+    "po_number": "PO-5502",
+    "amount": 18450.0,
+    "currency": "USD",
+    "due_date": "2026-05-25",
+    "payment_terms": "Net 45"
+  },
+  "expected_decision": {
+    "recommendation": "review",
+    "must_flag_anomalies": [
+      "approval_threshold"
+    ],
+    "must_cite": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-003",
+      "VENDOR-002"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+SAMPLE_ID: ap_002_missing_po
+DOCUMENT_TYPE: invoice
+
+Vendor: Quartz Cloud Systems
+Invoice Number: QCS-8842
+Issue Date: 2026-05-01
+Due Date: 2026-05-31
+Payment Terms: Net 30
+Currency: USD
+Invoice Amount: 7800.00
+
+Bill To: Peakflo Demo Operations
+
+Line Items:
+- Annual observability platform subscription = 7200.00
+- Priority onboarding support = 600.00
+
+Notes:
+Please process this invoice at your earliest convenience.
+No purchase order number is listed in the submitted document.

@@ -1,0 +1,24 @@
+{
+  "sample_id": "ap_001_clean_invoice",
+  "workflow_type": "accounts_payable",
+  "expected_extraction": {
+    "document_type": "invoice",
+    "vendor_name": "Northstar Office Supplies",
+    "invoice_number": "NS-2048",
+    "po_number": "PO-7781",
+    "amount": 2450.0,
+    "currency": "USD",
+    "due_date": "2026-05-28",
+    "payment_terms": "Net 30",
+    "missing_fields": []
+  },
+  "expected_decision": {
+    "recommendation": "approve",
+    "must_flag_anomalies": [],
+    "must_cite": [
+      "AP-APPROVAL-001",
+      "AP-POLICY-003",
+      "VENDOR-001"
+    ]
+  }
+}

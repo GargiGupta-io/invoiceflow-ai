@@ -1,0 +1,18 @@
+SAMPLE_ID: ar_001_first_followup
+DOCUMENT_TYPE: overdue_email
+
+Customer: Aster Retail
+Invoice Number: AR-9012
+Invoice Amount: 3200.00
+Currency: USD
+Due Date: 2026-04-28
+Overdue Days: 4
+Prior Reminders Sent: 0
+
+Context:
+This is the first follow-up for a slightly overdue invoice.
+No customer reply has been received yet.
+
+Expected Goal:
+Draft a friendly first reminder asking whether payment has already been initiated
+and requesting an expected payment date if it has not.

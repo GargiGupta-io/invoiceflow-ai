@@ -1,0 +1,25 @@
+{
+  "sample_id": "ap_002_missing_po",
+  "workflow_type": "accounts_payable",
+  "expected_extraction": {
+    "document_type": "invoice",
+    "vendor_name": "Quartz Cloud Systems",
+    "invoice_number": "QCS-8842",
+    "po_number": null,
+    "amount": 7800.0,
+    "currency": "USD",
+    "due_date": "2026-05-31",
+    "payment_terms": "Net 30"
+  },
+  "expected_decision": {
+    "recommendation": "missing_info",
+    "must_flag_anomalies": [
+      "missing_po"
+    ],
+    "must_cite": [
+      "AP-APPROVAL-002",
+      "AP-POLICY-003",
+      "VENDOR-004"
+    ]
+  }
+}

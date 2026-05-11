@@ -1,0 +1,28 @@
+{
+  "sample_id": "ar_003_payment_claim_no_proof",
+  "workflow_type": "accounts_receivable",
+  "expected_extraction": {
+    "document_type": "payment_confirmation",
+    "customer_name": "Horizon Health Group",
+    "invoice_number": "AR-6651",
+    "amount": 5400.0,
+    "currency": "USD",
+    "due_date": "2026-04-05"
+  },
+  "expected_decision": {
+    "escalation_level": "low",
+    "followup_subject_contains": [
+      "AR-6651"
+    ],
+    "must_mention": [
+      "transaction reference",
+      "transfer date",
+      "remittance"
+    ],
+    "must_cite": [
+      "AR-ESCALATION-002",
+      "AR-TEMPLATE-004",
+      "CUSTOMER-002"
+    ]
+  }
+}

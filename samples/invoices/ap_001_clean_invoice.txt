@@ -1,0 +1,21 @@
+SAMPLE_ID: ap_001_clean_invoice
+DOCUMENT_TYPE: invoice
+
+Vendor: Northstar Office Supplies
+Invoice Number: NS-2048
+PO Number: PO-7781
+Issue Date: 2026-04-28
+Due Date: 2026-05-28
+Payment Terms: Net 30
+Currency: USD
+Invoice Amount: 2450.00
+
+Bill To: Peakflo Demo Operations
+
+Line Items:
+- Ergonomic chairs x 10 @ 180.00 = 1800.00
+- Cable organizers x 50 @ 5.00 = 250.00
+- Shipping = 400.00
+
+Notes:
+Please process payment according to the agreed Net 30 terms.

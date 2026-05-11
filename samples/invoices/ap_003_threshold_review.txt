@@ -1,0 +1,21 @@
+SAMPLE_ID: ap_003_threshold_review
+DOCUMENT_TYPE: invoice
+
+Vendor: Bluewave Logistics
+Invoice Number: BWL-6021
+PO Number: PO-5502
+Issue Date: 2026-04-10
+Due Date: 2026-05-25
+Payment Terms: Net 45
+Currency: USD
+Invoice Amount: 18450.00
+
+Bill To: Peakflo Demo Operations
+
+Line Items:
+- Regional freight consolidation services = 13200.00
+- Last-mile delivery support = 3850.00
+- Fuel surcharge = 1400.00
+
+Notes:
+Charge approved against quarterly logistics budget.

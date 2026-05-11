@@ -1,0 +1,28 @@
+{
+  "sample_id": "ar_002_escalation_followup",
+  "workflow_type": "accounts_receivable",
+  "expected_extraction": {
+    "document_type": "overdue_email",
+    "customer_name": "Meridian Industrial",
+    "invoice_number": "AR-7780",
+    "amount": 14800.0,
+    "currency": "USD",
+    "due_date": "2026-03-10"
+  },
+  "expected_decision": {
+    "escalation_level": "medium",
+    "followup_subject_contains": [
+      "Action requested",
+      "AR-7780"
+    ],
+    "must_mention": [
+      "payment plan",
+      "immediate confirmation"
+    ],
+    "must_cite": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-003",
+      "CUSTOMER-003"
+    ]
+  }
+}

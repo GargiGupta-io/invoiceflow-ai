@@ -1,0 +1,28 @@
+{
+  "sample_id": "ar_001_first_followup",
+  "workflow_type": "accounts_receivable",
+  "expected_extraction": {
+    "document_type": "overdue_email",
+    "customer_name": "Aster Retail",
+    "invoice_number": "AR-9012",
+    "amount": 3200.0,
+    "currency": "USD",
+    "due_date": "2026-04-28"
+  },
+  "expected_decision": {
+    "escalation_level": "none",
+    "followup_subject_contains": [
+      "Friendly reminder",
+      "AR-9012"
+    ],
+    "must_mention": [
+      "payment has already been initiated",
+      "expected payment date"
+    ],
+    "must_cite": [
+      "AR-ESCALATION-001",
+      "AR-TEMPLATE-001",
+      "CUSTOMER-001"
+    ]
+  }
+}
