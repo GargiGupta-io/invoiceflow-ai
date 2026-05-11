@@ -1,0 +1,41 @@
+{
+  "dataset_name": "peakflo-finance-agent-demo-v1",
+  "extractor_mode": "heuristic",
+  "cases": [
+    {
+      "sample_id": "ap_001_clean_invoice",
+      "workflow_type": "accounts_payable",
+      "expected_output": "samples/expected_outputs/ap_001_clean_invoice.json"
+    },
+    {
+      "sample_id": "ap_002_missing_po",
+      "workflow_type": "accounts_payable",
+      "expected_output": "samples/expected_outputs/ap_002_missing_po.json"
+    },
+    {
+      "sample_id": "ap_003_threshold_review",
+      "workflow_type": "accounts_payable",
+      "expected_output": "samples/expected_outputs/ap_003_threshold_review.json"
+    },
+    {
+      "sample_id": "ap_004_duplicate_invoice",
+      "workflow_type": "accounts_payable",
+      "expected_output": "samples/expected_outputs/ap_004_duplicate_invoice.json"
+    },
+    {
+      "sample_id": "ar_001_first_followup",
+      "workflow_type": "accounts_receivable",
+      "expected_output": "samples/expected_outputs/ar_001_first_followup.json"
+    },
+    {
+      "sample_id": "ar_002_escalation_followup",
+      "workflow_type": "accounts_receivable",
+      "expected_output": "samples/expected_outputs/ar_002_escalation_followup.json"
+    },
+    {
+      "sample_id": "ar_003_payment_claim_no_proof",
+      "workflow_type": "accounts_receivable",
+      "expected_output": "samples/expected_outputs/ar_003_payment_claim_no_proof.json"
+    }
+  ]
+}
