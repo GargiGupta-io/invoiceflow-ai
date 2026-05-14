@@ -88,37 +88,62 @@
         <div class="panel-header">
           <div>
             <p class="eyebrow">Workflow Output</p>
-            <h2>Result overview</h2>
+            <h2>What this run means</h2>
           </div>
           <span class="status-pill neutral" id="result-kind">No result</span>
         </div>
+        <p class="panel-intro">
+          This console reads a finance document, decides whether it belongs to Accounts Payable or
+          Accounts Receivable, checks relevant policy evidence, and suggests the safest next step.
+        </p>
         <div class="result-grid">
           <article class="result-card">
-            <span class="result-label">Route</span>
+            <span class="result-label">Workflow path</span>
             <strong id="route-value">-</strong>
             <p id="route-reason">Run a sample or upload a file to see the workflow route.</p>
           </article>
           <article class="result-card">
-            <span class="result-label">Final action</span>
-            <strong id="decision-value">-</strong>
-            <p id="decision-summary">No decision has been generated yet.</p>
+            <span class="result-label">Document focus</span>
+            <strong id="document-value">-</strong>
+            <p id="document-text">The key invoice or customer details will appear here.</p>
           </article>
           <article class="result-card">
             <span class="result-label">Evidence count</span>
             <strong id="evidence-count">0</strong>
-            <p id="confidence-text">Confidence will appear here after a run.</p>
+            <p id="evidence-text">Supporting policy evidence will appear after a run.</p>
+          </article>
+          <article class="result-card">
+            <span class="result-label">Run metadata</span>
+            <strong id="audit-value">-</strong>
+            <p id="audit-text">Latency, prompt version, and confidence will appear here.</p>
           </article>
         </div>
+        <article class="spotlight-card">
+          <div class="spotlight-copy">
+            <span class="result-label">Recommended next step</span>
+            <strong id="decision-value">-</strong>
+            <p id="decision-summary">No decision has been generated yet.</p>
+          </div>
+          <div class="spotlight-side">
+            <p class="spotlight-note" id="decision-explainer">
+              The main workflow outcome will be explained here after a run.
+            </p>
+          </div>
+        </article>
       </section>
 
       <section class="panel detail-panel">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Grounded Detail</p>
-            <h2>Evidence and policy checks</h2>
+            <h2>Why the system chose that action</h2>
           </div>
         </div>
         <div class="detail-grid">
+          <div class="detail-column">
+            <h3>Key extracted fields</h3>
+            <div id="key-field-list" class="key-field-list empty-state">No extracted fields yet.</div>
+          </div>
           <div class="detail-column">
             <h3>Anomalies / Triggers</h3>
             <div id="anomaly-list" class="tag-list empty-state">No anomalies yet.</div>
@@ -135,11 +160,18 @@
       <section class="panel raw-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Raw Output</p>
-            <h2>Structured JSON</h2>
+            <p class="eyebrow">Debug</p>
+            <h2>Raw output and full backend response</h2>
           </div>
         </div>
-        <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
+        <details class="debug-disclosure">
+          <summary>Open Debug / Raw Output</summary>
+          <p class="debug-note">
+            Use this view if you want the complete JSON payload, including extraction output,
+            grounded context, audit metadata, and the raw workflow result.
+          </p>
+          <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
+        </details>
       </section>
     </main>
   </div>
