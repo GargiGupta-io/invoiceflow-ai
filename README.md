@@ -36,6 +36,16 @@ for:
 - Python backend systems
 - evaluation and reliability thinking
 
+## Quick Look
+
+### Console Overview
+
+![Peakflo finance agent console overview](docs/screenshots/console-overview.png)
+
+### AP Result Walkthrough
+
+![Peakflo finance agent AP result view](docs/screenshots/ap-missing-po-result.png)
+
 ## Current Status
 
 Implemented:
@@ -54,6 +64,7 @@ Implemented:
 - FastAPI backend
 - operator UI at `/ui`
 - evaluation dataset and runner
+- clean smoke-test run in a separate virtual environment
 
 Still worth improving:
 - citation coverage against the strict eval targets
@@ -183,8 +194,14 @@ Then open:
 Use `/ui` to:
 - run built-in sample workflows
 - upload a local file
-- inspect route, decision, anomalies/triggers, evidence, and raw JSON
+- inspect the workflow path, key document fields, final action, anomalies/triggers, and evidence
 - inspect latency and prompt-version metadata in the summary line
+- open the full backend response only when needed through the collapsible debug panel
+
+For screenshots or quick demos, the UI also supports:
+
+- `/ui?sample=ap_002_missing_po&mode=heuristic&autorun=1`
+- `/ui?sample=ar_003_payment_claim_no_proof&mode=heuristic&autorun=1`
 
 ### API Routes
 
