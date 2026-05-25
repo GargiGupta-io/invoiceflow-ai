@@ -1,1 +1,1 @@
-"""Application package for the Peakflo finance agent demo."""
+"""Application package for InvoiceFlow AI."""
