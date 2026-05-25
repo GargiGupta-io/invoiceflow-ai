@@ -13,6 +13,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from ..ingest import DocumentText
+from ..llm import LLMGateway, LLMGatewayError
 from ..schemas.invoice import CurrencyCode, DocumentType, InvoiceExtraction, LineItem
 
 PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "extractor_v1.md"
@@ -46,9 +47,11 @@ class ExtractorAgent:
     prompt_path: Path = PROMPT_PATH
     repair_prompt_path: Path = REPAIR_PROMPT_PATH
     llm_client: Any | None = None
+    llm_gateway: LLMGateway | None = None
     excerpt_chars: int = 500
     max_validation_retries: int = 2
     last_mode_used: str | None = field(default=None, init=False)
+    llm_gateway_metadata: list[dict[str, Any]] = field(default_factory=list, init=False)
 
     def extract(self, document: DocumentText) -> InvoiceExtraction:
         """Extract structured fields from a loaded document."""
@@ -71,14 +74,14 @@ class ExtractorAgent:
         return self._extract_with_heuristics(document)
 
     def _extract_with_llm(self, document: DocumentText) -> InvoiceExtraction:
-        client = self.llm_client or self._build_default_llm_client()
-        if client is None:
+        gateway = self.llm_gateway or self._build_default_llm_gateway()
+        if gateway is None:
             raise ExtractionError(
                 "LLM extraction requested but no OpenAI-compatible configuration was found."
             )
 
-        payload = self._request_llm_extraction(client, document)
-        return self._validate_with_retry(document, payload, client=client)
+        payload = self._request_llm_extraction(gateway, document)
+        return self._validate_with_retry(document, payload, llm_gateway=gateway)
 
     def _extract_with_heuristics(self, document: DocumentText) -> InvoiceExtraction:
         fields = self._parse_key_value_fields(document.text)
@@ -213,40 +216,36 @@ class ExtractorAgent:
                 missing.append(field_name)
         return missing
 
-    def _request_llm_extraction(self, client: Any, document: DocumentText) -> dict[str, Any]:
+    def _request_llm_extraction(self, gateway: LLMGateway, document: DocumentText) -> dict[str, Any]:
         prompt = self.prompt_path.read_text(encoding="utf-8")
-        completion = client.chat.completions.create(
-            model=self.model or os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
-            temperature=0,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": prompt},
-                {
-                    "role": "user",
-                    "content": self._build_document_payload(document),
-                },
-            ],
-        )
-
-        content = completion.choices[0].message.content
-        if not isinstance(content, str) or not content.strip():
-            raise ExtractionError("LLM extraction returned no usable JSON content.")
-
         try:
-            return json.loads(content)
-        except json.JSONDecodeError as exc:
+            response = gateway.call_json(
+                system_prompt=prompt,
+                user_content=self._build_document_payload(document),
+                response_format=self._structured_response_format(),
+                purpose="invoice_extraction",
+            )
+        except LLMGatewayError as exc:
+            raise ExtractionError(str(exc)) from exc
+
+        self._record_gateway_metadata(response.metadata)
+        if response.metadata.fallback_used:
+            self.last_mode_used = "llm_json_object_fallback"
+
+        if response.payload is None:
             return self._repair_payload_with_llm(
-                client=client,
+                gateway=gateway,
                 document=document,
                 payload={},
-                validation_error=f"invalid_json_response: {exc}",
+                validation_error="invalid_json_response",
             )
+        return response.payload
 
     def _validate_with_retry(
         self,
         document: DocumentText,
         payload: dict[str, Any],
-        client: Any | None = None,
+        llm_gateway: LLMGateway | None = None,
     ) -> InvoiceExtraction:
         working_payload = self._normalize_payload(document, payload)
         last_error: str | None = None
@@ -261,9 +260,9 @@ class ExtractorAgent:
                         f"Extraction failed schema validation after {attempt + 1} attempts: {last_error}"
                     ) from exc
 
-                if client is not None:
+                if llm_gateway is not None:
                     repaired_payload = self._repair_payload_with_llm(
-                        client=client,
+                        gateway=llm_gateway,
                         document=document,
                         payload=working_payload,
                         validation_error=last_error,
@@ -361,38 +360,31 @@ class ExtractorAgent:
 
     def _repair_payload_with_llm(
         self,
-        client: Any,
+        gateway: LLMGateway,
         document: DocumentText,
         payload: dict[str, Any],
         validation_error: str,
     ) -> dict[str, Any]:
         repair_prompt = self.repair_prompt_path.read_text(encoding="utf-8")
         payload_text = json.dumps(payload, indent=2, default=str)
-        completion = client.chat.completions.create(
-            model=self.model or os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
-            temperature=0,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": repair_prompt},
-                {
-                    "role": "user",
-                    "content": (
-                        f"validation_error:\n{validation_error}\n\n"
-                        f"current_payload:\n{payload_text}\n\n"
-                        f"{self._build_document_payload(document)}"
-                    ),
-                },
-            ],
-        )
-
-        content = completion.choices[0].message.content
-        if not isinstance(content, str) or not content.strip():
-            raise ExtractionError("LLM repair returned no usable JSON content.")
-
         try:
-            return json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise ExtractionError("LLM repair returned invalid JSON.") from exc
+            response = gateway.call_json(
+                system_prompt=repair_prompt,
+                user_content=(
+                    f"validation_error:\n{validation_error}\n\n"
+                    f"current_payload:\n{payload_text}\n\n"
+                    f"{self._build_document_payload(document)}"
+                ),
+                response_format={"type": "json_object"},
+                purpose="invoice_extraction_repair",
+            )
+        except LLMGatewayError as exc:
+            raise ExtractionError(str(exc)) from exc
+
+        self._record_gateway_metadata(response.metadata)
+        if response.payload is None:
+            raise ExtractionError("LLM repair returned invalid JSON.")
+        return response.payload
 
     def _build_document_payload(self, document: DocumentText) -> str:
         joined_warnings = ", ".join(document.warnings) if document.warnings else "none"
@@ -403,25 +395,37 @@ class ExtractorAgent:
             f"document_text:\n{document.text}"
         )
 
+    def _structured_response_format(self) -> dict[str, Any]:
+        if os.getenv("OPENAI_RESPONSE_FORMAT", "").strip().lower() == "json_object":
+            return {"type": "json_object"}
+
+        schema = InvoiceExtraction.model_json_schema()
+        schema["additionalProperties"] = False
+        return {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "invoice_extraction",
+                "schema": schema,
+                "strict": False,
+            },
+        }
+
     def _has_llm_configuration(self) -> bool:
-        return self.llm_client is not None or bool(os.getenv("OPENAI_API_KEY"))
+        return self.llm_gateway is not None or self.llm_client is not None or bool(os.getenv("OPENAI_API_KEY"))
 
-    def _build_default_llm_client(self):
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
+    def _build_default_llm_gateway(self) -> LLMGateway | None:
+        if self.llm_gateway is not None:
+            return self.llm_gateway
+        if self.llm_client is None and not os.getenv("OPENAI_API_KEY"):
             return None
+        return LLMGateway(
+            client=self.llm_client,
+            model=self.model,
+            base_url=os.getenv("OPENAI_BASE_URL"),
+        )
 
-        try:
-            from openai import OpenAI
-
-            return OpenAI(
-                api_key=api_key,
-                base_url=os.getenv("OPENAI_BASE_URL"),
-            )
-        except ModuleNotFoundError as exc:
-            raise ExtractionError(
-                "The openai package is not installed in the current environment."
-            ) from exc
+    def _record_gateway_metadata(self, metadata) -> None:
+        self.llm_gateway_metadata.append(metadata.to_dict())
 
     def _normalize_document_type_value(self, raw_value: Any, text: str) -> str:
         if isinstance(raw_value, DocumentType):
