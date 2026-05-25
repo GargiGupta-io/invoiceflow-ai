@@ -1,4 +1,4 @@
-"""FastAPI entrypoint for the Peakflo finance agent demo."""
+"""FastAPI entrypoint for InvoiceFlow AI."""
 
 from __future__ import annotations
 
@@ -14,10 +14,10 @@ from app.orchestrator import list_sample_documents, run_workflow_from_sample, ru
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 
 app = FastAPI(
-    title="Peakflo Finance Agent Demo",
+    title="InvoiceFlow AI",
     version="0.1.0",
     description=(
-        "A finance workflow backend that ingests documents, extracts structured fields, "
+        "A finance workflow agent that ingests documents, extracts structured fields, "
         "retrieves grounded policy evidence, routes AP/AR cases, and returns a final decision."
     ),
 )
@@ -36,7 +36,7 @@ class SampleWorkflowRequest(BaseModel):
 @app.get("/")
 def root() -> dict:
     return {
-        "name": "Peakflo Finance Agent Demo",
+        "name": "InvoiceFlow AI",
         "version": "0.1.0",
         "endpoints": [
             "/ui",
