@@ -21,6 +21,7 @@ from ..agents import (
 from ..ingest import read_document_text
 from ..rag import build_knowledge_index, load_knowledge_index, save_knowledge_index
 from ..schemas.decision import WorkflowResult, WorkflowType
+from .agent_trace import build_agent_tool_trace, build_human_review_gate
 from .audit import build_workflow_audit_trail
 from .router import route_workflow
 
@@ -164,6 +165,20 @@ def run_workflow_from_path(
     stage_latencies_ms["decision"] = _elapsed_ms(stage_started)
 
     total_latency_ms = _elapsed_ms(workflow_started)
+    agent_tool_trace = build_agent_tool_trace(
+        extraction=extraction,
+        route=route,
+        context=context,
+        assessment_payload=assessment_payload,
+        decision=decision,
+    )
+    human_review_gate = build_human_review_gate(
+        extraction=extraction,
+        route=route,
+        context=context,
+        assessment_payload=assessment_payload,
+        decision=decision,
+    )
     audit_trail = build_workflow_audit_trail(
         requested_extractor_mode=extractor.mode,
         effective_extractor_mode=extractor.last_mode_used or extractor.mode.lower().strip(),
@@ -172,6 +187,9 @@ def run_workflow_from_path(
         route=route,
         context=context,
         decision=decision,
+        human_review_gate=human_review_gate,
+        agent_tool_trace=agent_tool_trace,
+        llm_gateway_metadata=extractor.llm_gateway_metadata,
         stage_latencies_ms=stage_latencies_ms,
         total_latency_ms=total_latency_ms,
     )
