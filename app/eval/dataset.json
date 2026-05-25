@@ -1,5 +1,5 @@
 {
-  "dataset_name": "peakflo-finance-agent-demo-v1",
+  "dataset_name": "invoiceflow-ai-v1",
   "extractor_mode": "heuristic",
   "cases": [
     {
