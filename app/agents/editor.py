@@ -45,7 +45,7 @@ def draft_accounts_receivable(
         assessment=assessment,
     )
     confidence = _estimate_confidence(context, assessment)
-    evidence = _select_evidence(context)
+    evidence = _select_evidence(context, extraction, assessment)
 
     return ARDecision(
         escalation_level=escalation_level,
@@ -221,9 +221,14 @@ def _estimate_confidence(
     return max(0.45, min(round(base, 2), 0.99))
 
 
-def _select_evidence(context: GroundedPolicyContext) -> list[dict[str, str]]:
+def _select_evidence(
+    context: GroundedPolicyContext,
+    extraction: ARExtractionLike,
+    assessment: ARWorkflowAssessment,
+) -> list[dict[str, str]]:
     if context.evidence_payloads:
-        return context.evidence_payloads[:4]
+        required_source_ids = _required_ar_source_ids(extraction, assessment)
+        return _select_ordered_evidence(context.evidence_payloads, required_source_ids, limit=4)
     return [
         {
             "source_id": "context-summary",
@@ -232,6 +237,65 @@ def _select_evidence(context: GroundedPolicyContext) -> list[dict[str, str]]:
             "relevance_reason": "Fallback context summary when no KB evidence was returned.",
         }
     ]
+
+
+def _required_ar_source_ids(
+    extraction: ARExtractionLike,
+    assessment: ARWorkflowAssessment,
+) -> list[str]:
+    source_ids = ["AR-ESCALATION-001"]
+    if assessment.payment_claim:
+        source_ids = ["AR-ESCALATION-002", "AR-TEMPLATE-004"]
+    elif assessment.escalation_level == EscalationLevel.NONE:
+        source_ids.append("AR-TEMPLATE-001")
+    elif assessment.escalation_level == EscalationLevel.LOW:
+        source_ids.append("AR-TEMPLATE-002")
+    else:
+        source_ids.append("AR-TEMPLATE-003")
+
+    customer_source_id = _customer_source_id(extraction.customer_name)
+    if customer_source_id:
+        source_ids.append(customer_source_id)
+    return source_ids
+
+
+def _customer_source_id(customer_name: str | None) -> str | None:
+    normalized = (customer_name or "").strip().lower()
+    customer_ids = {
+        "aster retail": "CUSTOMER-001",
+        "horizon health group": "CUSTOMER-002",
+        "meridian industrial": "CUSTOMER-003",
+    }
+    return customer_ids.get(normalized)
+
+
+def _select_ordered_evidence(
+    evidence_payloads: list[dict[str, str]],
+    required_source_ids: list[str],
+    *,
+    limit: int,
+) -> list[dict[str, str]]:
+    selected: list[dict[str, str]] = []
+    selected_ids: set[str] = set()
+    evidence_by_id = {item.get("source_id"): item for item in evidence_payloads}
+
+    for source_id in required_source_ids:
+        item = evidence_by_id.get(source_id)
+        if item is None or source_id in selected_ids:
+            continue
+        selected.append(item)
+        selected_ids.add(source_id)
+
+    for item in evidence_payloads:
+        source_id = item.get("source_id", "")
+        if source_id in selected_ids:
+            continue
+        selected.append(item)
+        selected_ids.add(source_id)
+        if len(selected) >= limit:
+            break
+
+    return selected[:limit]
 
 
 def _due_date_text(raw_value: date | str | None) -> str:
