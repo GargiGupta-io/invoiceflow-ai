@@ -10,6 +10,7 @@ from typing import Any, Protocol
 from ..schemas.decision import APDecision, ARDecision
 from ..schemas.decision import WorkflowType
 from ..agents.research import GroundedPolicyContext
+from .agent_trace import AgentToolTrace, HumanReviewGate
 
 
 class WorkflowRouteLike(Protocol):
@@ -28,12 +29,16 @@ class WorkflowAuditTrail:
     repair_prompt_version: str
     repair_prompt_path: str
     prompt_applied: bool
+    llm_gateway: list[dict[str, Any]]
     stage_latencies_ms: dict[str, float]
     total_latency_ms: float
     route_reason: str
     matched_signals: list[str]
     retrieval_query: str
+    retrieval_repair: dict[str, Any]
     final_recommendation: dict[str, Any]
+    human_review: dict[str, Any]
+    agent_tool_trace: list[dict[str, Any]]
     evidence_sources: list[dict[str, Any]]
     retrieved_chunks: list[dict[str, Any]]
 
@@ -50,6 +55,9 @@ def build_workflow_audit_trail(
     route: WorkflowRouteLike,
     context: GroundedPolicyContext,
     decision: APDecision | ARDecision,
+    human_review_gate: HumanReviewGate,
+    agent_tool_trace: list[AgentToolTrace],
+    llm_gateway_metadata: list[dict[str, Any]],
     stage_latencies_ms: dict[str, float],
     total_latency_ms: float,
 ) -> WorkflowAuditTrail:
@@ -63,13 +71,17 @@ def build_workflow_audit_trail(
         prompt_path=str(prompt_path),
         repair_prompt_version=repair_prompt_path.stem,
         repair_prompt_path=str(repair_prompt_path),
-        prompt_applied=effective_extractor_mode == "llm",
+        prompt_applied=effective_extractor_mode.startswith("llm"),
+        llm_gateway=list(llm_gateway_metadata),
         stage_latencies_ms=dict(stage_latencies_ms),
         total_latency_ms=round(total_latency_ms, 2),
         route_reason=route.reason,
         matched_signals=list(route.matched_signals),
         retrieval_query=context.query_text,
+        retrieval_repair=context.retrieval_repair.to_dict(),
         final_recommendation=_build_final_recommendation(route.workflow_type, decision),
+        human_review=human_review_gate.to_dict(),
+        agent_tool_trace=[trace.to_dict() for trace in agent_tool_trace],
         evidence_sources=_serialize_evidence_sources(decision),
         retrieved_chunks=_serialize_retrieved_chunks(context),
     )
