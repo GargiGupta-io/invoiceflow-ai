@@ -36,7 +36,7 @@ def decide_accounts_payable(
     recommendation = _resolve_ap_recommendation(anomalies)
     reviewer_summary = _build_reviewer_summary(recommendation, anomalies, extraction)
     confidence = _estimate_confidence(recommendation, anomalies, context, assessment)
-    evidence = _select_evidence(context)
+    evidence = _select_evidence(context, extraction, assessment, recommendation)
 
     return APDecision(
         recommendation=recommendation,
@@ -109,9 +109,15 @@ def _estimate_confidence(
     return max(0.45, min(round(base, 2), 0.99))
 
 
-def _select_evidence(context: GroundedPolicyContext) -> list[dict[str, str]]:
+def _select_evidence(
+    context: GroundedPolicyContext,
+    extraction: APExtractionLike,
+    assessment: APWorkflowAssessment,
+    recommendation: ApprovalRecommendation,
+) -> list[dict[str, str]]:
     if context.evidence_payloads:
-        return context.evidence_payloads[:4]
+        required_source_ids = _required_ap_source_ids(extraction, assessment, recommendation)
+        return _select_ordered_evidence(context.evidence_payloads, required_source_ids, limit=4)
     return [
         {
             "source_id": "context-summary",
@@ -120,3 +126,65 @@ def _select_evidence(context: GroundedPolicyContext) -> list[dict[str, str]]:
             "relevance_reason": "Fallback context summary when no KB evidence was returned.",
         }
     ]
+
+
+def _required_ap_source_ids(
+    extraction: APExtractionLike,
+    assessment: APWorkflowAssessment,
+    recommendation: ApprovalRecommendation,
+) -> list[str]:
+    source_ids: list[str] = []
+    anomaly_codes = {anomaly.code for anomaly in assessment.anomalies}
+
+    if recommendation == ApprovalRecommendation.APPROVE or "approval_threshold" in anomaly_codes:
+        source_ids.append("AP-APPROVAL-001")
+    if "missing_po" in anomaly_codes:
+        source_ids.append("AP-APPROVAL-002")
+    if "duplicate_invoice" in anomaly_codes:
+        source_ids.append("AP-APPROVAL-003")
+    source_ids.append("AP-POLICY-003")
+
+    vendor_source_id = _vendor_source_id(extraction.vendor_name)
+    if vendor_source_id:
+        source_ids.append(vendor_source_id)
+    return source_ids
+
+
+def _vendor_source_id(vendor_name: str | None) -> str | None:
+    normalized = (vendor_name or "").strip().lower()
+    vendor_ids = {
+        "northstar office supplies": "VENDOR-001",
+        "bluewave logistics": "VENDOR-002",
+        "lumina creative studio": "VENDOR-003",
+        "quartz cloud systems": "VENDOR-004",
+    }
+    return vendor_ids.get(normalized)
+
+
+def _select_ordered_evidence(
+    evidence_payloads: list[dict[str, str]],
+    required_source_ids: list[str],
+    *,
+    limit: int,
+) -> list[dict[str, str]]:
+    selected: list[dict[str, str]] = []
+    selected_ids: set[str] = set()
+    evidence_by_id = {item.get("source_id"): item for item in evidence_payloads}
+
+    for source_id in required_source_ids:
+        item = evidence_by_id.get(source_id)
+        if item is None or source_id in selected_ids:
+            continue
+        selected.append(item)
+        selected_ids.add(source_id)
+
+    for item in evidence_payloads:
+        source_id = item.get("source_id", "")
+        if source_id in selected_ids:
+            continue
+        selected.append(item)
+        selected_ids.add(source_id)
+        if len(selected) >= limit:
+            break
+
+    return selected[:limit]
