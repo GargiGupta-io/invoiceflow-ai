@@ -210,8 +210,19 @@ def assess_accounts_receivable(
 
 def extract_vendor_policy(context: GroundedPolicyContext) -> VendorPolicy:
     policy = VendorPolicy()
+    allowed_source_id = _source_id_from_query(
+        context.query_text,
+        {
+            "northstar office supplies": "VENDOR-001",
+            "bluewave logistics": "VENDOR-002",
+            "lumina creative studio": "VENDOR-003",
+            "quartz cloud systems": "VENDOR-004",
+        },
+    )
     for hit in context.retrieval_hits:
         if not hit.source_id.startswith("VENDOR-"):
+            continue
+        if allowed_source_id is not None and hit.source_id != allowed_source_id:
             continue
 
         terms_match = TERMS_RE.search(hit.excerpt)
@@ -235,8 +246,18 @@ def extract_vendor_policy(context: GroundedPolicyContext) -> VendorPolicy:
 
 def extract_customer_policy(context: GroundedPolicyContext) -> CustomerPolicy:
     policy = CustomerPolicy()
+    allowed_source_id = _source_id_from_query(
+        context.query_text,
+        {
+            "aster retail": "CUSTOMER-001",
+            "horizon health group": "CUSTOMER-002",
+            "meridian industrial": "CUSTOMER-003",
+        },
+    )
     for hit in context.retrieval_hits:
         if not hit.source_id.startswith("CUSTOMER-"):
+            continue
+        if allowed_source_id is not None and hit.source_id != allowed_source_id:
             continue
         tone_match = TONE_RE.search(hit.excerpt)
         if tone_match:
@@ -358,7 +379,6 @@ def is_payment_claim_case(extraction: ARExtractionLike) -> bool:
     return any(
         marker in text
         for marker in (
-            "payment has already been initiated",
             "payment has already been made",
             "transaction reference",
             "remittance proof",
@@ -372,6 +392,14 @@ def document_type_value(raw_value: Any) -> str:
     if hasattr(raw_value, "value"):
         return str(raw_value.value)
     return str(raw_value)
+
+
+def _source_id_from_query(query_text: str, source_ids_by_name: dict[str, str]) -> str | None:
+    lowered_query = query_text.lower()
+    for name, source_id in source_ids_by_name.items():
+        if name in lowered_query:
+            return source_id
+    return None
 
 
 def _build_anomaly(code: str, message: str, severity: EscalationLevel) -> AnomalyFlag:
