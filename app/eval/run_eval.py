@@ -65,6 +65,7 @@ def _evaluate_case(
     latency_ms = round((time.perf_counter() - started) * 1000, 2)
 
     workflow_result = actual["workflow_result"]
+    audit_trail = actual.get("audit_trail", {})
     extraction = workflow_result["extraction"]
     decision_payload = workflow_result.get("ap_decision") or workflow_result.get("ar_decision") or {}
 
@@ -76,6 +77,7 @@ def _evaluate_case(
         workflow_type=workflow_result["workflow_type"],
         decision_payload=decision_payload,
         expected_decision=expected.get("expected_decision", {}),
+        audit_trail=audit_trail,
     )
 
     workflow_match = workflow_result["workflow_type"] == expected.get("workflow_type")
@@ -87,6 +89,11 @@ def _evaluate_case(
         "latency_ms": latency_ms,
         "passed": passed,
         "workflow_match": workflow_match,
+        "human_review_required": bool(audit_trail.get("human_review", {}).get("required")),
+        "prompt_applied": bool(audit_trail.get("prompt_applied")),
+        "rag_repair_attempted": bool(audit_trail.get("retrieval_repair", {}).get("attempted")),
+        "rag_repair_success": bool(audit_trail.get("retrieval_repair", {}).get("success")),
+        "agent_tool_count": len(audit_trail.get("agent_tool_trace", [])),
         "extraction_checks": extraction_checks,
         "decision_checks": decision_checks,
     }
@@ -128,6 +135,7 @@ def _evaluate_decision(
     workflow_type: str,
     decision_payload: dict[str, Any],
     expected_decision: dict[str, Any],
+    audit_trail: dict[str, Any],
 ) -> dict[str, Any]:
     checks: list[dict[str, Any]] = []
 
@@ -152,6 +160,12 @@ def _evaluate_decision(
         _citation_check(
             expected_source_ids=expected_decision.get("must_cite", []),
             actual_evidence=decision_payload.get("evidence", []),
+        )
+    )
+    checks.append(
+        _grounding_support_check(
+            actual_evidence=decision_payload.get("evidence", []),
+            retrieved_chunks=audit_trail.get("retrieved_chunks", []),
         )
     )
 
@@ -208,6 +222,27 @@ def _citation_check(*, expected_source_ids: list[str], actual_evidence: list[dic
     }
 
 
+def _grounding_support_check(
+    *,
+    actual_evidence: list[dict[str, Any]],
+    retrieved_chunks: list[dict[str, Any]],
+) -> dict[str, Any]:
+    retrieved_ids = {item.get("source_id") for item in retrieved_chunks}
+    evidence_ids = [item.get("source_id") for item in actual_evidence]
+    unsupported_ids = [
+        source_id
+        for source_id in evidence_ids
+        if source_id and source_id != "context-summary" and source_id not in retrieved_ids
+    ]
+    return {
+        "name": "grounding_support",
+        "expected": "all cited evidence source IDs are present in retrieved chunks",
+        "actual": evidence_ids,
+        "unsupported": unsupported_ids,
+        "passed": not unsupported_ids,
+    }
+
+
 def _anomaly_check(*, expected_codes: list[str], actual_anomalies: list[dict[str, Any]]) -> dict[str, Any]:
     actual_codes = [item.get("code") for item in actual_anomalies]
     missing_codes = [code for code in expected_codes if code not in actual_codes]
@@ -247,9 +282,18 @@ def _build_summary(case_results: list[dict[str, Any]]) -> dict[str, Any]:
     )
 
     citation_checks = _collect_check_stats(case_results, "citation_coverage")
+    grounding_checks = _collect_check_stats(case_results, "grounding_support")
     anomaly_checks = _collect_check_stats(case_results, "anomaly_coverage")
     subject_checks = _collect_check_stats(case_results, "followup_subject_contains")
     mention_checks = _collect_check_stats(case_results, "followup_draft_mentions")
+    human_review_cases = sum(1 for case in case_results if case["human_review_required"])
+    prompt_applied_cases = sum(1 for case in case_results if case["prompt_applied"])
+    rag_repair_attempted_cases = sum(1 for case in case_results if case["rag_repair_attempted"])
+    rag_repair_success_cases = sum(1 for case in case_results if case["rag_repair_success"])
+    average_agent_tools = round(
+        sum(case["agent_tool_count"] for case in case_results) / max(total_cases, 1),
+        2,
+    )
 
     average_latency_ms = round(
         sum(case["latency_ms"] for case in case_results) / max(total_cases, 1),
@@ -266,9 +310,15 @@ def _build_summary(case_results: list[dict[str, Any]]) -> dict[str, Any]:
             4,
         ),
         "citation_check_pass_rate": _rate(citation_checks["passed"], citation_checks["total"]),
+        "grounding_support_pass_rate": _rate(grounding_checks["passed"], grounding_checks["total"]),
         "anomaly_check_pass_rate": _rate(anomaly_checks["passed"], anomaly_checks["total"]),
         "subject_check_pass_rate": _rate(subject_checks["passed"], subject_checks["total"]),
         "mention_check_pass_rate": _rate(mention_checks["passed"], mention_checks["total"]),
+        "human_review_rate": round(human_review_cases / max(total_cases, 1), 4),
+        "prompt_applied_rate": round(prompt_applied_cases / max(total_cases, 1), 4),
+        "rag_repair_attempt_rate": round(rag_repair_attempted_cases / max(total_cases, 1), 4),
+        "rag_repair_success_rate": round(rag_repair_success_cases / max(total_cases, 1), 4),
+        "average_agent_tool_calls": average_agent_tools,
         "average_latency_ms": average_latency_ms,
     }
 
