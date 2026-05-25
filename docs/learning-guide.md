@@ -1,4 +1,4 @@
-# Peakflo Finance Agent Demo Learning Guide
+# InvoiceFlow AI Learning Guide
 
 > This document explains, in simple language, what you built, why it matters, and how the important pieces of code fit together.
 
@@ -1085,4 +1085,4 @@ That is what you made.
 
 ---
 
-*Generated: May 12, 2026 | Project: peakflo-finance-agent-demo | Key files: `app/orchestrator/engine.py`, `app/agents/extractor.py`, `app/agents/research.py`, `app/agents/decision.py`, `app/agents/editor.py`, `app/orchestrator/audit.py`*
+*Generated: May 12, 2026 | Project: invoiceflow-ai | Key files: `app/orchestrator/engine.py`, `app/agents/extractor.py`, `app/agents/research.py`, `app/agents/decision.py`, `app/agents/editor.py`, `app/orchestrator/audit.py`*
