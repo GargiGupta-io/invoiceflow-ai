@@ -18,6 +18,7 @@ const auditText = document.getElementById("audit-text");
 const anomalyList = document.getElementById("anomaly-list");
 const signalList = document.getElementById("signal-list");
 const evidenceList = document.getElementById("evidence-list");
+const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
 const rawJson = document.getElementById("raw-json");
 
@@ -148,6 +149,7 @@ function renderResult(payload) {
   const arDecision = workflow.ar_decision;
   const finalDecision = apDecision || arDecision || {};
   const evidence = finalDecision.evidence || [];
+  const agentTrace = audit.agent_tool_trace || [];
 
   resultKind.textContent = workflow.workflow_type
     ? `${prettifyWorkflow(workflow.workflow_type)} ready`
@@ -178,6 +180,7 @@ function renderResult(payload) {
 
   renderTags(signalList, (route.matched_signals || []).map((signal) => ({ text: signal })), "No signals.");
   renderEvidence(evidenceList, evidence);
+  renderAgentTrace(agentTraceList, agentTrace);
   renderKeyFields(keyFieldList, extraction);
 
   evidenceCount.textContent = String(evidence.length);
@@ -231,6 +234,37 @@ function renderEvidence(container, evidence) {
 
     card.appendChild(title);
     card.appendChild(excerpt);
+    card.appendChild(reason);
+    container.appendChild(card);
+  }
+}
+
+function renderAgentTrace(container, traces) {
+  container.innerHTML = "";
+  if (!traces || traces.length === 0) {
+    container.textContent = "No tool calls returned.";
+    container.className = "evidence-list empty-state";
+    return;
+  }
+
+  container.className = "evidence-list";
+  for (const trace of traces) {
+    const card = document.createElement("article");
+    card.className = "evidence-item";
+
+    const title = document.createElement("strong");
+    title.textContent = trace.tool_name || "unknown_tool";
+
+    const summary = document.createElement("p");
+    summary.textContent = trace.output_summary || trace.purpose || "";
+
+    const reason = document.createElement("small");
+    const review = trace.requires_human_review ? "review required" : "auto";
+    const confidence = trace.confidence_signal || "unknown";
+    reason.textContent = `${confidence} | ${review}`;
+
+    card.appendChild(title);
+    card.appendChild(summary);
     card.appendChild(reason);
     container.appendChild(card);
   }
@@ -351,6 +385,18 @@ function buildAuditMeta(confidence, audit) {
   }
   if (confidence != null) {
     bodyParts.push(`Confidence ${confidence}`);
+  }
+  if (Array.isArray(audit.agent_tool_trace)) {
+    bodyParts.push(`${audit.agent_tool_trace.length} tool calls`);
+  }
+  if (audit.retrieval_repair && audit.retrieval_repair.attempted) {
+    bodyParts.push(audit.retrieval_repair.success ? "RAG repaired" : "RAG repair failed");
+  }
+  if (Array.isArray(audit.llm_gateway) && audit.llm_gateway.length) {
+    bodyParts.push(`${audit.llm_gateway.length} gateway calls`);
+  }
+  if (audit.human_review && audit.human_review.required) {
+    bodyParts.push(audit.human_review.blocking ? "Blocking review" : "Review gate");
   }
   if (audit.requested_extractor_mode && audit.requested_extractor_mode !== audit.effective_extractor_mode) {
     bodyParts.push(`Requested ${audit.requested_extractor_mode}, switched to ${audit.effective_extractor_mode}`);
