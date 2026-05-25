@@ -4,11 +4,11 @@ This file packages the project for applications, short demos, and recruiter-faci
 
 ## One-Line Summary
 
-FastAPI-based finance workflow demo that extracts invoice or finance-email data, routes cases into AP or AR flows, retrieves policy evidence, and returns grounded approval actions or follow-up drafts.
+FastAPI-based LLM finance workflow agent that extracts invoice or finance-email data, routes cases into AP or AR flows, repairs weak retrieval, records guardrailed LLM calls, emits an auditable tool trace, and returns grounded approval actions or follow-up drafts.
 
 ## Short Project Summary
 
-This project simulates a compact version of a finance operations AI workflow. A user uploads an invoice or finance-related email, the system extracts structured data, routes the case into accounts payable or accounts receivable logic, retrieves citeable policy context from a synthetic finance knowledge base, and returns a grounded recommendation or drafted action.
+This project simulates a compact version of a finance operations AI workflow. A user uploads an invoice or finance-related email, the system extracts structured data through a strict schema, routes the case into accounts payable or accounts receivable logic, retrieves citeable policy context from a synthetic finance knowledge base, repairs missing evidence when retrieval is weak, records each tool-like agent step, and returns a grounded recommendation or drafted action with a human-review gate.
 
 ## Demo Setup
 
@@ -32,7 +32,7 @@ Open:
 Say:
 
 ```text
-This is a finance workflow AI demo built around two operations use cases: AP invoice review and AR overdue follow-up. The backend is FastAPI-based, uses structured extraction and route-aware retrieval, and always returns evidence alongside the final action.
+This is a finance workflow agent built around two operations use cases: AP invoice review and AR overdue follow-up. The backend is FastAPI-based, uses structured extraction through a guardrails gateway, route-aware retrieval with self-healing repair, tool-call style orchestration, and always returns evidence plus a human-review gate alongside the final action.
 ```
 
 ### AP Flow
@@ -79,7 +79,7 @@ For receivables, the same pipeline switches to an AR path. Here the customer cla
 Say:
 
 ```text
-The repo also includes a small evaluation harness over seven synthetic finance cases, so extraction quality, routing accuracy, anomaly coverage, citation checks, and latency can be measured rather than assumed.
+The repo also includes a CI-ready evaluation harness over seven synthetic finance cases, so extraction quality, routing accuracy, anomaly coverage, citation support, retrieval repair, human-review gating, tool-call coverage, and latency can be measured rather than assumed.
 ```
 
 ## Recording Checklist
@@ -101,35 +101,37 @@ python -m app.eval.run_eval
 
 ### Default Version
 
-- Built a FastAPI-based finance workflow demo that extracts invoice and finance-email data, routes cases into AP or AR flows, and returns grounded approval recommendations or follow-up drafts.
-- Implemented structured extraction, OCR fallback, schema validation, anomaly detection, and retrieval over citeable policy documents to keep outputs explainable and reliable.
-- Added an evaluation harness across seven synthetic finance workflow cases to measure extraction match quality, routing accuracy, citation coverage, anomaly checks, and latency.
+- Built a FastAPI-based finance workflow agent that extracts invoice and finance-email data, routes cases into AP or AR flows, and returns grounded approval recommendations or follow-up drafts.
+- Implemented structured LLM extraction, a guardrails gateway, OCR fallback, schema validation, anomaly detection, self-healing route-aware RAG, tool-call tracing, and confidence-based human review.
+- Added a CI/CD evaluation gate across seven synthetic finance workflow cases to measure extraction match quality, routing accuracy, citation coverage, grounding support, retrieval repair, anomaly checks, review gates, and latency.
 
 ### Metric-Forward Version
 
-- Built a FastAPI-based finance operations demo that achieved `100%` workflow-routing accuracy and `86%` extraction-field match on an initial seven-case evaluation set.
-- Implemented retrieval over `25` citeable finance-policy chunks plus schema validation, OCR fallback, and anomaly detection for AP and AR workflows.
-- Shipped an operator UI and eval runner so recommendations, evidence, and latency can be inspected end-to-end instead of treated as a black-box model output.
+- Built a FastAPI-based finance operations agent that achieved `100%` pass rate, workflow-routing accuracy, extraction-field match, citation coverage, and grounding support on the bundled seven-case evaluation set.
+- Implemented retrieval over `25` citeable finance-policy chunks plus self-healing RAG repair, schema validation, OCR fallback, tool-call tracing, and anomaly detection for AP and AR workflows.
+- Shipped a polished operator UI and CI eval gate so recommendations, evidence, retrieval repair, guardrail metadata, and latency can be inspected end-to-end instead of treated as a black-box model output.
 
 ### Short Version
 
-- Built a FastAPI finance workflow demo with structured extraction, policy retrieval, AP/AR routing, and grounded business-action outputs.
-- Added validation, OCR fallback, anomaly detection, and an eval harness for reliability-focused workflow testing.
+- Built a FastAPI finance workflow agent with structured extraction, self-healing policy RAG, guardrailed LLM calls, tool-call tracing, AP/AR routing, and grounded business-action outputs.
+- Added validation, OCR fallback, anomaly detection, human-review gating, and an eval harness for reliability-focused workflow testing.
 
 ## Application Blurb
 
-I built this project to simulate the kind of workflow-heavy AI system used in finance operations. Instead of a generic chatbot, it takes invoice or finance-email input, produces structured output, retrieves policy evidence, routes the case into AP or AR logic, and returns a grounded business action through a FastAPI backend.
+I built this project to simulate the kind of workflow-heavy AI system used in finance operations. Instead of a generic chatbot, it takes invoice or finance-email input, produces strict structured output, retrieves and repairs policy evidence, routes the case into AP or AR logic, records tool-like agent steps, applies a human-review gate, and returns a grounded business action through a FastAPI backend.
 
 ## Interview Talking Points
 
 - The routing layer is deterministic so AP vs AR is resolved before downstream reasoning.
-- The retrieval layer works over small citeable policy chunks instead of free-form long context.
+- The retrieval layer works over small citeable policy chunks instead of free-form long context, then repairs missing required citations when first-pass retrieval is weak.
+- The LLM guardrails gateway centralizes schema-mode calls, fallback behavior, PII-aware redaction, latency, and token metadata.
 - The workflow is designed to fail into `missing_info` instead of confidently guessing.
+- The audit trail makes the agent workflow inspectable through tool-call records and human-review reasons.
 - AP and AR business logic share a policy-assessment layer so anomaly and escalation rules stay maintainable.
-- The eval harness makes reliability visible by checking routing, extraction, anomalies, citations, and latency.
+- The eval harness makes reliability visible by checking routing, extraction, anomalies, citations, grounding support, retrieval repair, review gates, and latency.
 
 ## Honest Caveats
 
 - The dataset is synthetic and intentionally small.
 - OCR support is a fallback path and depends on local Tesseract availability.
-- The initial eval baseline is stronger on routing and anomaly checks than on citation coverage, which leaves a clear improvement path.
+- AP/AR decision generation is still deterministic; the LLM-heavy path currently focuses on extraction, repair, guardrails metadata, RAG, auditability, and evals.
