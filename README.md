@@ -1,8 +1,9 @@
-# Peakflo Finance Agent Demo
+# InvoiceFlow AI
 
-A finance workflow AI demo built to match the shape of the Peakflo ML Engineer
-Intern role: document ingestion, structured extraction, retrieval-grounded
-reasoning, workflow routing, and business-action output for AP and AR cases.
+An LLM-powered finance workflow agent for invoice review and receivables
+follow-up. It combines document ingestion, structured extraction,
+retrieval-grounded policy reasoning, tool-call tracing, human review gates, and
+evaluation for AP and AR workflows.
 
 ## What It Does
 
@@ -26,8 +27,7 @@ The project supports two narrow workflows:
 
 ## Why This Project Exists
 
-This repo is intentionally shaped around the kind of problems Peakflo is hiring
-for:
+This repo is intentionally shaped around workflow-heavy finance AI problems:
 
 - OCR-assisted document ingestion
 - structured extraction
@@ -40,11 +40,11 @@ for:
 
 ### Console Overview
 
-![Peakflo finance agent console overview](docs/screenshots/console-overview.png)
+![InvoiceFlow AI console overview](docs/screenshots/console-overview.png)
 
 ### AP Result Walkthrough
 
-![Peakflo finance agent AP result view](docs/screenshots/ap-missing-po-result.png)
+![InvoiceFlow AI AP result view](docs/screenshots/ap-missing-po-result.png)
 
 ## Current Status
 
@@ -53,24 +53,30 @@ Implemented:
 - PDF parsing with OCR fallback hooks
 - strict extraction schema
 - deterministic development extractor
+- LLM extraction path with schema-shaped JSON responses and validation repair
+- LLM guardrails gateway for schema-mode fallback, PII-aware request redaction, latency metadata, and token metadata when available
 - retrieval-ready finance knowledge base
 - policy retrieval with citations
+- explicit tool-call style agent trace for extraction, routing, policy search, validation, and action generation
 - AP vs AR routing
 - AP decision flow
 - AR drafting flow
+- confidence-based human review gate for risky, low-evidence, or missing-information cases
 - TTS-safe AR follow-up variants for dates, amounts, and identifiers
 - workflow audit trail with prompt version, stage timings, retrieved chunks, and final action
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
+- polished operator-console layout with brand bar, grid-backed hero, reliability callouts, and decision/evidence panels
 - evaluation dataset and runner
+- CI/CD eval threshold gate for reliability regressions
 - clean smoke-test run in a separate virtual environment
 
 Still worth improving:
-- citation coverage against the strict eval targets
-- AR subject/draft phrasing coverage
 - production-grade OCR/runtime setup
 - live deployment and final demo recording
+- LLM-based AP/AR decision drafting behind the existing schemas
+- cost and token tracking for LLM mode
 
 ## Architecture
 
@@ -95,6 +101,9 @@ Still worth improving:
    [AP Decision Flow]   [AR Drafting Flow]
           |               |
           +-------+-------+
+                  |
+                  v
+ [Tool Trace + Human Review Gate]
                   |
                   v
       [Structured Result + Evidence]
@@ -146,7 +155,7 @@ Output:
 ## Repository Layout
 
 ```text
-peakflo-finance-agent-demo/
+invoiceflow-ai/
 |- api/
 |  `- main.py
 |- docs/
@@ -195,7 +204,8 @@ Use `/ui` to:
 - run built-in sample workflows
 - upload a local file
 - inspect the workflow path, key document fields, final action, anomalies/triggers, and evidence
-- inspect latency and prompt-version metadata in the summary line
+- inspect latency, prompt-version metadata, self-healing RAG repair status, and LLM gateway call count
+- inspect the tool-call trace without opening raw JSON
 - open the full backend response only when needed through the collapsible debug panel
 
 For screenshots or quick demos, the UI also supports:
@@ -216,9 +226,14 @@ Workflow responses now include:
 - `audit_trail.requested_extractor_mode`
 - `audit_trail.effective_extractor_mode`
 - `audit_trail.prompt_version`
+- `audit_trail.prompt_applied`
+- `audit_trail.llm_gateway`
+- `audit_trail.retrieval_repair`
 - `audit_trail.stage_latencies_ms`
 - `audit_trail.total_latency_ms`
 - `audit_trail.final_recommendation`
+- `audit_trail.human_review`
+- `audit_trail.agent_tool_trace`
 - `audit_trail.evidence_sources`
 - `audit_trail.retrieved_chunks`
 
@@ -239,14 +254,24 @@ Run the built-in evaluation suite from the repo root:
 python -m app.eval.run_eval
 ```
 
+Run the CI-style threshold gate locally:
+
+```bash
+python -m app.eval.check_eval_thresholds --output eval-results.json
+```
+
 The eval runner checks:
 - workflow-type match
 - extraction field match rate
 - AP/AR final decision match
 - citation coverage
+- grounding support for cited evidence
 - anomaly coverage
 - AR subject coverage
 - AR draft mention coverage
+- human-review gate rate
+- average agent tool calls
+- prompt-applied rate for LLM runs
 - case latency
 
 Prompt A/B comparison:
@@ -261,11 +286,29 @@ That script:
 - runs dataset-level runtime comparison too when `OPENAI_API_KEY` is configured
 
 The current heuristic baseline already shows:
-- workflow routing is correct
-- anomaly checks are strong
-- extraction is mostly correct
-- citation coverage still needs improvement
-- some AR phrasing still misses strict expected text fragments
+- `100%` workflow-routing accuracy on the bundled eval set
+- `100%` extraction-field match on the bundled eval set
+- `100%` citation coverage and grounding support on the bundled eval set
+- review-gate and tool-trace metrics for agent observability
+
+## CI/CD Eval Gate
+
+GitHub Actions runs `.github/workflows/eval.yml` on pushes, pull requests, and
+manual dispatches. The workflow installs dependencies, runs the eval threshold
+gate, fails the build if quality drops below configured minimums, and uploads
+`eval-results.json` as an artifact for inspection.
+
+Default CI thresholds require:
+- `pass_rate >= 1.0`
+- `workflow_match_rate >= 1.0`
+- `extraction_field_match_rate >= 1.0`
+- `citation_check_pass_rate >= 1.0`
+- `grounding_support_pass_rate >= 1.0`
+- `anomaly_check_pass_rate >= 1.0`
+- `subject_check_pass_rate >= 1.0`
+- `mention_check_pass_rate >= 1.0`
+- `rag_repair_success_rate >= 1.0`
+- `average_latency_ms <= 1000`
 
 ## Demo Path
 
@@ -295,17 +338,17 @@ Best short walkthrough:
 - The `heuristic` extractor path is intentionally tuned for the sample fixtures.
 - The `llm` extractor/repair path requires an OpenAI-compatible API key and
   runtime configuration.
-- Citation selection is not yet strong enough to satisfy every strict eval
-  target.
+- The guardrails gateway currently covers LLM extraction and repair calls; AP/AR
+  decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- The UI is intentionally minimal and optimized for inspection, not production
-  polish.
+- The UI is a local operator console, not a deployed production dashboard.
 
 ## Next Improvements
 
-- improve evidence selection so expected policy IDs are covered more reliably
-- tighten AR subject/body phrasing against eval expectations
 - run prompt A/B comparison with a configured LLM path and keep the stronger extractor prompt
+- add LLM-based decision drafting behind the same audit and review gate used by the deterministic baseline
+- add real tool-calling where an LLM chooses registered backend tools
+- add cost tracking for LLM runs using gateway token metadata
 - add deployment instructions and live hosting
 - record a short demo video
 - add a final pass on README screenshots and operator flow
