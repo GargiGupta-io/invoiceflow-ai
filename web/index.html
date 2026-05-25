@@ -3,32 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Peakflo Finance Agent Demo</title>
+  <title>InvoiceFlow AI</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="page-shell">
+    <nav class="site-header" aria-label="Primary">
+      <div class="brand-lockup">
+        <span class="brand-mark">iflow</span>
+        <span class="brand-name">InvoiceFlow AI</span>
+      </div>
+      <div class="system-status">
+        <span>AP/AR Agent</span>
+        <strong>READY</strong>
+      </div>
+    </nav>
+
     <header class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Peakflo-Shaped Workflow Demo</p>
-        <h1>Finance operations console for AP approvals and AR follow-ups.</h1>
+        <p class="eyebrow">Required input: invoice or receivables case</p>
+        <h1>Turn invoices and AR emails into auditable finance actions.</h1>
         <p class="hero-text">
-          Run the full extraction, routing, retrieval, and decision flow from built-in sample cases
-          or upload a document to inspect grounded workflow output.
+          Run extraction, AP/AR routing, policy retrieval, RAG repair, guardrailed LLM extraction,
+          review gates, and eval-ready audit output from one operator surface.
         </p>
       </div>
       <div class="hero-metrics">
         <div class="metric-card">
-          <span class="metric-label">Workflows</span>
-          <strong>AP + AR</strong>
+          <span class="metric-label">Reliability</span>
+          <strong>Eval CI Gate</strong>
         </div>
         <div class="metric-card">
-          <span class="metric-label">Grounding</span>
-          <strong>Cited policy evidence</strong>
+          <span class="metric-label">Retrieval</span>
+          <strong>Self-healing RAG</strong>
         </div>
         <div class="metric-card">
-          <span class="metric-label">Output</span>
-          <strong>Structured decisions</strong>
+          <span class="metric-label">LLM Control</span>
+          <strong>Guardrails Gateway</strong>
         </div>
       </div>
     </header>
@@ -37,8 +48,8 @@
       <section class="panel controls-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Run Samples</p>
-            <h2>Built-in scenarios</h2>
+            <p class="eyebrow">Input Contract</p>
+            <h2>Sample scenarios</h2>
           </div>
           <span class="status-pill" id="sample-status">Idle</span>
         </div>
@@ -62,8 +73,8 @@
       <section class="panel controls-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Upload</p>
-            <h2>Operator file check</h2>
+            <p class="eyebrow">Document Intake</p>
+            <h2>Upload check</h2>
           </div>
           <span class="status-pill" id="upload-status">Idle</span>
         </div>
@@ -87,14 +98,14 @@
       <section class="panel results-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Workflow Output</p>
-            <h2>What this run means</h2>
+            <p class="eyebrow">Decision Board</p>
+            <h2>Current run</h2>
           </div>
           <span class="status-pill neutral" id="result-kind">No result</span>
         </div>
         <p class="panel-intro">
-          This console reads a finance document, decides whether it belongs to Accounts Payable or
-          Accounts Receivable, checks relevant policy evidence, and suggests the safest next step.
+          Review the route, extracted finance fields, cited policy evidence, agent trace, and
+          human-review gate before acting on a case.
         </p>
         <div class="result-grid">
           <article class="result-card">
@@ -135,8 +146,8 @@
       <section class="panel detail-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Grounded Detail</p>
-            <h2>Why the system chose that action</h2>
+            <p class="eyebrow">Grounded Console</p>
+            <h2>Evidence and trace</h2>
           </div>
         </div>
         <div class="detail-grid">
@@ -154,14 +165,18 @@
             <h3>Evidence</h3>
             <div id="evidence-list" class="evidence-list empty-state">No evidence yet.</div>
           </div>
+          <div class="detail-column">
+            <h3>Agent tool trace</h3>
+            <div id="agent-trace-list" class="evidence-list empty-state">No tool calls yet.</div>
+          </div>
         </div>
       </section>
 
       <section class="panel raw-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Debug</p>
-            <h2>Raw output and full backend response</h2>
+            <p class="eyebrow">Audit Payload</p>
+            <h2>Raw backend response</h2>
           </div>
         </div>
         <details class="debug-disclosure">
