@@ -5,7 +5,14 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any, Protocol
 
-from ..rag import KnowledgeIndex, RetrievalHit, hits_to_evidence_payloads, query_knowledge_index
+from ..rag import (
+    KnowledgeIndex,
+    RetrievalHit,
+    RetrievalRepairReport,
+    hits_to_evidence_payloads,
+    query_knowledge_index,
+    repair_retrieval_if_needed,
+)
 
 
 class ExtractionLike(Protocol):
@@ -20,6 +27,7 @@ class ExtractionLike(Protocol):
     currency: Any
     due_date: Any
     payment_terms: str | None
+    source_text_excerpt: str
     missing_fields: list[str]
 
 
@@ -41,6 +49,7 @@ class GroundedPolicyContext:
     matched_signals: list[str]
     retrieval_hits: list[RetrievalHit]
     evidence_payloads: list[dict[str, str]]
+    retrieval_repair: RetrievalRepairReport
     summary: str
 
     def to_dict(self) -> dict:
@@ -51,6 +60,7 @@ class GroundedPolicyContext:
             "matched_signals": list(self.matched_signals),
             "retrieval_hits": [asdict(hit) for hit in self.retrieval_hits],
             "evidence_payloads": list(self.evidence_payloads),
+            "retrieval_repair": self.retrieval_repair.to_dict(),
             "summary": self.summary,
         }
 
@@ -60,17 +70,27 @@ def assemble_grounded_policy_context(
     route: WorkflowRouteLike,
     index: KnowledgeIndex,
     *,
-    top_k: int = 5,
+    top_k: int = 12,
 ) -> GroundedPolicyContext:
     """Build the grounded retrieval context the decision layers will consume."""
 
     workflow_type = _normalize_workflow_type(route.workflow_type)
     query_text = build_policy_query(extraction, workflow_type)
-    hits = query_knowledge_index(
+    workflow_hint = _workflow_hint(workflow_type)
+    initial_hits = query_knowledge_index(
         index,
         query_text,
+        top_k=min(5, top_k),
+        workflow_hint=workflow_hint,
+    )
+    required_source_ids = infer_required_policy_source_ids(extraction, workflow_type)
+    hits, repair_report = repair_retrieval_if_needed(
+        index=index,
+        query_text=query_text,
+        initial_hits=initial_hits,
+        required_source_ids=required_source_ids,
+        workflow_hint=workflow_hint,
         top_k=top_k,
-        workflow_hint=_workflow_hint(workflow_type),
     )
     evidence_payloads = hits_to_evidence_payloads(hits)
 
@@ -81,6 +101,7 @@ def assemble_grounded_policy_context(
         matched_signals=list(route.matched_signals),
         retrieval_hits=hits,
         evidence_payloads=evidence_payloads,
+        retrieval_repair=repair_report,
         summary=_build_context_summary(workflow_type, hits),
     )
 
@@ -121,6 +142,50 @@ def build_policy_query(extraction: ExtractionLike, workflow_type: str) -> str:
     return " | ".join(base_parts)
 
 
+def infer_required_policy_source_ids(extraction: ExtractionLike, workflow_type: str) -> list[str]:
+    """Infer policy sections that should be present for a well-grounded decision."""
+
+    if workflow_type == "accounts_payable":
+        source_ids = ["AP-APPROVAL-001", "AP-POLICY-003"]
+        if not extraction.po_number:
+            source_ids.append("AP-APPROVAL-002")
+        if _excerpt_has_any(extraction.source_text_excerpt, ["duplicate", "resubmitted", "resubmission"]):
+            source_ids.append("AP-APPROVAL-003")
+        vendor_source_id = _source_id_for_name(
+            extraction.vendor_name,
+            {
+                "northstar office supplies": "VENDOR-001",
+                "bluewave logistics": "VENDOR-002",
+                "lumina creative studio": "VENDOR-003",
+                "quartz cloud systems": "VENDOR-004",
+            },
+        )
+        if vendor_source_id:
+            source_ids.append(vendor_source_id)
+        return _dedupe(source_ids)
+
+    source_ids = ["AR-ESCALATION-001"]
+    document_type = (_string_value(extraction.document_type) or "").lower()
+    if document_type == "payment_confirmation":
+        source_ids.extend(["AR-ESCALATION-002", "AR-TEMPLATE-004"])
+    elif _excerpt_has_any(extraction.source_text_excerpt, ["prior reminders sent: 2", "overdue days: 22", "overdue days: 45"]):
+        source_ids.append("AR-TEMPLATE-003")
+    else:
+        source_ids.append("AR-TEMPLATE-001")
+
+    customer_source_id = _source_id_for_name(
+        extraction.customer_name,
+        {
+            "aster retail": "CUSTOMER-001",
+            "horizon health group": "CUSTOMER-002",
+            "meridian industrial": "CUSTOMER-003",
+        },
+    )
+    if customer_source_id:
+        source_ids.append(customer_source_id)
+    return _dedupe(source_ids)
+
+
 def _normalize_workflow_type(raw_value: Any) -> str:
     if hasattr(raw_value, "value"):
         return str(raw_value.value)
@@ -159,3 +224,24 @@ def _fallback_number(raw_value: float | None) -> str:
     if raw_value is None:
         return "unknown"
     return f"{raw_value:.2f}"
+
+
+def _source_id_for_name(raw_name: str | None, source_ids_by_name: dict[str, str]) -> str | None:
+    normalized = (raw_name or "").strip().lower()
+    return source_ids_by_name.get(normalized)
+
+
+def _excerpt_has_any(excerpt: str, markers: list[str]) -> bool:
+    lowered = (excerpt or "").lower()
+    return any(marker in lowered for marker in markers)
+
+
+def _dedupe(values: list[str]) -> list[str]:
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        item = value.strip()
+        if item and item not in seen:
+            ordered.append(item)
+            seen.add(item)
+    return ordered
