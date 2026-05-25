@@ -11,3 +11,4 @@ build/
 coverage/
 tmp/
 *.log
+eval-results.json
