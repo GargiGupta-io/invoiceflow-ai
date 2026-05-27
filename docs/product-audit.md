@@ -93,7 +93,7 @@ flags human-review cases, and proves reliability with eval results.
 
 | Area | Visible Feature / Module | Classification | Why |
 | --- | --- | --- | --- |
-| Old Planning | `peakflo-finance-agent-demo-plan.md` | Delay | Useful history, but the old Peakflo framing distracts from the current InvoiceFlow AI product. Reframe, move, or hide from the main product story later. |
+| Old Planning | `docs/archive/build-history.md` | Delay | Useful build history, now archived away from the main product surface with a clear InvoiceFlow AI framing note. |
 | Prompt A/B UI | Public prompt comparison dashboard | Delay | Useful later, but not needed before AP/AR operator flow is polished. Keep prompt comparison as backend/CLI support for now. |
 | Live LLM Decisioning | LLM-generated AP/AR decisions | Delay | Current deterministic AP/AR decisions are safer for demo reliability. Add later behind existing schemas and review gates. |
 | Cost Dashboard | Per-run cost display | Delay | Token metadata exists when available, but a full cost dashboard can wait until live LLM usage is central. |
@@ -127,7 +127,7 @@ Input document or sample
 ## What To De-Emphasize
 
 - Generic AI assistant language.
-- The old Peakflo-specific repo name and plan.
+- Historical build notes as primary product documentation.
 - Prompt experimentation as a product feature.
 - OCR as a guaranteed production feature when the local environment may not have Tesseract.
 - Future integrations before the operator workflow is polished.
