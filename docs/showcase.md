@@ -4,11 +4,11 @@ This file packages the project for applications, short demos, and recruiter-faci
 
 ## One-Line Summary
 
-FastAPI-based LLM finance workflow agent that extracts invoice or finance-email data, routes cases into AP or AR flows, repairs weak retrieval, records guardrailed LLM calls, emits an auditable tool trace, and returns grounded approval actions or follow-up drafts.
+InvoiceFlow AI is a finance operations console for AP invoice review and AR follow-up drafting, with structured extraction, policy evidence, audit trails, human review gates, and eval-backed reliability.
 
 ## Short Project Summary
 
-This project simulates a compact version of a finance operations AI workflow. A user uploads an invoice or finance-related email, the system extracts structured data through a strict schema, routes the case into accounts payable or accounts receivable logic, retrieves citeable policy context from a synthetic finance knowledge base, repairs missing evidence when retrieval is weak, records each tool-like agent step, and returns a grounded recommendation or drafted action with a human-review gate.
+InvoiceFlow AI helps a finance operator decide what to do with an invoice or overdue payment case. A user runs an AP or AR sample, uploads a document, or reviews pasted finance text. The system extracts structured fields, routes the case into Accounts Payable or Accounts Receivable, retrieves citeable policy evidence, repairs missing evidence when retrieval is weak, records each tool-like step, and returns a grounded recommendation or follow-up draft with a human-review gate.
 
 ## Demo Setup
 
@@ -33,6 +33,12 @@ Say:
 
 ```text
 This is a finance workflow agent built around two operations use cases: AP invoice review and AR overdue follow-up. The backend is FastAPI-based, uses structured extraction through a guardrails gateway, route-aware retrieval with self-healing repair, tool-call style orchestration, and always returns evidence plus a human-review gate alongside the final action.
+```
+
+Then say:
+
+```text
+The product promise is simple: review faster, decide with evidence, and escalate safely.
 ```
 
 ### AP Flow
@@ -118,7 +124,7 @@ python -m app.eval.run_eval
 
 ## Application Blurb
 
-I built this project to simulate the kind of workflow-heavy AI system used in finance operations. Instead of a generic chatbot, it takes invoice or finance-email input, produces strict structured output, retrieves and repairs policy evidence, routes the case into AP or AR logic, records tool-like agent steps, applies a human-review gate, and returns a grounded business action through a FastAPI backend.
+I built this project to simulate a finance operations console, not a generic chatbot. It takes invoice or finance-email input, produces strict structured output, retrieves and repairs policy evidence, routes the case into AP or AR logic, records tool-like agent steps, applies a human-review gate, and returns a grounded business action through a FastAPI backend.
 
 ## Interview Talking Points
 
