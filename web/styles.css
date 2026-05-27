@@ -295,6 +295,11 @@ body {
   border: 1px solid rgba(31, 39, 33, 0.08);
 }
 
+.sample-card.is-running {
+  border-color: rgba(36, 91, 69, 0.34);
+  box-shadow: 0 12px 30px rgba(36, 91, 69, 0.12);
+}
+
 .sample-card-top {
   display: flex;
   align-items: center;
