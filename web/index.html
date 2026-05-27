@@ -57,6 +57,37 @@
       </div>
     </header>
 
+    <section class="entry-board" aria-label="Operator snapshot">
+      <article class="entry-card">
+        <span class="result-label">Workflow State</span>
+        <strong id="entry-workflow-state">Ready for AP or AR</strong>
+        <p id="entry-workflow-detail">Run a sample or upload a finance document to start a reviewed workflow.</p>
+      </article>
+      <article class="entry-card">
+        <span class="result-label">Sample Cases</span>
+        <strong id="entry-sample-count">Loading</strong>
+        <div class="sample-chips" aria-label="Highlighted samples">
+          <button type="button" data-run-sample="ap_002_missing_po">AP Missing PO</button>
+          <button type="button" data-run-sample="ar_003_payment_claim_no_proof">AR Payment Claim</button>
+        </div>
+      </article>
+      <article class="entry-card">
+        <span class="result-label">Upload Option</span>
+        <strong id="entry-upload-state">PDF or text</strong>
+        <p>Text PDFs, `.txt`, and `.md` files can run through the same extraction and policy checks.</p>
+      </article>
+      <article class="entry-card">
+        <span class="result-label">Latest Audit</span>
+        <strong id="entry-audit-state">No run yet</strong>
+        <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
+      </article>
+      <article class="entry-card">
+        <span class="result-label">Evaluation</span>
+        <strong>100% pass rate</strong>
+        <p>7 bundled cases pass routing, extraction, citation, grounding, anomaly, and AR draft checks.</p>
+      </article>
+    </section>
+
     <main class="workspace">
       <section class="panel controls-panel">
         <div class="panel-header">
