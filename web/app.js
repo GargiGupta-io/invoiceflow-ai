@@ -21,7 +21,8 @@ const evidenceList = document.getElementById("evidence-list");
 const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
 const rawJson = document.getElementById("raw-json");
-const heroSampleButtons = document.querySelectorAll("[data-run-sample]");
+const sampleRunButtons = document.querySelectorAll("[data-run-sample]");
+const resultsPanel = document.querySelector(".results-panel");
 const entryWorkflowState = document.getElementById("entry-workflow-state");
 const entryWorkflowDetail = document.getElementById("entry-workflow-detail");
 const entrySampleCount = document.getElementById("entry-sample-count");
@@ -30,13 +31,16 @@ const entryAuditDetail = document.getElementById("entry-audit-detail");
 
 bootstrap();
 
-for (const button of heroSampleButtons) {
+for (const button of sampleRunButtons) {
+  button.dataset.defaultLabel = button.textContent;
   button.addEventListener("click", () => {
     const sampleId = button.dataset.runSample;
     const sampleMode = document.getElementById("sample-mode");
     if (sampleId) {
-      sampleSelect.value = sampleId;
-      runSampleWorkflow(sampleId, sampleMode.value);
+      if (Array.from(sampleSelect.options).some((option) => option.value === sampleId)) {
+        sampleSelect.value = sampleId;
+      }
+      runSampleWorkflow(sampleId, sampleMode.value, button);
     }
   });
 }
@@ -138,8 +142,14 @@ function applyQueryDefaults(samples) {
   }
 }
 
-async function runSampleWorkflow(sampleId, extractorMode) {
+async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) {
   setStatus(sampleStatus, "Running sample", "running");
+  setSampleRunState(sampleId, true);
+  entryWorkflowState.textContent = "Running sample";
+  entryWorkflowDetail.textContent = `Processing ${sampleId} through extraction, retrieval, validation, and decisioning.`;
+  entryAuditState.textContent = "In progress";
+  entryAuditDetail.textContent = "Waiting for recommendation, evidence, review gate, and latency.";
+
   try {
     const response = await fetch("/workflow/sample", {
       method: "POST",
@@ -157,9 +167,32 @@ async function runSampleWorkflow(sampleId, extractorMode) {
     }
     renderResult(payload);
     setStatus(sampleStatus, "Completed", "success");
+    resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     setStatus(sampleStatus, "Run failed", "error");
+    entryWorkflowState.textContent = "Sample failed";
+    entryWorkflowDetail.textContent = `${sampleId} could not complete.`;
+    entryAuditState.textContent = "Run failed";
+    entryAuditDetail.textContent = formatError(error);
     rawJson.textContent = formatError(error);
+  } finally {
+    setSampleRunState(sampleId, false);
+    if (triggerButton) {
+      triggerButton.blur();
+    }
+  }
+}
+
+function setSampleRunState(sampleId, isRunning) {
+  for (const button of sampleRunButtons) {
+    const isCurrent = button.dataset.runSample === sampleId;
+    button.disabled = isRunning;
+    button.textContent = isRunning && isCurrent ? "Running..." : button.dataset.defaultLabel;
+
+    const card = button.closest(".sample-card");
+    if (card && isCurrent) {
+      card.classList.toggle("is-running", isRunning);
+    }
   }
 }
 
