@@ -219,8 +219,10 @@ Then open:
 ### UI
 
 Use `/ui` to:
-- run built-in sample workflows
-- upload a local file
+- start from the operator entry screen with `Run AP Sample`, `Run AR Sample`, `Upload Invoice`, and `View Evaluation`
+- inspect the first-screen snapshot for workflow state, AP/AR sample count, upload readiness, latest audit summary, and eval pass rate
+- run built-in sample workflows from the hero buttons, quick sample chips, or sample selector
+- upload a local invoice or finance document
 - inspect the workflow path, key document fields, final action, anomalies/triggers, and evidence
 - inspect latency, prompt-version metadata, self-healing RAG repair status, and LLM gateway call count
 - inspect the tool-call trace without opening raw JSON
