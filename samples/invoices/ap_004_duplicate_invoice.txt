@@ -10,7 +10,7 @@ Payment Terms: Net 30
 Currency: USD
 Invoice Amount: 2450.00
 
-Bill To: Peakflo Demo Operations
+Bill To: InvoiceFlow Demo Operations
 
 Line Items:
 - Ergonomic chairs x 10 @ 180.00 = 1800.00
