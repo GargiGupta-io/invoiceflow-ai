@@ -115,9 +115,9 @@ body {
 
 .hero-copy h1 {
   margin: 14px 0 18px;
-  max-width: 13ch;
+  max-width: 12ch;
   font-family: var(--font-display);
-  font-size: 4.25rem;
+  font-size: 4.85rem;
   line-height: 0.98;
   letter-spacing: 0;
 }
@@ -126,8 +126,47 @@ body {
   max-width: 58ch;
   margin: 0;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 1.08rem;
   line-height: 1.7;
+}
+
+.hero-tagline {
+  margin: 18px 0 0;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero-actions button,
+.hero-actions .action-link {
+  min-height: 46px;
+}
+
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(31, 39, 33, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.action-link:hover {
+  transform: translateY(-1px);
+  border-color: rgba(31, 39, 33, 0.28);
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .hero-metrics {
@@ -137,6 +176,7 @@ body {
   align-content: center;
 }
 
+.workflow-card,
 .metric-card {
   padding: 22px;
   border-radius: var(--radius-md);
@@ -144,11 +184,18 @@ body {
   border: 1px solid rgba(31, 39, 33, 0.08);
 }
 
+.workflow-card strong,
 .metric-card strong {
   display: block;
   margin-top: 8px;
   font-size: 1.18rem;
   line-height: 1.25;
+}
+
+.workflow-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .metric-label,
@@ -522,6 +569,11 @@ button:disabled {
 
   .hero-copy h1 {
     font-size: 3rem;
+  }
+
+  .hero-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .spotlight-copy strong {
