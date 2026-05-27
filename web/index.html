@@ -88,6 +88,113 @@
       </article>
     </section>
 
+    <section class="sample-board" aria-label="Sample workflow cards">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Workflow Selection</p>
+          <h2>Run a focused demo case</h2>
+        </div>
+        <p>Each sample is designed to show one finance control clearly.</p>
+      </div>
+      <div class="sample-card-grid">
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ap">AP</span>
+            <span class="risk-badge medium">Medium risk</span>
+          </div>
+          <h3>Missing Purchase Order</h3>
+          <p>Checks whether a vendor invoice requires a PO before approval.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>missing_info</dd>
+            </div>
+          </dl>
+          <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run sample</button>
+        </article>
+
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ap">AP</span>
+            <span class="risk-badge high">High risk</span>
+          </div>
+          <h3>Duplicate Invoice</h3>
+          <p>Flags a duplicate invoice hint so payment does not proceed blindly.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>review</dd>
+            </div>
+          </dl>
+          <button type="button" class="primary-button" data-run-sample="ap_004_duplicate_invoice">Run sample</button>
+        </article>
+
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ap">AP</span>
+            <span class="risk-badge high">High risk</span>
+          </div>
+          <h3>Approval Threshold Exceeded</h3>
+          <p>Checks whether a high-value invoice needs approval review.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>review</dd>
+            </div>
+          </dl>
+          <button type="button" class="primary-button" data-run-sample="ap_003_threshold_review">Run sample</button>
+        </article>
+
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ar">AR</span>
+            <span class="risk-badge low">Low risk</span>
+          </div>
+          <h3>First Follow-Up</h3>
+          <p>Drafts a friendly reminder for an overdue invoice without escalation.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>draft_follow_up</dd>
+            </div>
+          </dl>
+          <button type="button" class="secondary-button" data-run-sample="ar_001_first_followup">Run sample</button>
+        </article>
+
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ar">AR</span>
+            <span class="risk-badge medium">Medium risk</span>
+          </div>
+          <h3>Payment Claimed, No Proof</h3>
+          <p>Requests transfer details when a customer claims payment without proof.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>draft_follow_up</dd>
+            </div>
+          </dl>
+          <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run sample</button>
+        </article>
+
+        <article class="sample-card">
+          <div class="sample-card-top">
+            <span class="workflow-badge ar">AR</span>
+            <span class="risk-badge high">High risk</span>
+          </div>
+          <h3>Escalation Needed</h3>
+          <p>Creates a firmer follow-up for a more overdue account with prior reminders.</p>
+          <dl>
+            <div>
+              <dt>Expected action</dt>
+              <dd>escalate</dd>
+            </div>
+          </dl>
+          <button type="button" class="secondary-button" data-run-sample="ar_002_escalation_followup">Run sample</button>
+        </article>
+      </div>
+    </section>
+
     <main class="workspace">
       <section class="panel controls-panel">
         <div class="panel-header">
