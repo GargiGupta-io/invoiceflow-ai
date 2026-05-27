@@ -21,25 +21,38 @@
 
     <header class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">Required input: invoice or receivables case</p>
-        <h1>Turn invoices and AR emails into auditable finance actions.</h1>
+        <p class="eyebrow">Finance operations console</p>
+        <h1>InvoiceFlow AI</h1>
         <p class="hero-text">
-          Run extraction, AP/AR routing, policy retrieval, RAG repair, guardrailed LLM extraction,
-          review gates, and eval-ready audit output from one operator surface.
+          AI-assisted invoice review and receivables follow-up with evidence,
+          audit trails, and human review gates.
         </p>
+        <p class="hero-tagline">Review faster. Decide with evidence. Escalate safely.</p>
+        <div class="hero-actions" aria-label="Primary actions">
+          <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run AP Sample</button>
+          <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
+          <a class="action-link" href="#upload-form">Upload Invoice</a>
+          <a class="action-link" href="#reliability-summary">View Evaluation</a>
+        </div>
       </div>
-      <div class="hero-metrics">
-        <div class="metric-card">
-          <span class="metric-label">Reliability</span>
-          <strong>Eval CI Gate</strong>
+      <div class="hero-metrics" id="reliability-summary" aria-label="Reliability summary">
+        <div class="workflow-card">
+          <span class="metric-label">AP Workflow</span>
+          <strong>Invoice Review</strong>
+          <p>Checks missing fields, PO policy, duplicate hints, totals, terms, and thresholds.</p>
+        </div>
+        <div class="workflow-card">
+          <span class="metric-label">AR Workflow</span>
+          <strong>Follow-Up Drafting</strong>
+          <p>Reviews overdue context, payment claims, reminder history, and escalation risk.</p>
         </div>
         <div class="metric-card">
-          <span class="metric-label">Retrieval</span>
-          <strong>Self-healing RAG</strong>
+          <span class="metric-label">Evaluation</span>
+          <strong>7/7 passing</strong>
         </div>
         <div class="metric-card">
-          <span class="metric-label">LLM Control</span>
-          <strong>Guardrails Gateway</strong>
+          <span class="metric-label">Safety</span>
+          <strong>Human review gates</strong>
         </div>
       </div>
     </header>
