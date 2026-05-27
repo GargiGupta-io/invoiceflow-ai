@@ -292,16 +292,18 @@ The eval runner checks:
 - prompt-applied rate for LLM runs
 - case latency
 
-Prompt A/B comparison:
+Technical prompt audit:
 
 ```bash
 python -m app.eval.prompt_ab
 ```
 
-That script:
+This support script:
 - compares `extractor_v1` vs `extractor_v2`
 - always runs a structural prompt audit
 - runs dataset-level runtime comparison too when `OPENAI_API_KEY` is configured
+
+It is not part of the main operator workflow. The product demo should stay focused on AP review, AR follow-up, evidence, human review, and eval quality.
 
 The current heuristic baseline already shows:
 - `100%` workflow-routing accuracy on the bundled eval set
@@ -363,7 +365,7 @@ Best short walkthrough:
 
 ## Next Improvements
 
-- run prompt A/B comparison with a configured LLM path and keep the stronger extractor prompt
+- run the prompt audit with a configured LLM path and keep the stronger extractor prompt
 - add LLM-based decision drafting behind the same audit and review gate used by the deterministic baseline
 - add real tool-calling where an LLM chooses registered backend tools
 - add cost tracking for LLM runs using gateway token metadata
