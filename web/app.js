@@ -21,8 +21,20 @@ const evidenceList = document.getElementById("evidence-list");
 const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
 const rawJson = document.getElementById("raw-json");
+const heroSampleButtons = document.querySelectorAll("[data-run-sample]");
 
 bootstrap();
+
+for (const button of heroSampleButtons) {
+  button.addEventListener("click", () => {
+    const sampleId = button.dataset.runSample;
+    const sampleMode = document.getElementById("sample-mode");
+    if (sampleId) {
+      sampleSelect.value = sampleId;
+      runSampleWorkflow(sampleId, sampleMode.value);
+    }
+  });
+}
 
 async function bootstrap() {
   setStatus(sampleStatus, "Loading samples", "running");
