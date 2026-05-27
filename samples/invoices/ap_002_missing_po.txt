@@ -9,7 +9,7 @@ Payment Terms: Net 30
 Currency: USD
 Invoice Amount: 7800.00
 
-Bill To: Peakflo Demo Operations
+Bill To: InvoiceFlow Demo Operations
 
 Line Items:
 - Annual observability platform subscription = 7200.00
