@@ -22,6 +22,11 @@ const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
 const rawJson = document.getElementById("raw-json");
 const heroSampleButtons = document.querySelectorAll("[data-run-sample]");
+const entryWorkflowState = document.getElementById("entry-workflow-state");
+const entryWorkflowDetail = document.getElementById("entry-workflow-detail");
+const entrySampleCount = document.getElementById("entry-sample-count");
+const entryAuditState = document.getElementById("entry-audit-state");
+const entryAuditDetail = document.getElementById("entry-audit-detail");
 
 bootstrap();
 
@@ -44,6 +49,7 @@ async function bootstrap() {
     const samples = payload.samples || [];
     populateSamples(samples);
     applyQueryDefaults(samples);
+    updateEntrySampleCount(samples);
     setStatus(sampleStatus, "Ready", "success");
   } catch (error) {
     setStatus(sampleStatus, "Failed to load samples", "error");
@@ -104,6 +110,12 @@ function populateSamples(samples) {
     option.textContent = `${sample.sample_id} (${sample.category})`;
     sampleSelect.appendChild(option);
   }
+}
+
+function updateEntrySampleCount(samples) {
+  const apCount = samples.filter((sample) => sample.category === "invoices").length;
+  const arCount = samples.filter((sample) => sample.category === "emails").length;
+  entrySampleCount.textContent = `${apCount} AP / ${arCount} AR`;
 }
 
 function applyQueryDefaults(samples) {
@@ -201,8 +213,23 @@ function renderResult(payload) {
   const auditMeta = buildAuditMeta(finalDecision.confidence, audit);
   auditValue.textContent = auditMeta.title;
   auditText.textContent = auditMeta.body;
+  updateEntryRunSummary(workflow, finalDecision, evidence, audit);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
+}
+
+function updateEntryRunSummary(workflow, finalDecision, evidence, audit) {
+  const workflowName = prettifyWorkflow(workflow.workflow_type);
+  const decision = finalDecision.recommendation || finalDecision.escalation_level || "complete";
+  const review = audit.human_review && audit.human_review.required
+    ? "review required"
+    : "no review gate";
+  const latency = audit.total_latency_ms != null ? `${audit.total_latency_ms} ms` : "latency pending";
+
+  entryWorkflowState.textContent = workflowName;
+  entryWorkflowDetail.textContent = `Current workflow finished with ${decision}.`;
+  entryAuditState.textContent = `${decision} | ${review}`;
+  entryAuditDetail.textContent = `${evidence.length} evidence sources | ${latency}`;
 }
 
 function renderTags(container, tags, emptyText) {
