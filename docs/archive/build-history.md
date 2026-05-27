@@ -1,4 +1,26 @@
-# Peakflo Finance Agent Demo Plan
+# Archived Build History
+
+This file is historical implementation context from the first version of the project. It is not the current product positioning.
+
+Current product name: `InvoiceFlow AI`
+
+Current product story:
+
+```text
+AI-assisted invoice review and receivables follow-up with evidence,
+audit trails, and human review gates.
+```
+
+The current portfolio-facing docs are:
+
+- `README.md`
+- `docs/product-audit.md`
+- `docs/showcase.md`
+- `docs/llm-agent-upgrade.md`
+
+---
+
+## Original Peakflo Finance Agent Demo Plan
 
 Last updated: May 10, 2026
 
