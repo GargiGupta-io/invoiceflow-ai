@@ -1,13 +1,32 @@
 # InvoiceFlow AI
 
-An LLM-powered finance workflow agent for invoice review and receivables
-follow-up. It combines document ingestion, structured extraction,
-retrieval-grounded policy reasoning, tool-call tracing, human review gates, and
-evaluation for AP and AR workflows.
+AI-assisted invoice review and receivables follow-up with evidence, audit
+trails, and human review gates.
 
-## What It Does
+Review faster. Decide with evidence. Escalate safely.
 
-The project supports two narrow workflows:
+InvoiceFlow AI is a finance operations console for two workflows:
+Accounts Payable invoice review and Accounts Receivable follow-up drafting. It
+ingests documents or sample cases, extracts structured fields, retrieves policy
+evidence, recommends the next action, and shows the audit trail behind that
+recommendation.
+
+## Product Snapshot
+
+```text
+Input invoice or AR case
+  -> structured extraction
+  -> AP/AR routing
+  -> policy evidence retrieval
+  -> validation and anomaly checks
+  -> recommendation or follow-up draft
+  -> human review gate
+  -> audit trail and eval metrics
+```
+
+## Core Workflows
+
+The product supports two focused finance workflows:
 
 ### Accounts Payable
 - ingest an invoice document
@@ -27,14 +46,13 @@ The project supports two narrow workflows:
 
 ## Why This Project Exists
 
-This repo is intentionally shaped around workflow-heavy finance AI problems:
+This repo is intentionally shaped around workflow-heavy finance operations, not
+generic chat. The main story is:
 
-- OCR-assisted document ingestion
-- structured extraction
-- retrieval-grounded workflow reasoning
-- policy-aware automation
-- Python backend systems
-- evaluation and reliability thinking
+- AP invoices should be reviewed against policy before payment.
+- AR follow-ups should be drafted from case data without aggressive or unsupported escalation.
+- Risky, missing, or weakly grounded cases should route to human review.
+- Recommendations should be backed by citations, audit metadata, and eval results.
 
 ## Quick Look
 
