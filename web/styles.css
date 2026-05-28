@@ -229,6 +229,120 @@ body {
   line-height: 1.55;
 }
 
+.queue-panel {
+  margin: 0 0 18px;
+}
+
+.queue-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.queue-refresh {
+  min-height: 40px;
+  padding: 10px 14px;
+}
+
+.queue-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(31, 39, 33, 0.08);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.queue-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.queue-table thead {
+  background: rgba(246, 241, 232, 0.92);
+}
+
+.queue-table th,
+.queue-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(31, 39, 33, 0.08);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.queue-table th {
+  color: var(--warm);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.queue-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.queue-case {
+  font-weight: 800;
+}
+
+.queue-workflow,
+.queue-time {
+  white-space: nowrap;
+}
+
+.queue-risk {
+  font-weight: 700;
+}
+
+.queue-reason {
+  max-width: 320px;
+}
+
+.queue-empty {
+  padding: 20px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.queue-meta {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.queue-status {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.queue-status.success {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.queue-status.warning {
+  background: rgba(168, 106, 29, 0.16);
+  color: var(--warning);
+}
+
+.queue-status.error {
+  background: rgba(140, 45, 36, 0.14);
+  color: #8c2d24;
+}
+
+.queue-status.neutral {
+  background: rgba(95, 102, 93, 0.12);
+  color: var(--muted);
+}
+
 .sample-chips {
   display: flex;
   flex-wrap: wrap;
@@ -890,6 +1004,11 @@ button:disabled {
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .queue-header-actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .sample-board {
