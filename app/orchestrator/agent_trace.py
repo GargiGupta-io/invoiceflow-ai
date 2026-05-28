@@ -126,11 +126,14 @@ def build_human_review_gate(
 
     cleaned_reasons = _dedupe(reason_codes)
     required = bool(cleaned_reasons)
+    decision_required = getattr(decision, "human_review_required", None)
+    if isinstance(decision_required, bool):
+        required = decision_required
     return HumanReviewGate(
         required=required,
         reason_codes=cleaned_reasons,
         reviewer_prompt=_build_reviewer_prompt(workflow_type, cleaned_reasons),
-        blocking=_is_blocking_review(workflow_type, decision, cleaned_reasons),
+        blocking=required and _is_blocking_review(workflow_type, decision, cleaned_reasons),
     )
 
 
