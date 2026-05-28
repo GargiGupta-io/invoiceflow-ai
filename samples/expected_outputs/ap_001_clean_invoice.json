@@ -14,6 +14,9 @@
   },
   "expected_decision": {
     "recommendation": "approve",
+    "missing_fields": [],
+    "human_review_required": false,
+    "policy_evidence_min": 3,
     "must_flag_anomalies": [],
     "must_cite": [
       "AP-APPROVAL-001",
