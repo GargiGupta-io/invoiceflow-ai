@@ -147,6 +147,30 @@ def _evaluate_decision(
                 actual=decision_payload.get("recommendation"),
             )
         )
+        if "missing_fields" in expected_decision:
+            checks.append(
+                _simple_check(
+                    name="ap_missing_fields",
+                    expected=expected_decision.get("missing_fields"),
+                    actual=decision_payload.get("missing_fields"),
+                )
+            )
+        if "human_review_required" in expected_decision:
+            checks.append(
+                _simple_check(
+                    name="ap_human_review_required",
+                    expected=expected_decision.get("human_review_required"),
+                    actual=decision_payload.get("human_review_required"),
+                )
+            )
+        if "policy_evidence_min" in expected_decision:
+            checks.append(
+                _minimum_count_check(
+                    name="ap_policy_evidence_count",
+                    expected_min=expected_decision.get("policy_evidence_min", 0),
+                    actual_items=decision_payload.get("policy_evidence", []),
+                )
+            )
     else:
         checks.append(
             _simple_check(
@@ -207,6 +231,16 @@ def _simple_check(*, name: str, expected: Any, actual: Any) -> dict[str, Any]:
         "expected": expected,
         "actual": actual,
         "passed": expected == actual,
+    }
+
+
+def _minimum_count_check(*, name: str, expected_min: int, actual_items: list[Any]) -> dict[str, Any]:
+    actual_count = len(actual_items)
+    return {
+        "name": name,
+        "expected": f"at least {expected_min}",
+        "actual": actual_count,
+        "passed": actual_count >= expected_min,
     }
 
 
