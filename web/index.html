@@ -88,6 +88,43 @@
       </article>
     </section>
 
+    <section class="panel queue-panel" aria-label="Human review queue">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Human Review Queue</p>
+          <h2>Cases awaiting operator attention</h2>
+        </div>
+        <div class="queue-header-actions">
+          <span class="status-pill" id="review-queue-status">Loading</span>
+          <button type="button" class="secondary-button queue-refresh" id="review-queue-refresh">Refresh queue</button>
+        </div>
+      </div>
+      <p class="panel-intro" id="review-queue-summary">
+        Risky or unresolved cases surface here with the current status, reason, and review priority.
+      </p>
+      <div class="queue-table-wrap">
+        <table class="queue-table" aria-describedby="review-queue-summary">
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Workflow</th>
+              <th scope="col">Recommendation</th>
+              <th scope="col">Risk</th>
+              <th scope="col">Reason for review</th>
+              <th scope="col">Timestamp</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="review-queue-body">
+            <tr>
+              <td colspan="7" class="queue-empty">Loading review queue.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
+    </section>
+
     <section class="sample-board" aria-label="Sample workflow cards">
       <div class="section-heading">
         <div>
