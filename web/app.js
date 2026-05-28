@@ -26,6 +26,7 @@ const signalList = document.getElementById("signal-list");
 const evidenceList = document.getElementById("evidence-list");
 const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
+const auditDetailList = document.getElementById("audit-detail-list");
 const rawJson = document.getElementById("raw-json");
 const sampleRunButtons = document.querySelectorAll("[data-run-sample]");
 const resultsPanel = document.querySelector(".results-panel");
@@ -246,6 +247,7 @@ function renderResult(payload) {
   renderEvidence(evidenceList, evidence);
   renderAgentTrace(agentTraceList, agentTrace);
   renderKeyFields(keyFieldList, extraction);
+  renderAuditDetails(auditDetailList, audit, finalDecision, evidence);
 
   evidenceCount.textContent = String(evidence.length);
   evidenceText.textContent = buildEvidenceText(evidence.length);
@@ -420,6 +422,52 @@ function renderKeyFields(container, extraction) {
 
   if (entries.length === 0) {
     container.textContent = "No extracted fields yet.";
+    container.className = "key-field-list empty-state";
+    return;
+  }
+
+  container.className = "key-field-list";
+  for (const [label, value] of entries) {
+    const card = document.createElement("article");
+    card.className = "key-field-item";
+
+    const heading = document.createElement("span");
+    heading.className = "key-field-label";
+    heading.textContent = label;
+
+    const body = document.createElement("strong");
+    body.className = "key-field-value";
+    body.textContent = value;
+
+    card.appendChild(heading);
+    card.appendChild(body);
+    container.appendChild(card);
+  }
+}
+
+function renderAuditDetails(container, audit, finalDecision, evidence) {
+  container.innerHTML = "";
+
+  const review = audit.human_review || {};
+  const entries = [
+    ["Prompt version", audit.prompt_version],
+    ["Extractor mode", audit.effective_extractor_mode],
+    ["Confidence", finalDecision.confidence == null ? null : `${Math.round(finalDecision.confidence * 100)}%`],
+    ["Human review", review.required ? (review.blocking ? "Blocking review" : "Review required") : "Not required"],
+    ["Evidence", evidence.length ? `${evidence.length} sources` : "No evidence"],
+    ["Tool calls", Array.isArray(audit.agent_tool_trace) ? String(audit.agent_tool_trace.length) : null],
+    ["Latency", audit.total_latency_ms == null ? null : `${audit.total_latency_ms} ms`],
+    [
+      "RAG repair",
+      audit.retrieval_repair && audit.retrieval_repair.attempted
+        ? audit.retrieval_repair.success ? "Succeeded" : "Failed"
+        : "Not needed"
+    ],
+    ["LLM gateway", Array.isArray(audit.llm_gateway) ? `${audit.llm_gateway.length} calls` : null]
+  ].filter((entry) => entry[1]);
+
+  if (entries.length === 0) {
+    container.textContent = "No audit metadata yet.";
     container.className = "key-field-list empty-state";
     return;
   }
