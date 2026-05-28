@@ -94,6 +94,8 @@ class ARWorkflowAssessment:
     payment_claim: bool
     overdue_days: int | None
     prior_reminders: int | None
+    customer_tone: str | None
+    dispute_language: bool
     trigger_codes: list[str]
 
 
@@ -187,6 +189,8 @@ def assess_accounts_receivable(
     overdue_days = parse_int_from_excerpt(OVERDUE_DAYS_RE, extraction.source_text_excerpt)
     prior_reminders = parse_int_from_excerpt(PRIOR_REMINDERS_RE, extraction.source_text_excerpt)
     payment_claim = is_payment_claim_case(extraction)
+    customer_tone = detect_customer_tone(extraction.source_text_excerpt, customer_policy.preferred_tone)
+    dispute_language = has_dispute_language(extraction.source_text_excerpt)
     escalation_level = resolve_escalation_level(
         overdue_days=overdue_days,
         prior_reminders=prior_reminders,
@@ -212,6 +216,10 @@ def assess_accounts_receivable(
             trigger_codes.append("repeated_reminders_medium")
         elif prior_reminders >= 1:
             trigger_codes.append("repeated_reminders_low")
+    if customer_tone:
+        trigger_codes.append(f"customer_tone_{customer_tone.replace(' ', '_')}")
+    if dispute_language:
+        trigger_codes.append("dispute_language_detected")
     if "due_date" in extraction.missing_fields:
         trigger_codes.append("missing_due_date")
     if "invoice_number" in extraction.missing_fields:
@@ -225,6 +233,8 @@ def assess_accounts_receivable(
         payment_claim=payment_claim,
         overdue_days=overdue_days,
         prior_reminders=prior_reminders,
+        customer_tone=customer_tone,
+        dispute_language=dispute_language,
         trigger_codes=_dedupe_strings(trigger_codes),
     )
 
@@ -386,6 +396,39 @@ def resolve_escalation_level(
     if days >= 8 or reminders >= 1:
         return EscalationLevel.LOW
     return EscalationLevel.NONE
+
+
+def detect_customer_tone(excerpt: str, preferred_tone: str | None) -> str | None:
+    text = (excerpt or "").lower()
+    if preferred_tone:
+        normalized_tone = preferred_tone.strip().lower()
+        if normalized_tone:
+            return normalized_tone
+    if any(marker in text for marker in ("firm payment timeline", "urgent confirmation", "priority")):
+        return "firm"
+    if any(marker in text for marker in ("friendly reminder", "quick reminder", "please let us know")):
+        return "friendly"
+    if any(marker in text for marker in ("work through it together", "happy to", "collaborative")):
+        return "collaborative"
+    if any(marker in text for marker in ("share the transfer date", "transaction reference", "remittance")):
+        return "direct"
+    return None
+
+
+def has_dispute_language(excerpt: str) -> bool:
+    text = (excerpt or "").lower()
+    return any(
+        marker in text
+        for marker in (
+            "dispute",
+            "incorrect amount",
+            "wrong amount",
+            "not our invoice",
+            "already paid",
+            "payment has already been made",
+            "no remittance proof",
+        )
+    )
 
 
 def parse_int_from_excerpt(pattern: re.Pattern[str], excerpt: str) -> int | None:
