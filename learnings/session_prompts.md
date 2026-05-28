@@ -8,3 +8,5 @@
   Brief: Completed Step 13 by strengthening AP checks, AP decision output, AP eval expectations, and missing-field display.
 - User prompt: "next / continue"
   Brief: Completed Step 14 by strengthening AR review output, escalation signals, human-review state, eval checks, and UI display.
+- User prompt: "continue"
+  Brief: Completed Step 15 by adding the human review queue, queue endpoint, queue UI, and the supporting learning doc.
