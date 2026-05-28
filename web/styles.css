@@ -233,6 +233,10 @@ body {
   margin: 0 0 18px;
 }
 
+.eval-panel {
+  margin: 0 0 18px;
+}
+
 .queue-header-actions {
   display: flex;
   align-items: center;
@@ -311,6 +315,28 @@ body {
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.55;
+}
+
+.eval-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 16px;
+}
+
+.eval-metric strong {
+  display: block;
+  margin-top: 8px;
+  line-height: 1.3;
+  font-size: 1.14rem;
+}
+
+.eval-table-wrap .queue-table {
+  min-width: 760px;
+}
+
+.eval-download {
+  text-decoration: none;
 }
 
 .queue-status {
@@ -616,6 +642,14 @@ button:disabled {
   opacity: 0.58;
   cursor: wait;
   transform: none;
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .primary-button {
@@ -958,6 +992,7 @@ button:disabled {
   .detail-grid,
   .result-grid,
   .sample-card-grid,
+  .eval-summary-grid,
   .flow-map,
   .decision-summary-card {
     grid-template-columns: 1fr;
@@ -1011,6 +1046,10 @@ button:disabled {
     justify-content: flex-start;
   }
 
+  .eval-table-wrap .queue-table {
+    min-width: 620px;
+  }
+
   .sample-board {
     padding: 20px;
   }
@@ -1027,5 +1066,9 @@ button:disabled {
 
   .decision-main strong {
     font-size: 1.75rem;
+  }
+
+  .eval-summary-grid {
+    gap: 12px;
   }
 }
