@@ -13,6 +13,11 @@
   },
   "expected_decision": {
     "recommendation": "missing_info",
+    "missing_fields": [
+      "po_number"
+    ],
+    "human_review_required": true,
+    "policy_evidence_min": 3,
     "must_flag_anomalies": [
       "missing_po"
     ],
