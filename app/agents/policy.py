@@ -18,6 +18,29 @@ TONE_RE = re.compile(r"Preferred reminder tone:\s*(?P<value>.+)", re.IGNORECASE)
 OVERDUE_DAYS_RE = re.compile(r"Overdue Days:\s*(?P<value>\d+)", re.IGNORECASE)
 PRIOR_REMINDERS_RE = re.compile(r"Prior Reminders Sent:\s*(?P<value>\d+)", re.IGNORECASE)
 
+REQUIRED_AP_FIELD_CHECKS = {
+    "vendor_name": (
+        "missing_vendor_name",
+        "Invoice is missing the vendor name needed for AP routing and vendor-policy checks.",
+    ),
+    "invoice_number": (
+        "missing_invoice_number",
+        "Invoice is missing the invoice number needed for duplicate and payment matching.",
+    ),
+    "due_date": (
+        "missing_due_date",
+        "Invoice is missing the due date needed for payment scheduling.",
+    ),
+    "amount": (
+        "missing_amount",
+        "Invoice is missing the amount needed for approval-threshold and payment checks.",
+    ),
+    "currency": (
+        "missing_currency",
+        "Invoice is missing the currency needed for payment processing.",
+    ),
+}
+
 
 class APExtractionLike(Protocol):
     vendor_name: str | None
@@ -84,20 +107,17 @@ def assess_accounts_payable(
     anomalies: list[AnomalyFlag] = []
     reason_codes: list[str] = []
 
-    required_missing = [
-        field_name
-        for field_name in extraction.missing_fields
-        if field_name in {"vendor_name", "invoice_number", "amount", "currency", "due_date"}
-    ]
-    if required_missing:
+    for field_name, (code, message) in REQUIRED_AP_FIELD_CHECKS.items():
+        if not _is_ap_field_missing(extraction, field_name):
+            continue
         anomalies.append(
             _build_anomaly(
-                code="missing_required_fields",
-                message=f"Missing required invoice fields: {', '.join(required_missing)}.",
+                code=code,
+                message=message,
                 severity=EscalationLevel.MEDIUM,
             )
         )
-        reason_codes.append("required_fields_missing")
+        reason_codes.append(code)
 
     if requires_purchase_order(extraction.amount, vendor_policy) and not extraction.po_number:
         anomalies.append(
@@ -128,6 +148,7 @@ def assess_accounts_payable(
             )
         )
         reason_codes.append("vendor_terms_mismatch")
+        reason_codes.append("vendor_policy_mismatch")
 
     if is_invalid_invoice(extraction):
         anomalies.append(
@@ -275,6 +296,12 @@ def requires_purchase_order(amount: float | None, vendor_policy: VendorPolicy) -
     if amount is None:
         return True
     return amount > threshold
+
+
+def _is_ap_field_missing(extraction: APExtractionLike, field_name: str) -> bool:
+    if field_name in extraction.missing_fields:
+        return True
+    return getattr(extraction, field_name, None) in {None, ""}
 
 
 def is_duplicate_case(extraction: APExtractionLike) -> bool:
