@@ -602,6 +602,63 @@ button:disabled {
   font-weight: 800;
 }
 
+.flow-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+
+.flow-step {
+  position: relative;
+  min-width: 0;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(31, 39, 33, 0.08);
+}
+
+.flow-step:not(:last-child)::after {
+  content: "->";
+  position: absolute;
+  top: 18px;
+  right: -11px;
+  z-index: 1;
+  color: var(--warm);
+  font-weight: 900;
+}
+
+.flow-index {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(36, 91, 69, 0.1);
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.flow-step h3 {
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+}
+
+.flow-step strong {
+  display: block;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.flow-step p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -787,8 +844,16 @@ button:disabled {
   .detail-grid,
   .result-grid,
   .sample-card-grid,
+  .flow-map,
   .decision-summary-card {
     grid-template-columns: 1fr;
+  }
+
+  .flow-step:not(:last-child)::after {
+    top: auto;
+    right: 18px;
+    bottom: -16px;
+    transform: rotate(90deg);
   }
 
   .page-shell {
