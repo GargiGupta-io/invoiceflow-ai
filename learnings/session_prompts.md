@@ -1,0 +1,10 @@
+# Session Prompts - invoiceflow-ai
+
+## 2026-05-28
+
+- User prompt: "next"
+  Brief: Completed Step 12 by adding the workflow trace view for Extraction, Retrieval, Validation, and Decision.
+- User prompt: "next"
+  Brief: Completed Step 13 by strengthening AP checks, AP decision output, AP eval expectations, and missing-field display.
+- User prompt: "next / continue"
+  Brief: Completed Step 14 by strengthening AR review output, escalation signals, human-review state, eval checks, and UI display.
