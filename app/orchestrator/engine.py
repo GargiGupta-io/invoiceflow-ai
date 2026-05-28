@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import perf_counter
@@ -46,6 +47,26 @@ def list_sample_documents() -> list[dict[str, str]]:
         }
         for path in sample_paths
     ]
+
+
+def build_review_queue(*, extractor_mode: str = "heuristic") -> dict[str, Any]:
+    """Build a demo review queue from the bundled sample cases."""
+
+    items: list[dict[str, Any]] = []
+    for sample in list_sample_documents():
+        workflow_payload = run_workflow_from_sample(
+            sample["sample_id"],
+            extractor_mode=extractor_mode,
+        )
+        items.append(_review_queue_item(sample["sample_id"], workflow_payload))
+
+    items.sort(key=lambda item: item["timestamp_utc"], reverse=True)
+    return {
+        "generated_at_utc": _utc_now(),
+        "extractor_mode": extractor_mode,
+        "item_count": len(items),
+        "items": items,
+    }
 
 
 def resolve_sample_path(sample_id: str) -> Path:
@@ -235,6 +256,84 @@ def _serialize_ar_assessment(assessment: ARWorkflowAssessment) -> dict[str, Any]
         "prior_reminders": assessment.prior_reminders,
         "trigger_codes": list(assessment.trigger_codes),
     }
+
+
+def _review_queue_item(sample_id: str, workflow_payload: dict[str, Any]) -> dict[str, Any]:
+    audit = workflow_payload.get("audit_trail", {})
+    workflow_result = workflow_payload.get("workflow_result", {})
+    workflow_type = workflow_result.get("workflow_type", "")
+    decision = workflow_result.get("ap_decision") or workflow_result.get("ar_decision") or {}
+    human_review = audit.get("human_review", {})
+    status = _review_queue_status(workflow_type, decision, human_review)
+    risk_level = _review_queue_risk_level(human_review)
+    return {
+        "case_id": sample_id,
+        "workflow_type": workflow_type,
+        "recommendation": decision.get("recommendation") or decision.get("escalation_level") or "complete",
+        "risk_level": risk_level,
+        "reason_for_review": _review_queue_reason(human_review, decision, workflow_type),
+        "timestamp_utc": audit.get("generated_at_utc") or _utc_now(),
+        "status": status,
+    }
+
+
+def _review_queue_status(
+    workflow_type: str,
+    decision: dict[str, Any],
+    human_review: dict[str, Any],
+) -> str:
+    if not human_review.get("required"):
+        return "Approved"
+
+    if workflow_type == WorkflowType.AP.value:
+        recommendation = str(decision.get("recommendation") or "")
+        if recommendation == "missing_info":
+            return "Returned for Info"
+        if recommendation == "reject":
+            return "Rejected"
+        return "Needs Review"
+
+    escalation_level = str(decision.get("escalation_level") or "")
+    if escalation_level == "high":
+        return "Escalated"
+    if escalation_level in {"low", "medium"}:
+        return "Needs Review"
+    return "Needs Review"
+
+
+def _review_queue_risk_level(human_review: dict[str, Any]) -> str:
+    if human_review.get("blocking"):
+        return "High risk"
+    if human_review.get("required"):
+        return "Medium risk"
+    return "Low risk"
+
+
+def _review_queue_reason(
+    human_review: dict[str, Any],
+    decision: dict[str, Any],
+    workflow_type: str,
+) -> str:
+    reason_codes = human_review.get("reason_codes") or []
+    if reason_codes:
+        return ", ".join(reason_codes)
+
+    if workflow_type == WorkflowType.AP.value:
+        recommendation = str(decision.get("recommendation") or "")
+        if recommendation == "missing_info":
+            return "Missing AP information"
+        if recommendation == "reject":
+            return "AP rejection"
+        return "Manual AP review"
+
+    escalation_level = str(decision.get("escalation_level") or "")
+    if escalation_level:
+        return f"AR escalation {escalation_level}"
+    return "Manual AR review"
+
+
+def _utc_now() -> str:
+    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
 
 def _elapsed_ms(started_at: float) -> float:
