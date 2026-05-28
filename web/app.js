@@ -353,20 +353,73 @@ function renderEvidence(container, evidence) {
     const card = document.createElement("article");
     card.className = "evidence-item";
 
+    const meta = document.createElement("div");
+    meta.className = "evidence-meta";
+
+    const source = document.createElement("span");
+    source.textContent = item.source_title || "Policy source";
+
+    const citation = document.createElement("span");
+    citation.textContent = item.source_id || "uncited";
+
+    meta.appendChild(source);
+    meta.appendChild(citation);
+
     const title = document.createElement("strong");
-    title.textContent = `${item.source_id} - ${item.source_title}`;
+    title.textContent = "Policy match";
 
     const excerpt = document.createElement("p");
     excerpt.textContent = item.excerpt;
 
-    const reason = document.createElement("small");
-    reason.textContent = item.relevance_reason;
+    const detailList = document.createElement("dl");
+    detailList.className = "evidence-details";
+    appendEvidenceDetail(detailList, "Used for", inferEvidenceInfluence(item));
+    appendEvidenceDetail(detailList, "Why relevant", item.relevance_reason || "Supports this workflow decision.");
 
+    card.appendChild(meta);
     card.appendChild(title);
     card.appendChild(excerpt);
-    card.appendChild(reason);
+    card.appendChild(detailList);
     container.appendChild(card);
   }
+}
+
+function appendEvidenceDetail(list, label, value) {
+  const group = document.createElement("div");
+  const term = document.createElement("dt");
+  const description = document.createElement("dd");
+
+  term.textContent = label;
+  description.textContent = value;
+
+  group.appendChild(term);
+  group.appendChild(description);
+  list.appendChild(group);
+}
+
+function inferEvidenceInfluence(item) {
+  const sourceId = item.source_id || "";
+  const reason = (item.relevance_reason || "").toLowerCase();
+
+  if (sourceId.startsWith("VENDOR-")) {
+    return "Vendor-specific policy check";
+  }
+  if (sourceId.startsWith("CUSTOMER-")) {
+    return "Customer-specific follow-up context";
+  }
+  if (sourceId.includes("APPROVAL")) {
+    return reason.includes("po") ? "PO and approval requirement check" : "Approval threshold check";
+  }
+  if (sourceId.includes("POLICY")) {
+    return "Invoice validation policy";
+  }
+  if (sourceId.includes("ESCALATION")) {
+    return "AR escalation decision";
+  }
+  if (sourceId.includes("TEMPLATE")) {
+    return "Follow-up draft guidance";
+  }
+  return "Decision support";
 }
 
 function renderAgentTrace(container, traces) {
