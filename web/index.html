@@ -312,13 +312,16 @@
       <section class="panel detail-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Grounded Console</p>
-            <h2>Evidence and trace</h2>
+            <p class="eyebrow">Inspection Console</p>
+            <h2>Fields, evidence, trace, and audit</h2>
           </div>
         </div>
+        <p class="panel-intro">
+          Use this area after the decision summary when you need to inspect what the workflow extracted, which checks fired, what evidence was used, and how the run was audited.
+        </p>
         <div class="detail-grid">
           <div class="detail-column">
-            <h3>Key extracted fields</h3>
+            <h3>Extracted fields</h3>
             <div id="key-field-list" class="key-field-list empty-state">No extracted fields yet.</div>
           </div>
           <div class="detail-column">
@@ -335,20 +338,24 @@
             <h3>Agent tool trace</h3>
             <div id="agent-trace-list" class="evidence-list empty-state">No tool calls yet.</div>
           </div>
+          <div class="detail-column">
+            <h3>Audit metadata</h3>
+            <div id="audit-detail-list" class="key-field-list empty-state">No audit metadata yet.</div>
+          </div>
         </div>
       </section>
 
       <section class="panel raw-panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Audit Payload</p>
+            <p class="eyebrow">Debug Payload</p>
             <h2>Raw backend response</h2>
           </div>
         </div>
         <details class="debug-disclosure">
-          <summary>Open Debug / Raw Output</summary>
+          <summary>Open raw JSON</summary>
           <p class="debug-note">
-            Use this view if you want the complete JSON payload, including extraction output,
+            This secondary debug view contains the complete JSON payload, including extraction output,
             grounded context, audit metadata, and the raw workflow result.
           </p>
           <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
