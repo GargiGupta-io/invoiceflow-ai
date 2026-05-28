@@ -11,13 +11,27 @@
   },
   "expected_decision": {
     "escalation_level": "none",
+    "human_review_required": false,
+    "subject_contains": [
+      "Friendly reminder",
+      "AR-9012"
+    ],
     "followup_subject_contains": [
       "Friendly reminder",
       "AR-9012"
     ],
+    "follow_up_contains": [
+      "payment has already been initiated",
+      "expected payment date"
+    ],
     "must_mention": [
       "payment has already been initiated",
       "expected payment date"
+    ],
+    "trigger_codes": [
+      "customer_tone_professional_and_direct",
+      "early_overdue_days",
+      "escalation_none"
     ],
     "must_cite": [
       "AR-ESCALATION-001",
