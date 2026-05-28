@@ -11,13 +11,30 @@
   },
   "expected_decision": {
     "escalation_level": "low",
+    "human_review_required": true,
+    "subject_contains": [
+      "AR-6651"
+    ],
     "followup_subject_contains": [
       "AR-6651"
+    ],
+    "follow_up_contains": [
+      "transaction reference",
+      "transfer date",
+      "remittance"
     ],
     "must_mention": [
       "transaction reference",
       "transfer date",
       "remittance"
+    ],
+    "trigger_codes": [
+      "customer_tone_collaborative",
+      "payment_claim_without_proof",
+      "dispute_language_detected",
+      "low_overdue_days",
+      "repeated_reminders_low",
+      "escalation_low"
     ],
     "must_cite": [
       "AR-ESCALATION-002",
