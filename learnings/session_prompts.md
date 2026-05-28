@@ -10,3 +10,5 @@
   Brief: Completed Step 14 by strengthening AR review output, escalation signals, human-review state, eval checks, and UI display.
 - User prompt: "continue"
   Brief: Completed Step 15 by adding the human review queue, queue endpoint, queue UI, and the supporting learning doc.
+- User prompt: "go to step 16"
+  Brief: Completed Step 16 by adding the evaluation dashboard, eval summary endpoint, downloadable results JSON, and updated learning notes.
