@@ -319,6 +319,32 @@
         <p class="panel-intro">
           Use this area after the decision summary when you need to inspect what the workflow extracted, which checks fired, what evidence was used, and how the run was audited.
         </p>
+        <div class="flow-map" aria-label="Workflow trace">
+          <article class="flow-step">
+            <span class="flow-index">01</span>
+            <h3>Extraction</h3>
+            <strong id="flow-extraction-status">Waiting</strong>
+            <p id="flow-extraction-detail">Run a workflow to see parsed fields.</p>
+          </article>
+          <article class="flow-step">
+            <span class="flow-index">02</span>
+            <h3>Retrieval</h3>
+            <strong id="flow-retrieval-status">Waiting</strong>
+            <p id="flow-retrieval-detail">Policy matches will appear here.</p>
+          </article>
+          <article class="flow-step">
+            <span class="flow-index">03</span>
+            <h3>Validation</h3>
+            <strong id="flow-validation-status">Waiting</strong>
+            <p id="flow-validation-detail">Checks and review gates will appear here.</p>
+          </article>
+          <article class="flow-step">
+            <span class="flow-index">04</span>
+            <h3>Decision</h3>
+            <strong id="flow-decision-status">Waiting</strong>
+            <p id="flow-decision-detail">The final operator action will appear here.</p>
+          </article>
+        </div>
         <div class="detail-grid">
           <div class="detail-column">
             <h3>Extracted fields</h3>
