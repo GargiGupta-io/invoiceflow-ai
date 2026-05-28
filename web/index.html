@@ -255,9 +255,36 @@
           <span class="status-pill neutral" id="result-kind">No result</span>
         </div>
         <p class="panel-intro">
-          Review the route, extracted finance fields, cited policy evidence, agent trace, and
-          human-review gate before acting on a case.
+          Start with the operator action, then inspect the fields, evidence, trace, and raw payload only when needed.
         </p>
+        <article class="decision-summary-card">
+          <div class="decision-main">
+            <span class="result-label">Final Recommendation</span>
+            <strong id="decision-value">-</strong>
+            <p id="decision-summary">No decision has been generated yet.</p>
+          </div>
+          <div class="decision-support">
+            <div>
+              <span class="result-label">Confidence / Risk</span>
+              <strong id="confidence-value">-</strong>
+              <p id="risk-text">Run a workflow to see confidence and risk.</p>
+            </div>
+            <div>
+              <span class="result-label">Human Review</span>
+              <strong id="review-value">-</strong>
+              <p id="review-text">Review gate status will appear here.</p>
+            </div>
+            <div>
+              <span class="result-label">Evidence Used</span>
+              <strong id="decision-evidence-value">0 sources</strong>
+              <p id="decision-evidence-text">Decision evidence appears near the recommendation.</p>
+            </div>
+          </div>
+        </article>
+        <div class="decision-reason">
+          <span class="result-label">Why this action</span>
+          <p id="decision-explainer">The main workflow outcome will be explained here after a run.</p>
+        </div>
         <div class="result-grid">
           <article class="result-card">
             <span class="result-label">Workflow path</span>
@@ -280,18 +307,6 @@
             <p id="audit-text">Latency, prompt version, and confidence will appear here.</p>
           </article>
         </div>
-        <article class="spotlight-card">
-          <div class="spotlight-copy">
-            <span class="result-label">Recommended next step</span>
-            <strong id="decision-value">-</strong>
-            <p id="decision-summary">No decision has been generated yet.</p>
-          </div>
-          <div class="spotlight-side">
-            <p class="spotlight-note" id="decision-explainer">
-              The main workflow outcome will be explained here after a run.
-            </p>
-          </div>
-        </article>
       </section>
 
       <section class="panel detail-panel">
