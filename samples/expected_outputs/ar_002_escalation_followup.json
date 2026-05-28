@@ -11,13 +11,28 @@
   },
   "expected_decision": {
     "escalation_level": "medium",
+    "human_review_required": true,
+    "subject_contains": [
+      "Action requested",
+      "AR-7780"
+    ],
     "followup_subject_contains": [
       "Action requested",
       "AR-7780"
     ],
+    "follow_up_contains": [
+      "payment plan",
+      "immediate confirmation"
+    ],
     "must_mention": [
       "payment plan",
       "immediate confirmation"
+    ],
+    "trigger_codes": [
+      "customer_tone_concise_and_firm",
+      "medium_overdue_days",
+      "repeated_reminders_medium",
+      "escalation_medium"
     ],
     "must_cite": [
       "AR-ESCALATION-001",
