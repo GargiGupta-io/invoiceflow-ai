@@ -37,12 +37,16 @@ def decide_accounts_payable(
     reviewer_summary = _build_reviewer_summary(recommendation, anomalies, extraction)
     confidence = _estimate_confidence(recommendation, anomalies, context, assessment)
     evidence = _select_evidence(context, extraction, assessment, recommendation)
+    missing_fields = _build_missing_field_output(extraction)
 
     return APDecision(
         recommendation=recommendation,
+        missing_fields=missing_fields,
         reviewer_summary=reviewer_summary,
         evidence=evidence,
+        policy_evidence=evidence,
         anomalies=anomalies,
+        human_review_required=_requires_ap_human_review(recommendation, anomalies, confidence),
         confidence=confidence,
     )
 
@@ -51,11 +55,37 @@ def _resolve_ap_recommendation(anomalies: list[AnomalyFlag]) -> ApprovalRecommen
     codes = {anomaly.code for anomaly in anomalies}
     if "invalid_invoice" in codes:
         return ApprovalRecommendation.REJECT
-    if "missing_required_fields" in codes or "missing_po" in codes:
+    if any(code.startswith("missing_") for code in codes):
         return ApprovalRecommendation.MISSING_INFO
     if "duplicate_invoice" in codes or "terms_mismatch" in codes or "approval_threshold" in codes:
         return ApprovalRecommendation.REVIEW
     return ApprovalRecommendation.APPROVE
+
+
+def _build_missing_field_output(extraction: APExtractionLike) -> list[str]:
+    required_fields = ["vendor_name", "invoice_number", "due_date"]
+    missing_fields = [
+        field_name
+        for field_name in required_fields
+        if not getattr(extraction, field_name, None)
+    ]
+    missing_fields.extend(extraction.missing_fields)
+    if not extraction.po_number:
+        missing_fields.append("po_number")
+    return _dedupe_strings(missing_fields)
+
+
+def _requires_ap_human_review(
+    recommendation: ApprovalRecommendation,
+    anomalies: list[AnomalyFlag],
+    confidence: float,
+) -> bool:
+    if confidence < 0.75:
+        return True
+    if recommendation != ApprovalRecommendation.APPROVE:
+        return True
+    review_severities = {EscalationLevel.MEDIUM.value, EscalationLevel.HIGH.value}
+    return any(_enum_value(anomaly.severity) in review_severities for anomaly in anomalies)
 
 
 def _build_reviewer_summary(
@@ -188,3 +218,20 @@ def _select_ordered_evidence(
             break
 
     return selected[:limit]
+
+
+def _dedupe_strings(values: list[str]) -> list[str]:
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        item = str(value).strip()
+        if item and item not in seen:
+            ordered.append(item)
+            seen.add(item)
+    return ordered
+
+
+def _enum_value(raw_value: Any) -> str:
+    if hasattr(raw_value, "value"):
+        return str(raw_value.value)
+    return str(raw_value)
