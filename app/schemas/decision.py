@@ -60,11 +60,18 @@ class ARDecision(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, use_enum_values=True)
 
     escalation_level: EscalationLevel = Field(..., description="Recommended AR escalation level.")
+    subject: str = Field(..., min_length=5, description="Readable follow-up subject line.")
+    follow_up_email: str = Field(..., min_length=40, description="Grounded follow-up email body.")
+    tts_safe_subject: str = Field(..., min_length=5, description="Voice-safe subject line for call or TTS workflows.")
+    tts_safe_follow_up: str = Field(..., min_length=40, description="Voice-safe follow-up body with readable dates, amounts, and identifiers.")
     followup_subject: str = Field(..., min_length=5, description="Suggested email subject line.")
     followup_draft: str = Field(..., min_length=40, description="Grounded follow-up email body.")
     followup_subject_tts: str = Field(..., min_length=5, description="Voice-safe subject line for TTS or calling workflows.")
     followup_draft_tts: str = Field(..., min_length=40, description="Voice-safe follow-up body with readable dates, amounts, and identifiers.")
     evidence: list[EvidenceItem] = Field(..., min_length=1, description="Grounding evidence supporting the draft.")
+    trigger_codes: list[str] = Field(default_factory=list, description="Workflow reasons that drove the AR escalation.")
+    customer_tone: str | None = Field(default=None, description="Detected tone or reminder style for the customer.")
+    human_review_required: bool = Field(..., description="Whether the AR result requires a finance reviewer before sending.")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Estimated model confidence from 0 to 1.")
 
 
