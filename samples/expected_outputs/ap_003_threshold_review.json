@@ -13,6 +13,9 @@
   },
   "expected_decision": {
     "recommendation": "review",
+    "missing_fields": [],
+    "human_review_required": true,
+    "policy_evidence_min": 3,
     "must_flag_anomalies": [
       "approval_threshold"
     ],
