@@ -522,6 +522,57 @@ button:disabled {
   gap: 14px;
 }
 
+.decision-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 22px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 247, 235, 0.98), rgba(235, 243, 237, 0.98));
+  border: 1px solid rgba(31, 39, 33, 0.1);
+}
+
+.decision-main strong {
+  display: block;
+  margin: 10px 0 12px;
+  font-size: 2.55rem;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.decision-main p,
+.decision-support p,
+.decision-reason p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.decision-support {
+  display: grid;
+  gap: 12px;
+}
+
+.decision-support > div,
+.decision-reason {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(31, 39, 33, 0.08);
+}
+
+.decision-support strong {
+  display: block;
+  margin: 8px 0 7px;
+  font-size: 1.12rem;
+  line-height: 1.25;
+}
+
+.decision-reason {
+  margin-bottom: 16px;
+}
+
 .result-card {
   padding: 18px;
   border-radius: var(--radius-md);
@@ -541,44 +592,6 @@ button:disabled {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
-}
-
-.spotlight-card {
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr;
-  gap: 18px;
-  margin-top: 16px;
-  padding: 22px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(255, 247, 235, 0.96), rgba(235, 243, 237, 0.96));
-  border: 1px solid rgba(31, 39, 33, 0.1);
-}
-
-.spotlight-copy strong {
-  display: block;
-  margin: 10px 0 12px;
-  font-size: 2.55rem;
-  line-height: 0.98;
-  letter-spacing: 0;
-}
-
-.spotlight-copy p,
-.spotlight-note {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.spotlight-side {
-  display: flex;
-  align-items: center;
-}
-
-.spotlight-note {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.54);
-  border: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .result-label {
@@ -730,7 +743,7 @@ button:disabled {
   .detail-grid,
   .result-grid,
   .sample-card-grid,
-  .spotlight-card {
+  .decision-summary-card {
     grid-template-columns: 1fr;
   }
 
@@ -774,7 +787,7 @@ button:disabled {
     padding: 20px;
   }
 
-  .spotlight-copy strong {
+  .decision-main strong {
     font-size: 2.1rem;
   }
 }
@@ -784,7 +797,7 @@ button:disabled {
     font-size: 2.35rem;
   }
 
-  .spotlight-copy strong {
+  .decision-main strong {
     font-size: 1.75rem;
   }
 }
