@@ -254,7 +254,7 @@ function renderResult(payload) {
   renderTags(signalList, (route.matched_signals || []).map((signal) => ({ text: signal })), "No signals.");
   renderEvidence(evidenceList, evidence);
   renderAgentTrace(agentTraceList, agentTrace);
-  renderKeyFields(keyFieldList, extraction);
+  renderKeyFields(keyFieldList, extraction, finalDecision.missing_fields || []);
   renderAuditDetails(auditDetailList, audit, finalDecision, evidence);
   updateFlowMap(extraction, evidence, audit, finalDecision, workflow.workflow_type);
 
@@ -526,8 +526,11 @@ function renderAgentTrace(container, traces) {
   }
 }
 
-function renderKeyFields(container, extraction) {
+function renderKeyFields(container, extraction, decisionMissingFields = []) {
   container.innerHTML = "";
+  const missingFields = decisionMissingFields.length
+    ? decisionMissingFields
+    : extraction.missing_fields || [];
 
   const entries = [
     ["Document type", prettifyDocumentType(extraction.document_type)],
@@ -540,8 +543,8 @@ function renderKeyFields(container, extraction) {
     ["Payment terms", extraction.payment_terms],
     [
       "Missing fields",
-      Array.isArray(extraction.missing_fields) && extraction.missing_fields.length
-        ? extraction.missing_fields.join(", ")
+      Array.isArray(missingFields) && missingFields.length
+        ? missingFields.join(", ")
         : null
     ]
   ].filter((entry) => entry[1]);
