@@ -11,6 +11,12 @@ const documentText = document.getElementById("document-text");
 const decisionValue = document.getElementById("decision-value");
 const decisionSummary = document.getElementById("decision-summary");
 const decisionExplainer = document.getElementById("decision-explainer");
+const confidenceValue = document.getElementById("confidence-value");
+const riskText = document.getElementById("risk-text");
+const reviewValue = document.getElementById("review-value");
+const reviewText = document.getElementById("review-text");
+const decisionEvidenceValue = document.getElementById("decision-evidence-value");
+const decisionEvidenceText = document.getElementById("decision-evidence-text");
 const evidenceCount = document.getElementById("evidence-count");
 const evidenceText = document.getElementById("evidence-text");
 const auditValue = document.getElementById("audit-value");
@@ -219,12 +225,13 @@ function renderResult(payload) {
   documentText.textContent = buildDocumentText(extraction, workflow.workflow_type);
 
   if (apDecision) {
-    decisionValue.textContent = apDecision.recommendation || "-";
+    decisionValue.textContent = formatRecommendation(apDecision.recommendation);
     decisionSummary.textContent = apDecision.reviewer_summary || "No reviewer summary available.";
     decisionExplainer.textContent = buildDecisionExplanation(apDecision.recommendation, workflow.workflow_type);
     renderTags(anomalyList, (apDecision.anomalies || []).map(mapAnomalyTag), "No anomalies.");
   } else if (arDecision) {
-    decisionValue.textContent = arDecision.escalation_level || "-";
+    const arAction = ["medium", "high"].includes(arDecision.escalation_level) ? "escalate" : "draft_follow_up";
+    decisionValue.textContent = formatRecommendation(arAction);
     decisionSummary.textContent = arDecision.followup_subject || "No subject generated.";
     decisionExplainer.textContent = buildDecisionExplanation(arDecision.escalation_level, workflow.workflow_type);
     renderTags(anomalyList, (policy.trigger_codes || []).map(mapTriggerTag), "No escalation triggers.");
@@ -242,6 +249,7 @@ function renderResult(payload) {
 
   evidenceCount.textContent = String(evidence.length);
   evidenceText.textContent = buildEvidenceText(evidence.length);
+  updateDecisionSummaryCards(finalDecision, evidence, audit, workflow.workflow_type);
 
   const auditMeta = buildAuditMeta(finalDecision.confidence, audit);
   auditValue.textContent = auditMeta.title;
@@ -249,6 +257,54 @@ function renderResult(payload) {
   updateEntryRunSummary(workflow, finalDecision, evidence, audit);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
+}
+
+function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType) {
+  const confidence = finalDecision.confidence;
+  const risk = buildRiskLabel(finalDecision, audit, workflowType);
+  const review = audit.human_review || {};
+  const evidenceLabel = evidence.length === 1 ? "1 source" : `${evidence.length} sources`;
+
+  confidenceValue.textContent = confidence == null
+    ? risk
+    : `${Math.round(confidence * 100)}% | ${risk}`;
+  riskText.textContent = buildRiskText(risk);
+
+  reviewValue.textContent = review.required ? "Required" : "Not required";
+  reviewText.textContent = review.required
+    ? `${review.blocking ? "Blocking" : "Non-blocking"} review: ${(review.reason_codes || []).join(", ") || "policy check"}`
+    : "No human review gate was triggered for this run.";
+
+  decisionEvidenceValue.textContent = evidenceLabel;
+  decisionEvidenceText.textContent = evidence.length
+    ? `Top cited source: ${evidence[0].source_id}`
+    : "No supporting policy evidence was returned.";
+}
+
+function buildRiskLabel(finalDecision, audit, workflowType) {
+  if (audit.human_review && audit.human_review.blocking) {
+    return "High risk";
+  }
+  if (audit.human_review && audit.human_review.required) {
+    return "Medium risk";
+  }
+  if (workflowType === "accounts_payable" && finalDecision.recommendation === "approve") {
+    return "Low risk";
+  }
+  if (workflowType === "accounts_receivable" && finalDecision.escalation_level === "none") {
+    return "Low risk";
+  }
+  return "Medium risk";
+}
+
+function buildRiskText(risk) {
+  if (risk === "High risk") {
+    return "Treat this output as blocked until a finance reviewer checks it.";
+  }
+  if (risk === "Medium risk") {
+    return "Review context and evidence before acting on this recommendation.";
+  }
+  return "The workflow did not find a blocking review condition.";
 }
 
 function updateEntryRunSummary(workflow, finalDecision, evidence, audit) {
@@ -442,6 +498,21 @@ function prettifyDocumentType(value) {
     return "Payment confirmation";
   }
   return value;
+}
+
+function formatRecommendation(value) {
+  if (!value) {
+    return "-";
+  }
+  const labels = {
+    approve: "Approve",
+    review: "Review",
+    reject: "Reject",
+    missing_info: "Missing Info",
+    escalate: "Escalate",
+    draft_follow_up: "Draft Follow-Up"
+  };
+  return labels[value] || value;
 }
 
 function buildAuditMeta(confidence, audit) {
