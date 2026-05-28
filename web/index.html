@@ -125,6 +125,103 @@
       <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
     </section>
 
+    <section class="panel eval-panel" aria-label="Evaluation dashboard">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Evaluation Dashboard</p>
+          <h2>Reliability checks and latest eval results</h2>
+        </div>
+        <div class="queue-header-actions">
+          <span class="status-pill" id="eval-dashboard-status">Loading</span>
+          <button type="button" class="secondary-button queue-refresh" id="eval-dashboard-refresh">Refresh eval</button>
+          <a class="secondary-button queue-refresh eval-download" id="eval-results-link" href="/eval-results.json" download>Download JSON</a>
+        </div>
+      </div>
+      <p class="panel-intro" id="eval-dashboard-summary">
+        The evaluation summary will appear here after the app loads.
+      </p>
+      <div class="eval-summary-grid" id="eval-summary-grid" aria-label="Evaluation summary metrics">
+        <article class="metric-card eval-metric">
+          <span class="result-label">Dataset size</span>
+          <strong id="eval-dataset-size">-</strong>
+          <p id="eval-dataset-detail">The number of bundled cases in the latest run.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Passed cases</span>
+          <strong id="eval-passed-cases">-</strong>
+          <p id="eval-passed-detail">How many cases passed every check.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Pass rate</span>
+          <strong id="eval-pass-rate">-</strong>
+          <p id="eval-pass-detail">Overall evaluation success rate.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Workflow routing</span>
+          <strong id="eval-routing-rate">-</strong>
+          <p id="eval-routing-detail">How often AP and AR routing matched the expected case.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Extraction match</span>
+          <strong id="eval-extraction-rate">-</strong>
+          <p id="eval-extraction-detail">How often extracted fields matched the target data.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Citation coverage</span>
+          <strong id="eval-citation-rate">-</strong>
+          <p id="eval-citation-detail">How often the final answer cited the expected sources.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Grounding support</span>
+          <strong id="eval-grounding-rate">-</strong>
+          <p id="eval-grounding-detail">How often cited evidence was actually grounded in retrieval.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Review gate rate</span>
+          <strong id="eval-review-rate">-</strong>
+          <p id="eval-review-detail">How often the workflow asked for human review.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">AR subject check</span>
+          <strong id="eval-subject-rate">-</strong>
+          <p id="eval-subject-detail">How often AR follow-up subjects matched expectations.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">AR draft check</span>
+          <strong id="eval-mention-rate">-</strong>
+          <p id="eval-mention-detail">How often the follow-up body text matched expectations.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Average latency</span>
+          <strong id="eval-latency">-</strong>
+          <p id="eval-latency-detail">How long a case takes on average.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Latest run</span>
+          <strong id="eval-generated-at">-</strong>
+          <p id="eval-generated-detail">When the latest eval snapshot was produced.</p>
+        </article>
+      </div>
+      <div class="queue-table-wrap eval-table-wrap">
+        <table class="queue-table eval-table" aria-describedby="eval-dashboard-summary">
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Workflow</th>
+              <th scope="col">Latency</th>
+              <th scope="col">Failed checks</th>
+            </tr>
+          </thead>
+          <tbody id="eval-failure-body">
+            <tr>
+              <td colspan="4" class="queue-empty">Loading evaluation cases.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
+    </section>
+
     <section class="sample-board" aria-label="Sample workflow cards">
       <div class="section-heading">
         <div>
