@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
+from app.orchestrator import build_review_queue
 
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 
@@ -42,6 +43,7 @@ def root() -> dict:
             "/ui",
             "/health",
             "/samples",
+            "/review-queue",
             "/workflow/sample",
             "/workflow/upload",
         ],
@@ -64,6 +66,11 @@ def health() -> dict:
 @app.get("/samples")
 def samples() -> dict:
     return {"samples": list_sample_documents()}
+
+
+@app.get("/review-queue")
+def review_queue() -> dict:
+    return build_review_queue()
 
 
 @app.post("/workflow/sample")
