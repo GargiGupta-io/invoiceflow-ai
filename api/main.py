@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from app.eval.dashboard import EVAL_RESULTS_PATH, build_eval_dashboard
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
 from app.orchestrator import build_review_queue
 
@@ -44,6 +45,8 @@ def root() -> dict:
             "/health",
             "/samples",
             "/review-queue",
+            "/eval/summary",
+            "/eval-results.json",
             "/workflow/sample",
             "/workflow/upload",
         ],
@@ -71,6 +74,18 @@ def samples() -> dict:
 @app.get("/review-queue")
 def review_queue() -> dict:
     return build_review_queue()
+
+
+@app.get("/eval/summary")
+def eval_summary(refresh: bool = False) -> dict:
+    return build_eval_dashboard(refresh=refresh)
+
+
+@app.get("/eval-results.json", response_class=FileResponse)
+def eval_results() -> FileResponse:
+    if not EVAL_RESULTS_PATH.exists():
+        raise HTTPException(status_code=404, detail="Evaluation results are not available yet.")
+    return FileResponse(EVAL_RESULTS_PATH, media_type="application/json", filename="eval-results.json")
 
 
 @app.post("/workflow/sample")
