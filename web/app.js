@@ -241,7 +241,7 @@ function renderResult(payload) {
   } else if (arDecision) {
     const arAction = ["medium", "high"].includes(arDecision.escalation_level) ? "escalate" : "draft_follow_up";
     decisionValue.textContent = formatRecommendation(arAction);
-    decisionSummary.textContent = arDecision.followup_subject || "No subject generated.";
+    decisionSummary.textContent = arDecision.subject || arDecision.followup_subject || "No subject generated.";
     decisionExplainer.textContent = buildDecisionExplanation(arDecision.escalation_level, workflow.workflow_type);
     renderTags(anomalyList, (policy.trigger_codes || []).map(mapTriggerTag), "No escalation triggers.");
   } else {
@@ -338,6 +338,9 @@ function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType
   const confidence = finalDecision.confidence;
   const risk = buildRiskLabel(finalDecision, audit, workflowType);
   const review = audit.human_review || {};
+  const reviewRequired = typeof finalDecision.human_review_required === "boolean"
+    ? finalDecision.human_review_required
+    : review.required;
   const evidenceLabel = evidence.length === 1 ? "1 source" : `${evidence.length} sources`;
 
   confidenceValue.textContent = confidence == null
@@ -345,8 +348,8 @@ function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType
     : `${Math.round(confidence * 100)}% | ${risk}`;
   riskText.textContent = buildRiskText(risk);
 
-  reviewValue.textContent = review.required ? "Required" : "Not required";
-  reviewText.textContent = review.required
+  reviewValue.textContent = reviewRequired ? "Required" : "Not required";
+  reviewText.textContent = reviewRequired
     ? `${review.blocking ? "Blocking" : "Non-blocking"} review: ${(review.reason_codes || []).join(", ") || "policy check"}`
     : "No human review gate was triggered for this run.";
 
