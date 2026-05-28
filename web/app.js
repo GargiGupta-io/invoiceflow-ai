@@ -43,8 +43,16 @@ const entryWorkflowDetail = document.getElementById("entry-workflow-detail");
 const entrySampleCount = document.getElementById("entry-sample-count");
 const entryAuditState = document.getElementById("entry-audit-state");
 const entryAuditDetail = document.getElementById("entry-audit-detail");
+const reviewQueueStatus = document.getElementById("review-queue-status");
+const reviewQueueSummary = document.getElementById("review-queue-summary");
+const reviewQueueBody = document.getElementById("review-queue-body");
+const reviewQueueMeta = document.getElementById("review-queue-meta");
+const reviewQueueRefresh = document.getElementById("review-queue-refresh");
 
 bootstrap();
+reviewQueueRefresh.addEventListener("click", () => {
+  loadReviewQueue();
+});
 
 for (const button of sampleRunButtons) {
   button.dataset.defaultLabel = button.textContent;
@@ -69,6 +77,7 @@ async function bootstrap() {
     populateSamples(samples);
     applyQueryDefaults(samples);
     updateEntrySampleCount(samples);
+    await loadReviewQueue();
     setStatus(sampleStatus, "Ready", "success");
   } catch (error) {
     setStatus(sampleStatus, "Failed to load samples", "error");
@@ -115,6 +124,7 @@ uploadForm.addEventListener("submit", async (event) => {
     }
     renderResult(payload);
     setStatus(uploadStatus, "Completed", "success");
+    loadReviewQueue();
   } catch (error) {
     setStatus(uploadStatus, "Run failed", "error");
     rawJson.textContent = formatError(error);
@@ -137,6 +147,22 @@ function updateEntrySampleCount(samples) {
   entrySampleCount.textContent = `${apCount} AP / ${arCount} AR`;
 }
 
+async function loadReviewQueue() {
+  setStatus(reviewQueueStatus, "Loading", "running");
+  try {
+    const response = await fetch("/review-queue");
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Review queue failed.");
+    }
+    renderReviewQueue(payload);
+    setStatus(reviewQueueStatus, "Ready", "success");
+  } catch (error) {
+    setStatus(reviewQueueStatus, "Queue error", "error");
+    renderReviewQueueError(error);
+  }
+}
+
 function applyQueryDefaults(samples) {
   const params = new URLSearchParams(window.location.search);
   const requestedSample = params.get("sample");
@@ -155,6 +181,121 @@ function applyQueryDefaults(samples) {
   if (autorun === "1" && sampleSelect.value) {
     runSampleWorkflow(sampleSelect.value, sampleMode.value);
   }
+}
+
+function renderReviewQueue(payload) {
+  const items = Array.isArray(payload.items) ? payload.items : [];
+  reviewQueueBody.innerHTML = "";
+
+  if (!items.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 7;
+    cell.className = "queue-empty";
+    cell.textContent = "No review items are waiting.";
+    row.appendChild(cell);
+    reviewQueueBody.appendChild(row);
+  } else {
+    for (const item of items) {
+      reviewQueueBody.appendChild(buildQueueRow(item));
+    }
+  }
+
+  reviewQueueSummary.textContent = `${items.length} cases are shown from the bundled AP and AR samples.`;
+  reviewQueueMeta.textContent = `Generated ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"}`;
+}
+
+function renderReviewQueueError(error) {
+  reviewQueueBody.innerHTML = "";
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 7;
+  cell.className = "queue-empty";
+  cell.textContent = formatError(error);
+  row.appendChild(cell);
+  reviewQueueBody.appendChild(row);
+  reviewQueueSummary.textContent = "The queue could not be loaded.";
+  reviewQueueMeta.textContent = formatError(error);
+}
+
+function buildQueueRow(item) {
+  const row = document.createElement("tr");
+  row.appendChild(buildQueueCell(item.case_id, "queue-case"));
+  row.appendChild(buildQueueCell(prettifyWorkflow(item.workflow_type), "queue-workflow"));
+  row.appendChild(buildQueueCell(prettifyQueueValue(item.recommendation), "queue-recommendation"));
+  row.appendChild(buildQueueCell(item.risk_level || "-", `queue-risk ${mapQueueRiskKind(item.risk_level)}`));
+  row.appendChild(buildQueueCell(item.reason_for_review || "-", "queue-reason"));
+  row.appendChild(buildQueueCell(formatQueueTimestamp(item.timestamp_utc), "queue-time"));
+  row.appendChild(buildQueueStatusCell(item.status || "Needs Review", mapQueueStatusKind(item.status)));
+  return row;
+}
+
+function buildQueueCell(value, className) {
+  const cell = document.createElement("td");
+  cell.className = className;
+  cell.textContent = value || "-";
+  return cell;
+}
+
+function buildQueueStatusCell(value, kind) {
+  const cell = document.createElement("td");
+  const pill = document.createElement("span");
+  pill.className = `queue-status ${kind}`;
+  pill.textContent = value || "-";
+  cell.appendChild(pill);
+  return cell;
+}
+
+function mapQueueRiskKind(riskLevel) {
+  const value = String(riskLevel || "").toLowerCase();
+  if (value.includes("high")) {
+    return "error";
+  }
+  if (value.includes("medium")) {
+    return "warning";
+  }
+  return "success";
+}
+
+function mapQueueStatusKind(status) {
+  const value = String(status || "").toLowerCase();
+  if (value === "approved") {
+    return "success";
+  }
+  if (value === "returned for info") {
+    return "warning";
+  }
+  if (value === "rejected" || value === "escalated") {
+    return "error";
+  }
+  return "neutral";
+}
+
+function prettifyQueueValue(value) {
+  if (!value) {
+    return "-";
+  }
+  if (value === "approve" || value === "review" || value === "reject" || value === "missing_info") {
+    return formatRecommendation(value);
+  }
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function formatQueueTimestamp(timestamp) {
+  if (!timestamp) {
+    return "-";
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return timestamp;
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short"
+  }).format(date);
 }
 
 async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) {
