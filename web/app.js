@@ -27,6 +27,14 @@ const evidenceList = document.getElementById("evidence-list");
 const agentTraceList = document.getElementById("agent-trace-list");
 const keyFieldList = document.getElementById("key-field-list");
 const auditDetailList = document.getElementById("audit-detail-list");
+const flowExtractionStatus = document.getElementById("flow-extraction-status");
+const flowExtractionDetail = document.getElementById("flow-extraction-detail");
+const flowRetrievalStatus = document.getElementById("flow-retrieval-status");
+const flowRetrievalDetail = document.getElementById("flow-retrieval-detail");
+const flowValidationStatus = document.getElementById("flow-validation-status");
+const flowValidationDetail = document.getElementById("flow-validation-detail");
+const flowDecisionStatus = document.getElementById("flow-decision-status");
+const flowDecisionDetail = document.getElementById("flow-decision-detail");
 const rawJson = document.getElementById("raw-json");
 const sampleRunButtons = document.querySelectorAll("[data-run-sample]");
 const resultsPanel = document.querySelector(".results-panel");
@@ -248,6 +256,7 @@ function renderResult(payload) {
   renderAgentTrace(agentTraceList, agentTrace);
   renderKeyFields(keyFieldList, extraction);
   renderAuditDetails(auditDetailList, audit, finalDecision, evidence);
+  updateFlowMap(extraction, evidence, audit, finalDecision, workflow.workflow_type);
 
   evidenceCount.textContent = String(evidence.length);
   evidenceText.textContent = buildEvidenceText(evidence.length);
@@ -259,6 +268,70 @@ function renderResult(payload) {
   updateEntryRunSummary(workflow, finalDecision, evidence, audit);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
+}
+
+function updateFlowMap(extraction, evidence, audit, finalDecision, workflowType) {
+  const review = audit.human_review || {};
+  const missingFields = Array.isArray(extraction.missing_fields) ? extraction.missing_fields : [];
+  const repair = audit.retrieval_repair || {};
+
+  flowExtractionStatus.textContent = missingFields.length ? "Needs field review" : "Schema captured";
+  flowExtractionDetail.textContent = buildExtractionFlowDetail(extraction, workflowType, missingFields);
+
+  flowRetrievalStatus.textContent = evidence.length === 1 ? "1 source" : `${evidence.length} sources`;
+  flowRetrievalDetail.textContent = buildRetrievalFlowDetail(evidence, repair);
+
+  flowValidationStatus.textContent = review.required ? "Review gate" : "Checks passed";
+  flowValidationDetail.textContent = review.required
+    ? `${review.blocking ? "Blocking" : "Non-blocking"}: ${(review.reason_codes || []).join(", ") || "policy review"}`
+    : "No blocking validation issue was returned.";
+
+  flowDecisionStatus.textContent = buildDecisionFlowStatus(finalDecision, workflowType);
+  flowDecisionDetail.textContent = buildDecisionFlowDetail(finalDecision, workflowType);
+}
+
+function buildExtractionFlowDetail(extraction, workflowType, missingFields) {
+  const party = workflowType === "accounts_receivable"
+    ? extraction.customer_name
+    : extraction.vendor_name;
+  const documentType = prettifyDocumentType(extraction.document_type) || "Finance document";
+  const invoice = extraction.invoice_number ? `invoice ${extraction.invoice_number}` : "invoice id pending";
+  const missing = missingFields.length ? `Missing: ${missingFields.join(", ")}` : "Required fields are present.";
+
+  return `${documentType} for ${party || "unknown party"} | ${invoice}. ${missing}`;
+}
+
+function buildRetrievalFlowDetail(evidence, repair) {
+  if (!evidence.length) {
+    return repair.attempted
+      ? "No supporting evidence found after retrieval repair."
+      : "No supporting policy evidence was returned.";
+  }
+
+  const repairState = repair.attempted
+    ? repair.success ? "repair succeeded" : "repair failed"
+    : "direct match";
+  const source = evidence[0].source_title || evidence[0].source_id || "policy source";
+  return `${source} was the top match; ${repairState}.`;
+}
+
+function buildDecisionFlowStatus(finalDecision, workflowType) {
+  if (workflowType === "accounts_receivable") {
+    const level = finalDecision.escalation_level || "none";
+    return level === "none" ? "Draft follow-up" : `${capitalize(level)} escalation`;
+  }
+  return formatRecommendation(finalDecision.recommendation || "review");
+}
+
+function buildDecisionFlowDetail(finalDecision, workflowType) {
+  const confidence = finalDecision.confidence == null
+    ? "confidence pending"
+    : `${Math.round(finalDecision.confidence * 100)}% confidence`;
+
+  if (workflowType === "accounts_receivable") {
+    return `${confidence}; ${finalDecision.followup_subject || "follow-up draft ready"}.`;
+  }
+  return `${confidence}; ${finalDecision.reviewer_summary || "reviewer summary pending"}`;
 }
 
 function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType) {
@@ -599,6 +672,13 @@ function prettifyDocumentType(value) {
     return "Payment confirmation";
   }
   return value;
+}
+
+function capitalize(value) {
+  if (!value) {
+    return "";
+  }
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
 function formatRecommendation(value) {
