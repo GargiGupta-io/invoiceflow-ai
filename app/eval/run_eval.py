@@ -179,6 +179,54 @@ def _evaluate_decision(
                 actual=decision_payload.get("escalation_level"),
             )
         )
+        if "human_review_required" in expected_decision:
+            checks.append(
+                _simple_check(
+                    name="ar_human_review_required",
+                    expected=expected_decision.get("human_review_required"),
+                    actual=decision_payload.get("human_review_required"),
+                )
+            )
+        if "subject_contains" in expected_decision:
+            checks.append(
+                _contains_check(
+                    name="subject_contains",
+                    expected_fragments=expected_decision.get("subject_contains", []),
+                    actual_text=decision_payload.get("subject", ""),
+                )
+            )
+        if "follow_up_contains" in expected_decision:
+            checks.append(
+                _contains_check(
+                    name="follow_up_contains",
+                    expected_fragments=expected_decision.get("follow_up_contains", []),
+                    actual_text=decision_payload.get("follow_up_email", ""),
+                )
+            )
+        if "tts_safe_subject_contains" in expected_decision:
+            checks.append(
+                _contains_check(
+                    name="tts_safe_subject_contains",
+                    expected_fragments=expected_decision.get("tts_safe_subject_contains", []),
+                    actual_text=decision_payload.get("tts_safe_subject", ""),
+                )
+            )
+        if "tts_safe_follow_up_contains" in expected_decision:
+            checks.append(
+                _contains_check(
+                    name="tts_safe_follow_up_contains",
+                    expected_fragments=expected_decision.get("tts_safe_follow_up_contains", []),
+                    actual_text=decision_payload.get("tts_safe_follow_up", ""),
+                )
+            )
+        if "trigger_codes" in expected_decision:
+            checks.append(
+                _contains_all_check(
+                    name="ar_trigger_codes",
+                    expected_items=expected_decision.get("trigger_codes", []),
+                    actual_items=decision_payload.get("trigger_codes", []),
+                )
+            )
 
     checks.append(
         _citation_check(
@@ -300,6 +348,17 @@ def _contains_check(*, name: str, expected_fragments: list[str], actual_text: st
         "actual": actual_text,
         "missing": missing_fragments,
         "passed": not missing_fragments,
+    }
+
+
+def _contains_all_check(*, name: str, expected_items: list[str], actual_items: list[str]) -> dict[str, Any]:
+    missing_items = [item for item in expected_items if item not in actual_items]
+    return {
+        "name": name,
+        "expected": expected_items,
+        "actual": actual_items,
+        "missing": missing_items,
+        "passed": not missing_items,
     }
 
 
