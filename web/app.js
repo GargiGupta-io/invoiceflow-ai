@@ -48,10 +48,31 @@ const reviewQueueSummary = document.getElementById("review-queue-summary");
 const reviewQueueBody = document.getElementById("review-queue-body");
 const reviewQueueMeta = document.getElementById("review-queue-meta");
 const reviewQueueRefresh = document.getElementById("review-queue-refresh");
+const evalDashboardStatus = document.getElementById("eval-dashboard-status");
+const evalDashboardSummary = document.getElementById("eval-dashboard-summary");
+const evalDashboardMeta = document.getElementById("eval-dashboard-meta");
+const evalDashboardRefresh = document.getElementById("eval-dashboard-refresh");
+const evalResultsLink = document.getElementById("eval-results-link");
+const evalFailureBody = document.getElementById("eval-failure-body");
+const evalDatasetSize = document.getElementById("eval-dataset-size");
+const evalPassedCases = document.getElementById("eval-passed-cases");
+const evalPassRate = document.getElementById("eval-pass-rate");
+const evalRoutingRate = document.getElementById("eval-routing-rate");
+const evalExtractionRate = document.getElementById("eval-extraction-rate");
+const evalCitationRate = document.getElementById("eval-citation-rate");
+const evalGroundingRate = document.getElementById("eval-grounding-rate");
+const evalReviewRate = document.getElementById("eval-review-rate");
+const evalSubjectRate = document.getElementById("eval-subject-rate");
+const evalMentionRate = document.getElementById("eval-mention-rate");
+const evalLatency = document.getElementById("eval-latency");
+const evalGeneratedAt = document.getElementById("eval-generated-at");
 
 bootstrap();
 reviewQueueRefresh.addEventListener("click", () => {
   loadReviewQueue();
+});
+evalDashboardRefresh.addEventListener("click", () => {
+  loadEvalDashboard(true);
 });
 
 for (const button of sampleRunButtons) {
@@ -78,6 +99,7 @@ async function bootstrap() {
     applyQueryDefaults(samples);
     updateEntrySampleCount(samples);
     await loadReviewQueue();
+    await loadEvalDashboard();
     setStatus(sampleStatus, "Ready", "success");
   } catch (error) {
     setStatus(sampleStatus, "Failed to load samples", "error");
@@ -163,6 +185,22 @@ async function loadReviewQueue() {
   }
 }
 
+async function loadEvalDashboard(refresh = false) {
+  setStatus(evalDashboardStatus, "Loading", "running");
+  try {
+    const response = await fetch(`/eval/summary${refresh ? "?refresh=1" : ""}`);
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.detail || "Evaluation dashboard failed.");
+    }
+    renderEvalDashboard(payload);
+    setStatus(evalDashboardStatus, payload.failing_case_count ? "Needs review" : "Ready", payload.failing_case_count ? "warning" : "success");
+  } catch (error) {
+    setStatus(evalDashboardStatus, "Eval error", "error");
+    renderEvalDashboardError(error);
+  }
+}
+
 function applyQueryDefaults(samples) {
   const params = new URLSearchParams(window.location.search);
   const requestedSample = params.get("sample");
@@ -216,6 +254,105 @@ function renderReviewQueueError(error) {
   reviewQueueBody.appendChild(row);
   reviewQueueSummary.textContent = "The queue could not be loaded.";
   reviewQueueMeta.textContent = formatError(error);
+}
+
+function renderEvalDashboard(payload) {
+  const summary = payload.summary || {};
+  const totalCases = Number(summary.total_cases || 0);
+  const passedCases = Number(summary.passed_cases || 0);
+  const failingCases = Array.isArray(payload.failing_cases) ? payload.failing_cases : [];
+  const passRate = formatPercent(summary.pass_rate);
+
+  evalResultsLink.href = payload.download_url || "/eval-results.json";
+  evalDashboardSummary.textContent = `${payload.dataset_name || "invoiceflow-ai-v1"} shows ${passedCases}/${totalCases} cases passing with ${failingCases.length} failing cases.`;
+  evalDashboardMeta.textContent = `Latest run ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"} | ${payload.results_url || "/eval-results.json"}`;
+
+  setEvalMetric(evalDatasetSize, String(totalCases), `${payload.dataset_name || "invoiceflow-ai-v1"} bundled cases`);
+  setEvalMetric(evalPassedCases, String(passedCases), "Cases that passed every check");
+  setEvalMetric(evalPassRate, passRate, "Overall evaluation success rate");
+  setEvalMetric(evalRoutingRate, formatPercent(summary.workflow_match_rate), "AP and AR routing accuracy");
+  setEvalMetric(evalExtractionRate, formatPercent(summary.extraction_field_match_rate), "Field match accuracy");
+  setEvalMetric(evalCitationRate, formatPercent(summary.citation_check_pass_rate), "Citation coverage accuracy");
+  setEvalMetric(evalGroundingRate, formatPercent(summary.grounding_support_pass_rate), "Evidence grounding accuracy");
+  setEvalMetric(evalReviewRate, formatPercent(summary.human_review_rate), "How often review was required");
+  setEvalMetric(evalSubjectRate, formatPercent(summary.subject_check_pass_rate), "AR subject check accuracy");
+  setEvalMetric(evalMentionRate, formatPercent(summary.mention_check_pass_rate), "AR draft check accuracy");
+  setEvalMetric(evalLatency, formatDuration(summary.average_latency_ms), "Average runtime per case");
+  setEvalMetric(evalGeneratedAt, formatQueueTimestamp(payload.generated_at_utc), "Latest eval snapshot");
+
+  renderEvalFailures(failingCases);
+}
+
+function renderEvalDashboardError(error) {
+  evalDashboardSummary.textContent = "The evaluation dashboard could not be loaded.";
+  evalDashboardMeta.textContent = formatError(error);
+  evalResultsLink.href = "/eval-results.json";
+  evalFailureBody.innerHTML = "";
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 4;
+  cell.className = "queue-empty";
+  cell.textContent = formatError(error);
+  row.appendChild(cell);
+  evalFailureBody.appendChild(row);
+  clearEvalMetric(evalDatasetSize);
+  clearEvalMetric(evalPassedCases);
+  clearEvalMetric(evalPassRate);
+  clearEvalMetric(evalRoutingRate);
+  clearEvalMetric(evalExtractionRate);
+  clearEvalMetric(evalCitationRate);
+  clearEvalMetric(evalGroundingRate);
+  clearEvalMetric(evalReviewRate);
+  clearEvalMetric(evalSubjectRate);
+  clearEvalMetric(evalMentionRate);
+  clearEvalMetric(evalLatency);
+  clearEvalMetric(evalGeneratedAt);
+}
+
+function renderEvalFailures(failingCases) {
+  evalFailureBody.innerHTML = "";
+
+  if (!failingCases.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 4;
+    cell.className = "queue-empty";
+    cell.textContent = "All bundled eval cases passed.";
+    row.appendChild(cell);
+    evalFailureBody.appendChild(row);
+    return;
+  }
+
+  for (const item of failingCases) {
+    const row = document.createElement("tr");
+    row.appendChild(buildQueueCell(item.sample_id, "queue-case"));
+    row.appendChild(buildQueueCell(prettifyWorkflow(item.workflow_type), "queue-workflow"));
+    row.appendChild(buildQueueCell(formatDuration(item.latency_ms), "queue-time"));
+    row.appendChild(buildQueueCell((item.failed_checks || []).join(", ") || "-", "queue-reason"));
+    evalFailureBody.appendChild(row);
+  }
+}
+
+function setEvalMetric(node, value, detail) {
+  if (!node) {
+    return;
+  }
+  node.textContent = value || "-";
+  const card = node.closest(".eval-metric");
+  if (!card) {
+    return;
+  }
+  const text = card.querySelector("p");
+  if (text && detail) {
+    text.textContent = detail;
+  }
+}
+
+function clearEvalMetric(node) {
+  if (!node) {
+    return;
+  }
+  node.textContent = "-";
 }
 
 function buildQueueRow(item) {
@@ -296,6 +433,24 @@ function formatQueueTimestamp(timestamp) {
     minute: "2-digit",
     timeZoneName: "short"
   }).format(date);
+}
+
+function formatPercent(value) {
+  if (value == null || Number.isNaN(Number(value))) {
+    return "-";
+  }
+  return `${Math.round(Number(value) * 100)}%`;
+}
+
+function formatDuration(value) {
+  if (value == null || value === "") {
+    return "-";
+  }
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) {
+    return String(value);
+  }
+  return `${numeric.toFixed(2)} ms`;
 }
 
 async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) {
