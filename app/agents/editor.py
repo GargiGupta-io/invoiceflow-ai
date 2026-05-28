@@ -33,7 +33,6 @@ def draft_accounts_receivable(
 
     assessment = assess_accounts_receivable(extraction, context)
     escalation_level = assessment.escalation_level
-    payment_claim = assessment.payment_claim
     subject = _build_subject(extraction, assessment)
     draft = _build_followup_draft(
         extraction=extraction,
@@ -46,14 +45,22 @@ def draft_accounts_receivable(
     )
     confidence = _estimate_confidence(context, assessment)
     evidence = _select_evidence(context, extraction, assessment)
+    human_review_required = _requires_ar_human_review(assessment, confidence)
 
     return ARDecision(
         escalation_level=escalation_level,
+        subject=subject,
+        follow_up_email=draft,
+        tts_safe_subject=subject_tts,
+        tts_safe_follow_up=draft_tts,
         followup_subject=subject,
         followup_draft=draft,
         followup_subject_tts=subject_tts,
         followup_draft_tts=draft_tts,
         evidence=evidence,
+        trigger_codes=list(assessment.trigger_codes),
+        customer_tone=assessment.customer_tone,
+        human_review_required=human_review_required,
         confidence=confidence,
     )
 
@@ -216,9 +223,23 @@ def _estimate_confidence(
         base -= 0.08
     if "missing_due_date" in assessment.trigger_codes or "missing_invoice_number" in assessment.trigger_codes:
         base -= 0.07
+    if assessment.dispute_language:
+        base -= 0.05
     if "repeated_reminders_high" in assessment.trigger_codes:
         base -= 0.03
     return max(0.45, min(round(base, 2), 0.99))
+
+
+def _requires_ar_human_review(assessment: ARWorkflowAssessment, confidence: float) -> bool:
+    if confidence < 0.78:
+        return True
+    if assessment.dispute_language or assessment.payment_claim:
+        return True
+    if assessment.escalation_level in {EscalationLevel.MEDIUM, EscalationLevel.HIGH}:
+        return True
+    if "missing_due_date" in assessment.trigger_codes or "missing_invoice_number" in assessment.trigger_codes:
+        return True
+    return False
 
 
 def _select_evidence(
