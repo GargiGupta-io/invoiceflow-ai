@@ -47,9 +47,12 @@ class APDecision(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, use_enum_values=True)
 
     recommendation: ApprovalRecommendation = Field(..., description="Recommended AP action.")
+    missing_fields: list[str] = Field(default_factory=list, description="Required AP fields missing from the extracted invoice.")
     reviewer_summary: str = Field(..., min_length=20, description="Short summary for a finance reviewer.")
     evidence: list[EvidenceItem] = Field(..., min_length=1, description="Grounding evidence supporting the decision.")
+    policy_evidence: list[EvidenceItem] = Field(default_factory=list, description="Policy evidence used for AP validation and review.")
     anomalies: list[AnomalyFlag] = Field(default_factory=list, description="Detected workflow anomalies.")
+    human_review_required: bool = Field(..., description="Whether the AP result requires a finance reviewer before action.")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Estimated model confidence from 0 to 1.")
 
 
