@@ -543,6 +543,8 @@ The run metadata card also shows:
 
 The visual polish intentionally keeps the existing warm finance color scheme. The change is mostly layout, hierarchy, and information architecture rather than a rebrand.
 
+The next refinement opened the page up even more. Instead of keeping the workflow, queue, eval, and advanced areas inside boxed dashboard panels, the layout now uses longer page bands, lighter separators, and a single vertical workflow flow on the main view. That keeps the product readable at a glance without making it feel like a stack of widgets.
+
 ## Documentation Upgrade
 
 Plain English: the project now describes itself as an LLM workflow agent instead of just a finance automation demo.
@@ -698,6 +700,7 @@ The strongest next steps are:
 - 2026-05-28 - Added the evaluation dashboard layer that surfaces dataset size, pass rate, workflow routing accuracy, extraction match, citation coverage, grounding support, AR subject/draft checks, review gate rate, average latency, the latest eval timestamp, and downloadable `eval-results.json` output from the FastAPI app.
 - 2026-05-29 - Refined the future-upgrade roadmap so the repo now separates immediate portfolio work from later OCR, persistence, reviewer access, notification, and multi-tenant ideas.
 - 2026-05-29 - Added the tabbed workspace shell, AP/AR explainer copy, and pastel accent tuning so the finance console stays input-first while moving review queue, evaluation, and debug content into clearer sections.
+- 2026-05-29 - Flattened the tabbed workspace further so the workflow tab reads as open page bands instead of boxed dashboard panels. The workflow, result, trace, and advanced sections now rely on separators and vertical spacing instead of framed cards.
 
 ---
 
