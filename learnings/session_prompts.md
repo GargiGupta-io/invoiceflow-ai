@@ -12,3 +12,5 @@
   Brief: Completed Step 15 by adding the human review queue, queue endpoint, queue UI, and the supporting learning doc.
 - User prompt: "go to step 16"
   Brief: Completed Step 16 by adding the evaluation dashboard, eval summary endpoint, downloadable results JSON, and updated learning notes.
+- User prompt: "next"
+  Brief: Completed Step 17 by tightening the future-enhancements roadmap in the README and deep-dive documentation.
