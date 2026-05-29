@@ -119,11 +119,11 @@ body {
 .hero-copy,
 .hero-metrics,
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .hero-copy {
@@ -193,16 +193,17 @@ body {
 .hero-metrics {
   display: grid;
   gap: 14px;
-  padding: 18px;
+  padding: 24px 0 0;
   align-content: center;
 }
 
 .workflow-card,
 .metric-card {
-  padding: 22px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(255, 244, 227, 0.9), rgba(231, 241, 233, 0.88));
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  padding: 22px 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .workflow-card strong,
@@ -223,17 +224,19 @@ body {
   display: grid;
   grid-template-columns: 1.1fr 1.15fr 1fr 1.15fr 1fr;
   gap: 14px;
-  margin: 0 0 18px;
+  margin: 0 0 24px;
+  padding: 18px 0 24px;
+  border-top: 1px solid var(--line);
 }
 
 .entry-card {
   min-width: 0;
-  padding: 18px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 251, 241, 0.82);
-  border: 1px solid var(--line);
-  box-shadow: 0 12px 32px rgba(58, 41, 23, 0.08);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .entry-card strong {
@@ -251,11 +254,15 @@ body {
 }
 
 .queue-panel {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--line);
 }
 
 .eval-panel {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--line);
 }
 
 .tab-nav {
@@ -263,19 +270,19 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   margin: 0 0 18px;
-  padding: 8px;
-  border: 1px solid rgba(31, 39, 33, 0.1);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 251, 241, 0.76);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .tab-button {
   min-height: 42px;
   padding: 10px 14px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   background: transparent;
   color: var(--muted);
   font-size: 0.92rem;
@@ -283,10 +290,10 @@ body {
 }
 
 .tab-button.is-active {
-  border-color: rgba(31, 39, 33, 0.12);
-  background: rgba(255, 255, 255, 0.92);
+  border-bottom-color: var(--warm);
+  background: transparent;
   color: var(--ink);
-  box-shadow: 0 8px 18px rgba(58, 41, 23, 0.08);
+  box-shadow: none;
 }
 
 .queue-header-actions {
@@ -303,9 +310,9 @@ body {
 
 .queue-table-wrap {
   overflow-x: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(31, 39, 33, 0.08);
-  background: rgba(255, 255, 255, 0.56);
+  border-radius: 0;
+  border: 0;
+  background: transparent;
 }
 
 .queue-table {
@@ -442,13 +449,13 @@ body {
 }
 
 .sample-board {
-  margin: 0 0 18px;
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 251, 241, 0.86);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
+  margin: 0 0 24px;
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .section-heading {
@@ -473,23 +480,23 @@ body {
 
 .sample-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 26px;
 }
 
 .sample-card {
   display: flex;
-  min-height: 260px;
+  min-height: 228px;
   flex-direction: column;
-  padding: 18px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(247, 243, 235, 0.94));
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  padding: 18px 0 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .sample-card.is-running {
-  border-color: rgba(36, 91, 69, 0.34);
-  box-shadow: 0 12px 30px rgba(36, 91, 69, 0.12);
+  border-top-color: rgba(79, 127, 109, 0.38);
 }
 
 .sample-card-top {
@@ -585,18 +592,27 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 26px;
+  margin-top: 6px;
 }
 
 .panel {
-  padding: 24px;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--line);
 }
 
 .results-panel,
 .raw-panel,
 .detail-panel {
   grid-column: 1 / -1;
+  margin-top: 6px;
+}
+
+.results-panel,
+.detail-panel,
+.raw-panel {
+  border-top: 1px solid var(--line);
 }
 
 .panel-intro {
@@ -612,6 +628,8 @@ body {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .panel-header h2,
@@ -718,19 +736,19 @@ button:disabled {
 
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
 }
 
 .decision-summary-card {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  grid-template-columns: 1fr;
   gap: 18px;
   margin-bottom: 16px;
-  padding: 22px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(255, 247, 235, 0.98), rgba(235, 243, 237, 0.98));
-  border: 1px solid rgba(31, 39, 33, 0.1);
+  padding: 22px 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
 }
 
 .decision-main strong {
@@ -757,9 +775,10 @@ button:disabled {
 .decision-support > div,
 .decision-reason {
   padding: 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.56);
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .decision-support strong {
@@ -774,10 +793,11 @@ button:disabled {
 }
 
 .result-card {
-  padding: 18px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(247, 243, 235, 0.92));
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  padding: 18px 0 20px;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .result-card strong {
@@ -804,7 +824,7 @@ button:disabled {
 
 .flow-map {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
   margin: 0 0 18px;
 }
@@ -812,17 +832,19 @@ button:disabled {
 .flow-step {
   position: relative;
   min-width: 0;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.66);
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  padding: 16px 0 18px;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .flow-step:not(:last-child)::after {
   content: "->";
   position: absolute;
-  top: 18px;
-  right: -11px;
+  top: auto;
+  right: 18px;
+  bottom: -18px;
   z-index: 1;
   color: var(--warm);
   font-weight: 900;
@@ -861,8 +883,9 @@ button:disabled {
 
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 26px;
+  margin-top: 8px;
 }
 
 .detail-column {
@@ -876,9 +899,10 @@ button:disabled {
 
 .key-field-item {
   padding: 14px 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .key-field-label {
@@ -928,10 +952,11 @@ button:disabled {
 }
 
 .evidence-item {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  padding: 16px 0 18px;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .evidence-item strong {
@@ -998,9 +1023,10 @@ button:disabled {
 }
 
 .debug-disclosure {
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid rgba(31, 39, 33, 0.08);
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
 }
 
 .debug-disclosure summary {
