@@ -28,6 +28,10 @@
           audit trails, and human review gates.
         </p>
         <p class="hero-tagline">Review faster. Decide with evidence. Escalate safely.</p>
+        <p class="hero-context">
+          <strong>AP</strong> handles vendor invoices that need policy checks and approval.
+          <strong>AR</strong> handles overdue customer payments that need a safe follow-up draft or escalation.
+        </p>
         <div class="hero-actions" aria-label="Primary actions">
           <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run AP Sample</button>
           <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
@@ -88,7 +92,14 @@
       </article>
     </section>
 
-    <section class="panel queue-panel" aria-label="Human review queue">
+    <nav class="tab-nav" aria-label="Workspace sections">
+      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Workflow</button>
+      <button type="button" class="tab-button" data-tab-target="queue" aria-pressed="false">Review Queue</button>
+      <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
+      <button type="button" class="tab-button" data-tab-target="advanced" aria-pressed="false">Advanced</button>
+    </nav>
+
+    <section class="panel queue-panel" aria-label="Human review queue" data-tab-panel="queue" hidden>
       <div class="panel-header">
         <div>
           <p class="eyebrow">Human Review Queue</p>
@@ -125,7 +136,7 @@
       <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
     </section>
 
-    <section class="panel eval-panel" aria-label="Evaluation dashboard">
+    <section class="panel eval-panel" aria-label="Evaluation dashboard" data-tab-panel="evaluation" hidden>
       <div class="panel-header">
         <div>
           <p class="eyebrow">Evaluation Dashboard</p>
@@ -222,7 +233,7 @@
       <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
     </section>
 
-    <section class="sample-board" aria-label="Sample workflow cards">
+    <section class="sample-board" aria-label="Sample workflow cards" data-tab-panel="workflow">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Workflow Selection</p>
@@ -330,7 +341,7 @@
     </section>
 
     <main class="workspace">
-      <section class="panel controls-panel">
+      <section class="panel controls-panel" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Input Contract</p>
@@ -355,7 +366,7 @@
         </form>
       </section>
 
-      <section class="panel controls-panel">
+      <section class="panel controls-panel" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Document Intake</p>
@@ -380,7 +391,7 @@
         </form>
       </section>
 
-      <section class="panel results-panel">
+      <section class="panel results-panel" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Decision Board</p>
@@ -443,7 +454,7 @@
         </div>
       </section>
 
-      <section class="panel detail-panel">
+      <section class="panel detail-panel" data-tab-panel="advanced" hidden>
         <div class="panel-header">
           <div>
             <p class="eyebrow">Inspection Console</p>
@@ -505,7 +516,7 @@
         </div>
       </section>
 
-      <section class="panel raw-panel">
+      <section class="panel raw-panel" data-tab-panel="advanced" hidden>
         <div class="panel-header">
           <div>
             <p class="eyebrow">Debug Payload</p>
