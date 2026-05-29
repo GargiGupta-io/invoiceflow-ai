@@ -32,31 +32,31 @@
           <strong>AP</strong> handles vendor invoices that need policy checks and approval.
           <strong>AR</strong> handles overdue customer payments that need a safe follow-up draft or escalation.
         </p>
+        <form id="upload-form" class="hero-upload">
+          <label class="field">
+            <span>Workflow</span>
+            <select id="upload-workflow-hint" name="workflow_hint">
+              <option value="ap">AP</option>
+              <option value="ar">AR</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Document file</span>
+            <input id="upload-file" name="file" type="file" accept=".txt,.md,.pdf">
+          </label>
+          <button type="submit" class="primary-button">Upload and run</button>
+        </form>
+        <div class="loading-cue" id="loading-cue" hidden aria-live="polite">
+          <span class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span id="loading-cue-text">Reading your file</span>
+        </div>
+        <div class="hero-statuses" aria-label="Run status">
+          <span class="status-pill neutral" id="sample-status">Idle</span>
+          <span class="status-pill neutral" id="upload-status">Idle</span>
+        </div>
         <div class="hero-actions" aria-label="Primary actions">
           <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run AP Sample</button>
           <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
-          <a class="action-link" href="#upload-form">Upload Invoice</a>
-          <a class="action-link" href="#reliability-summary">View Evaluation</a>
-        </div>
-      </div>
-      <div class="hero-metrics" id="reliability-summary" aria-label="Reliability summary">
-        <div class="workflow-card">
-          <span class="metric-label">AP Workflow</span>
-          <strong>Invoice Review</strong>
-          <p>Checks missing fields, PO policy, duplicate hints, totals, terms, and thresholds.</p>
-        </div>
-        <div class="workflow-card">
-          <span class="metric-label">AR Workflow</span>
-          <strong>Follow-Up Drafting</strong>
-          <p>Reviews overdue context, payment claims, reminder history, and escalation risk.</p>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Evaluation</span>
-          <strong>7/7 passing</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">Safety</span>
-          <strong>Human review gates</strong>
         </div>
       </div>
     </header>
@@ -76,19 +76,9 @@
         </div>
       </article>
       <article class="entry-card">
-        <span class="result-label">Upload Option</span>
-        <strong id="entry-upload-state">PDF or text</strong>
-        <p>Text PDFs, `.txt`, and `.md` files can run through the same extraction and policy checks.</p>
-      </article>
-      <article class="entry-card">
         <span class="result-label">Latest Audit</span>
         <strong id="entry-audit-state">No run yet</strong>
         <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
-      </article>
-      <article class="entry-card">
-        <span class="result-label">Evaluation</span>
-        <strong>100% pass rate</strong>
-        <p>7 bundled cases pass routing, extraction, citation, grounding, anomaly, and AR draft checks.</p>
       </article>
     </section>
 
@@ -103,13 +93,11 @@
       </p>
     </section>
 
-    <nav class="flow-nav" aria-label="Page flow">
-      <a href="#capture">01 Capture</a>
-      <a href="#extract">02 Extract</a>
-      <a href="#decide">03 Decide</a>
-      <a href="#review">04 Review</a>
-      <a href="#evaluate">05 Evaluate</a>
-      <a href="#inspect">06 Inspect</a>
+    <nav class="tab-nav" aria-label="Workspace sections">
+      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Workflow</button>
+      <button type="button" class="tab-button" data-tab-target="review" aria-pressed="false">Review Queue</button>
+      <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
+      <button type="button" class="tab-button" data-tab-target="inspect" aria-pressed="false">Inspect</button>
     </nav>
 
     <section class="sample-board" id="capture" aria-label="Sample workflow cards">
@@ -155,38 +143,6 @@
 
         <article class="sample-card">
           <div class="sample-card-top">
-            <span class="workflow-badge ap">AP</span>
-            <span class="risk-badge high">High risk</span>
-          </div>
-          <h3>Approval Threshold Exceeded</h3>
-          <p>Checks whether a high-value invoice needs approval review.</p>
-          <dl>
-            <div>
-              <dt>Expected action</dt>
-              <dd>review</dd>
-            </div>
-          </dl>
-          <button type="button" class="primary-button" data-run-sample="ap_003_threshold_review">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ar">AR</span>
-            <span class="risk-badge low">Low risk</span>
-          </div>
-          <h3>First Follow-Up</h3>
-          <p>Drafts a friendly reminder for an overdue invoice without escalation.</p>
-          <dl>
-            <div>
-              <dt>Expected action</dt>
-              <dd>draft_follow_up</dd>
-            </div>
-          </dl>
-          <button type="button" class="secondary-button" data-run-sample="ar_001_first_followup">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
             <span class="workflow-badge ar">AR</span>
             <span class="risk-badge medium">Medium risk</span>
           </div>
@@ -200,77 +156,11 @@
           </dl>
           <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run sample</button>
         </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ar">AR</span>
-            <span class="risk-badge high">High risk</span>
-          </div>
-          <h3>Escalation Needed</h3>
-          <p>Creates a firmer follow-up for a more overdue account with prior reminders.</p>
-          <dl>
-            <div>
-              <dt>Expected action</dt>
-              <dd>escalate</dd>
-            </div>
-          </dl>
-          <button type="button" class="secondary-button" data-run-sample="ar_002_escalation_followup">Run sample</button>
-        </article>
       </div>
     </section>
 
     <main class="workspace">
-      <section class="panel controls-panel" id="extract">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Input Contract</p>
-            <h2>Sample scenarios</h2>
-          </div>
-          <span class="status-pill" id="sample-status">Idle</span>
-        </div>
-        <form id="sample-form" class="form-stack">
-          <label class="field">
-            <span>Sample case</span>
-            <select id="sample-select" name="sample_id"></select>
-          </label>
-          <label class="field">
-            <span>Extractor mode</span>
-            <select id="sample-mode" name="extractor_mode">
-              <option value="heuristic">heuristic</option>
-              <option value="auto">auto</option>
-              <option value="llm">llm</option>
-            </select>
-          </label>
-          <button type="submit" class="primary-button">Run sample workflow</button>
-        </form>
-      </section>
-
-      <section class="panel controls-panel">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Document Intake</p>
-            <h2>Upload check</h2>
-          </div>
-          <span class="status-pill" id="upload-status">Idle</span>
-        </div>
-        <form id="upload-form" class="form-stack">
-          <label class="field">
-            <span>Document file</span>
-            <input id="upload-file" name="file" type="file" accept=".txt,.md,.pdf">
-          </label>
-          <label class="field">
-            <span>Extractor mode</span>
-            <select id="upload-mode" name="extractor_mode">
-              <option value="auto">auto</option>
-              <option value="heuristic">heuristic</option>
-              <option value="llm">llm</option>
-            </select>
-          </label>
-          <button type="submit" class="secondary-button">Upload and run workflow</button>
-        </form>
-      </section>
-
-      <section class="panel results-panel" id="decide">
+      <section class="panel results-panel" id="decide" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Decision Board</p>
@@ -333,7 +223,7 @@
         </div>
       </section>
 
-      <section class="panel detail-panel" id="inspect">
+      <section class="panel detail-panel" id="inspect" data-tab-panel="inspect" hidden>
         <div class="panel-header">
           <div>
             <p class="eyebrow">Inspection Console</p>
@@ -395,7 +285,7 @@
         </div>
       </section>
 
-      <section class="panel raw-panel">
+      <section class="panel raw-panel" data-tab-panel="inspect" hidden>
         <div class="panel-header">
           <div>
             <p class="eyebrow">Debug Payload</p>
@@ -413,7 +303,7 @@
       </section>
     </main>
 
-    <section class="panel queue-panel" id="review" aria-label="Human review queue">
+    <section class="panel queue-panel" id="review" data-tab-panel="review" hidden aria-label="Human review queue">
       <div class="panel-header">
         <div>
           <p class="eyebrow">Human Review Queue</p>
@@ -450,7 +340,7 @@
       <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
     </section>
 
-    <section class="panel eval-panel" id="evaluate" aria-label="Evaluation dashboard">
+    <section class="panel eval-panel" id="evaluate" data-tab-panel="evaluation" hidden aria-label="Evaluation dashboard">
       <div class="panel-header">
         <div>
           <p class="eyebrow">Evaluation Dashboard</p>
