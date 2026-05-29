@@ -14,3 +14,5 @@
   Brief: Completed Step 16 by adding the evaluation dashboard, eval summary endpoint, downloadable results JSON, and updated learning notes.
 - User prompt: "next"
   Brief: Completed Step 17 by tightening the future-enhancements roadmap in the README and deep-dive documentation.
+- User prompt: "next"
+  Brief: Completed Step 18 by adding the tabbed workspace shell, AP/AR explainer copy, and softer green/orange accent colors.
