@@ -105,6 +105,7 @@ def workflow_from_sample(request: SampleWorkflowRequest) -> dict:
 async def workflow_from_upload(
     file: UploadFile = File(...),
     extractor_mode: str = Form(default="auto"),
+    workflow_hint: str = Form(default="ap"),
 ) -> dict:
     content = await file.read()
     if not content:
@@ -115,6 +116,7 @@ async def workflow_from_upload(
             filename=file.filename or "upload.txt",
             content=content,
             extractor_mode=extractor_mode,
+            workflow_hint=workflow_hint,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

@@ -104,6 +104,7 @@ def run_workflow_from_upload(
     content: bytes,
     *,
     extractor_mode: str = "auto",
+    workflow_hint: str | None = None,
 ) -> dict[str, Any]:
     """Run the workflow for an uploaded file via a temporary staged path."""
 
@@ -118,6 +119,7 @@ def run_workflow_from_upload(
             extractor_mode=extractor_mode,
             source_kind="upload",
             original_filename=filename,
+            workflow_hint=workflow_hint,
         )
     finally:
         temp_path.unlink(missing_ok=True)
@@ -130,6 +132,7 @@ def run_workflow_from_path(
     prompt_path: str | Path | None = None,
     source_kind: str = "file",
     original_filename: str | None = None,
+    workflow_hint: str | None = None,
 ) -> dict[str, Any]:
     """Run ingestion, extraction, routing, retrieval, and final decision flow."""
 
@@ -220,7 +223,9 @@ def run_workflow_from_path(
             "kind": source_kind,
             "path": str(source_path),
             "filename": original_filename or source_path.name,
+            "workflow_hint": workflow_hint,
         },
+        "workflow_hint": workflow_hint,
         "audit_trail": audit_trail.to_dict(),
         "route": route.to_dict(),
         "grounded_context": context.to_dict(),
