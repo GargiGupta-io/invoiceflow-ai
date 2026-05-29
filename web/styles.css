@@ -229,6 +229,34 @@ body {
   border-top: 1px solid var(--line);
 }
 
+.manifesto-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+  gap: 28px;
+  align-items: end;
+  margin: 0 0 24px;
+  padding: 26px 0 30px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.manifesto-copy h2 {
+  margin: 8px 0 0;
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-size: 3.1rem;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.manifesto-text {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.03rem;
+  line-height: 1.8;
+  max-width: 42ch;
+}
+
 .entry-card {
   min-width: 0;
   padding: 0;
@@ -265,35 +293,33 @@ body {
   border-top: 1px solid var(--line);
 }
 
-.tab-nav {
+.flow-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 18px;
-  padding: 0 0 14px;
+  gap: 10px;
+  margin: 6px 0 24px;
+  padding: 16px 0 18px;
   border-bottom: 1px solid var(--line);
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
 }
 
-.tab-button {
-  min-height: 42px;
+.flow-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
   padding: 10px 14px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 39, 33, 0.1);
   color: var(--muted);
-  font-size: 0.92rem;
+  text-decoration: none;
+  font-size: 0.9rem;
   font-weight: 800;
+  background: rgba(255, 255, 255, 0.38);
 }
 
-.tab-button.is-active {
-  border-bottom-color: var(--warm);
-  background: transparent;
+.flow-nav a:hover {
   color: var(--ink);
-  box-shadow: none;
+  border-color: rgba(31, 39, 33, 0.18);
+  background: rgba(255, 255, 255, 0.58);
 }
 
 .queue-header-actions {
@@ -456,6 +482,11 @@ body {
   background: transparent;
   box-shadow: none;
   backdrop-filter: none;
+}
+
+.sample-board,
+.panel {
+  scroll-margin-top: 18px;
 }
 
 .section-heading {
@@ -636,6 +667,12 @@ body {
 .detail-column h3 {
   margin: 6px 0 0;
   letter-spacing: 0;
+}
+
+.sample-board .section-heading h2,
+.panel-header h2 {
+  font-size: 2rem;
+  line-height: 1.05;
 }
 
 .status-pill {
@@ -1119,13 +1156,17 @@ button:disabled {
     flex-direction: column;
   }
 
+  .manifesto-band {
+    grid-template-columns: 1fr;
+  }
+
   .queue-header-actions {
     width: 100%;
     justify-content: flex-start;
   }
 
-  .tab-nav {
-    gap: 6px;
+  .flow-nav {
+    gap: 8px;
   }
 
   .eval-table-wrap .queue-table {
@@ -1144,6 +1185,10 @@ button:disabled {
 @media (max-width: 560px) {
   .hero-copy h1 {
     font-size: 2.35rem;
+  }
+
+  .manifesto-copy h2 {
+    font-size: 2.15rem;
   }
 
   .decision-main strong {
