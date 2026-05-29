@@ -20,3 +20,9 @@
   Brief: Completed Step 19 by flattening the workspace into open page bands, switching the main workflow to a single-column flow, and reducing the remaining card framing in the result, trace, and advanced areas.
 - User prompt: "11bruh u just removed the boxes - didnt structure it like a flowing website i gave u an example website right copy the flow from there"
   Brief: Completed Step 20 by reworking the page into a reference-style linear flow with a manifesto band, a numbered section rail, and visible capture/extract/decide/review/evaluate/inspect sections.
+- User prompt: "1. i dont see the point of so many demo cases
+2. the input file choosing should be there wwith the button on the top of the page - its not like button leads to a section 
+3. in the reference link i provided dont u see the fact that the header on top is like in the ecenter and everything is placed line by line in centre 
+4. upload button should have a ddrop down with ar or ap options
+5. then it should show a cute loading cue then the option tabs once its completed how it was on the page and then each page shows what all is done"
+  Brief: Completed Step 21 by centering the page, moving the upload chooser into the hero, adding AP/AR hinting, trimming the demo cases, and staging the detailed tabs until after a run completes.
