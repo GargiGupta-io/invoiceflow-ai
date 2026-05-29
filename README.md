@@ -367,10 +367,12 @@ Best short walkthrough:
 
 ## Next Improvements
 
-- run the prompt audit with a configured LLM path and keep the stronger extractor prompt
-- add LLM-based decision drafting behind the same audit and review gate used by the deterministic baseline
-- add real tool-calling where an LLM chooses registered backend tools
-- add cost tracking for LLM runs using gateway token metadata
-- add deployment instructions and live hosting
-- record a short demo video
-- add a final pass on README screenshots and operator flow
+- add real OCR support for scanned invoices using Tesseract or a hosted OCR service
+- add role-based access for reviewers and operators
+- add a persistent case store with approval history and audit lookups
+- add vendor risk scoring and a PDF annotation view for invoice review
+- add email, Slack, and Teams notifications for escalations
+- add multi-tenant organization support
+- add cost tracking for LLM calls and per-case runtime metadata
+- add real tool-calling agent behavior after the current deterministic baseline
+- record a short demo video and a hosted demo URL for portfolio sharing
