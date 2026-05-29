@@ -18,3 +18,5 @@
   Brief: Completed Step 18 by adding the tabbed workspace shell, AP/AR explainer copy, and softer green/orange accent colors.
 - User prompt: "everything is still boxed up - i told u make it free flowing like on the site na"
   Brief: Completed Step 19 by flattening the workspace into open page bands, switching the main workflow to a single-column flow, and reducing the remaining card framing in the result, trace, and advanced areas.
+- User prompt: "11bruh u just removed the boxes - didnt structure it like a flowing website i gave u an example website right copy the flow from there"
+  Brief: Completed Step 20 by reworking the page into a reference-style linear flow with a manifesto band, a numbered section rail, and visible capture/extract/decide/review/evaluate/inspect sections.
