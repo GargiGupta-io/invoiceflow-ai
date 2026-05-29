@@ -670,13 +670,15 @@ vendor/customer policy extraction to the entity in the retrieval query.
 
 The strongest next steps are:
 
-1. Add LLM decision drafting behind the existing AP/AR schemas.
-2. Add actual tool-calling where the LLM chooses from registered backend tools.
-3. Store eval reports as timestamped artifacts.
-4. Add cost and latency tracking for LLM mode.
-5. Add a prompt comparison dashboard in the UI.
-6. Add deployment instructions and a public demo URL.
-7. Record a short demo video using the new tool trace and eval output.
+1. Add real OCR support for scanned invoices and pasted email screenshots.
+2. Add LLM decision drafting behind the existing AP/AR schemas.
+3. Add actual tool-calling where the LLM chooses from registered backend tools.
+4. Store eval reports as timestamped artifacts and make them downloadable from the UI.
+5. Add cost and latency tracking for LLM mode.
+6. Add role-based access, reviewer history, and persistent case storage.
+7. Add a prompt comparison dashboard in the UI.
+8. Add deployment instructions, a public demo URL, and a short demo video.
+9. Add multi-tenant support and notification hooks for email, Slack, or Teams.
 
 ## Quick Reference
 
@@ -694,6 +696,7 @@ The strongest next steps are:
 
 - 2026-05-25 - Updated the UI section after the operator-console polish phase. The repo now documents the brand bar, grid-backed hero, reliability callouts, visible self-healing RAG repair status, LLM gateway call count, and the fresh local verification run on port `8010`.
 - 2026-05-28 - Added the evaluation dashboard layer that surfaces dataset size, pass rate, workflow routing accuracy, extraction match, citation coverage, grounding support, AR subject/draft checks, review gate rate, average latency, the latest eval timestamp, and downloadable `eval-results.json` output from the FastAPI app.
+- 2026-05-29 - Refined the future-upgrade roadmap so the repo now separates immediate portfolio work from later OCR, persistence, reviewer access, notification, and multi-tenant ideas.
 
 ---
 
