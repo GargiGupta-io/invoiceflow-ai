@@ -1,6 +1,7 @@
-const sampleForm = document.getElementById("sample-form");
 const uploadForm = document.getElementById("upload-form");
-const sampleSelect = document.getElementById("sample-select");
+const uploadWorkflowHint = document.getElementById("upload-workflow-hint");
+const loadingCue = document.getElementById("loading-cue");
+const loadingCueText = document.getElementById("loading-cue-text");
 const sampleStatus = document.getElementById("sample-status");
 const uploadStatus = document.getElementById("upload-status");
 const resultKind = document.getElementById("result-kind");
@@ -66,7 +67,10 @@ const evalSubjectRate = document.getElementById("eval-subject-rate");
 const evalMentionRate = document.getElementById("eval-mention-rate");
 const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
+const tabButtons = document.querySelectorAll("[data-tab-target]");
+const tabPanels = document.querySelectorAll("[data-tab-panel]");
 
+activateTab("workflow");
 bootstrap();
 reviewQueueRefresh.addEventListener("click", () => {
   loadReviewQueue();
@@ -79,12 +83,17 @@ for (const button of sampleRunButtons) {
   button.dataset.defaultLabel = button.textContent;
   button.addEventListener("click", () => {
     const sampleId = button.dataset.runSample;
-    const sampleMode = document.getElementById("sample-mode");
     if (sampleId) {
-      if (Array.from(sampleSelect.options).some((option) => option.value === sampleId)) {
-        sampleSelect.value = sampleId;
-      }
-      runSampleWorkflow(sampleId, sampleMode.value, button);
+      runSampleWorkflow(sampleId, "auto", button);
+    }
+  });
+}
+
+for (const button of tabButtons) {
+  button.addEventListener("click", () => {
+    const target = button.dataset.tabTarget;
+    if (target) {
+      activateTab(target);
     }
   });
 }
@@ -95,8 +104,6 @@ async function bootstrap() {
     const response = await fetch("/samples");
     const payload = await response.json();
     const samples = payload.samples || [];
-    populateSamples(samples);
-    applyQueryDefaults(samples);
     updateEntrySampleCount(samples);
     await loadReviewQueue();
     await loadEvalDashboard();
@@ -107,23 +114,11 @@ async function bootstrap() {
   }
 }
 
-sampleForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const sampleId = sampleSelect.value;
-  const extractorMode = document.getElementById("sample-mode").value;
-
-  if (!sampleId) {
-    setStatus(sampleStatus, "Select a sample first", "error");
-    return;
-  }
-
-  await runSampleWorkflow(sampleId, extractorMode);
-});
-
 uploadForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const fileInput = document.getElementById("upload-file");
-  const extractorMode = document.getElementById("upload-mode").value;
+  const extractorMode = "auto";
+  const workflowHint = uploadWorkflowHint.value;
 
   if (!fileInput.files || fileInput.files.length === 0) {
     setStatus(uploadStatus, "Choose a file first", "error");
@@ -133,8 +128,10 @@ uploadForm.addEventListener("submit", async (event) => {
   const formData = new FormData();
   formData.append("file", fileInput.files[0]);
   formData.append("extractor_mode", extractorMode);
+  formData.append("workflow_hint", workflowHint);
 
   setStatus(uploadStatus, "Uploading", "running");
+  showLoadingCue(`Reading ${workflowHint.toUpperCase()} file`);
   try {
     const response = await fetch("/workflow/upload", {
       method: "POST",
@@ -146,27 +143,54 @@ uploadForm.addEventListener("submit", async (event) => {
     }
     renderResult(payload);
     setStatus(uploadStatus, "Completed", "success");
+    setWorkspaceReady();
     loadReviewQueue();
   } catch (error) {
     setStatus(uploadStatus, "Run failed", "error");
     rawJson.textContent = formatError(error);
+    setWorkspaceReady();
+  } finally {
+    hideLoadingCue();
   }
 });
-
-function populateSamples(samples) {
-  sampleSelect.innerHTML = "";
-  for (const sample of samples) {
-    const option = document.createElement("option");
-    option.value = sample.sample_id;
-    option.textContent = `${sample.sample_id} (${sample.category})`;
-    sampleSelect.appendChild(option);
-  }
-}
 
 function updateEntrySampleCount(samples) {
   const apCount = samples.filter((sample) => sample.category === "invoices").length;
   const arCount = samples.filter((sample) => sample.category === "emails").length;
   entrySampleCount.textContent = `${apCount} AP / ${arCount} AR`;
+}
+
+function activateTab(targetTab) {
+  for (const button of tabButtons) {
+    const isActive = button.dataset.tabTarget === targetTab;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
+  for (const panel of tabPanels) {
+    panel.hidden = panel.dataset.tabPanel !== targetTab;
+  }
+}
+
+function setWorkspaceReady() {
+  document.body.classList.add("workspace-ready");
+  activateTab("workflow");
+}
+
+function showLoadingCue(message) {
+  if (!loadingCue) {
+    return;
+  }
+  if (loadingCueText && message) {
+    loadingCueText.textContent = message;
+  }
+  loadingCue.hidden = false;
+}
+
+function hideLoadingCue() {
+  if (loadingCue) {
+    loadingCue.hidden = true;
+  }
 }
 
 async function loadReviewQueue() {
@@ -198,26 +222,6 @@ async function loadEvalDashboard(refresh = false) {
   } catch (error) {
     setStatus(evalDashboardStatus, "Eval error", "error");
     renderEvalDashboardError(error);
-  }
-}
-
-function applyQueryDefaults(samples) {
-  const params = new URLSearchParams(window.location.search);
-  const requestedSample = params.get("sample");
-  const requestedMode = params.get("mode");
-  const autorun = params.get("autorun");
-  const sampleMode = document.getElementById("sample-mode");
-
-  if (requestedSample && samples.some((sample) => sample.sample_id === requestedSample)) {
-    sampleSelect.value = requestedSample;
-  }
-
-  if (requestedMode && ["heuristic", "auto", "llm"].includes(requestedMode)) {
-    sampleMode.value = requestedMode;
-  }
-
-  if (autorun === "1" && sampleSelect.value) {
-    runSampleWorkflow(sampleSelect.value, sampleMode.value);
   }
 }
 
@@ -456,6 +460,8 @@ function formatDuration(value) {
 async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) {
   setStatus(sampleStatus, "Running sample", "running");
   setSampleRunState(sampleId, true);
+  const sampleFamily = sampleId.startsWith("ar_") ? "AR" : "AP";
+  showLoadingCue(`Reading ${sampleFamily} sample`);
   entryWorkflowState.textContent = "Running sample";
   entryWorkflowDetail.textContent = `Processing ${sampleId} through extraction, retrieval, validation, and decisioning.`;
   entryAuditState.textContent = "In progress";
@@ -486,8 +492,10 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
     entryAuditState.textContent = "Run failed";
     entryAuditDetail.textContent = formatError(error);
     rawJson.textContent = formatError(error);
+    setWorkspaceReady();
   } finally {
     setSampleRunState(sampleId, false);
+    hideLoadingCue();
     if (triggerButton) {
       triggerButton.blur();
     }
@@ -518,6 +526,7 @@ function renderResult(payload) {
   const finalDecision = apDecision || arDecision || {};
   const evidence = finalDecision.evidence || [];
   const agentTrace = audit.agent_tool_trace || [];
+  const workflowHint = payload.workflow_hint ? String(payload.workflow_hint).toUpperCase() : "";
 
   resultKind.textContent = workflow.workflow_type
     ? `${prettifyWorkflow(workflow.workflow_type)} ready`
@@ -560,10 +569,11 @@ function renderResult(payload) {
 
   const auditMeta = buildAuditMeta(finalDecision.confidence, audit);
   auditValue.textContent = auditMeta.title;
-  auditText.textContent = auditMeta.body;
+  auditText.textContent = workflowHint ? `${auditMeta.body} | Upload hint: ${workflowHint}` : auditMeta.body;
   updateEntryRunSummary(workflow, finalDecision, evidence, audit);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
+  setWorkspaceReady();
 }
 
 function updateFlowMap(extraction, evidence, audit, finalDecision, workflowType) {
