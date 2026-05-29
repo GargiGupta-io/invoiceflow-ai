@@ -92,148 +92,27 @@
       </article>
     </section>
 
-    <nav class="tab-nav" aria-label="Workspace sections">
-      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Workflow</button>
-      <button type="button" class="tab-button" data-tab-target="queue" aria-pressed="false">Review Queue</button>
-      <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
-      <button type="button" class="tab-button" data-tab-target="advanced" aria-pressed="false">Advanced</button>
+    <section class="manifesto-band" aria-label="Product statement">
+      <div class="manifesto-copy">
+        <p class="eyebrow">Why this layout works</p>
+        <h2>AP and AR need a visible path from input to decision.</h2>
+      </div>
+      <p class="manifesto-text">
+        InvoiceFlow AI keeps that path readable: capture the case, extract the fields, check policy evidence,
+        show the operator decision, then surface the queue, evaluation data, and debug details in the same flow.
+      </p>
+    </section>
+
+    <nav class="flow-nav" aria-label="Page flow">
+      <a href="#capture">01 Capture</a>
+      <a href="#extract">02 Extract</a>
+      <a href="#decide">03 Decide</a>
+      <a href="#review">04 Review</a>
+      <a href="#evaluate">05 Evaluate</a>
+      <a href="#inspect">06 Inspect</a>
     </nav>
 
-    <section class="panel queue-panel" aria-label="Human review queue" data-tab-panel="queue" hidden>
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Human Review Queue</p>
-          <h2>Cases awaiting operator attention</h2>
-        </div>
-        <div class="queue-header-actions">
-          <span class="status-pill" id="review-queue-status">Loading</span>
-          <button type="button" class="secondary-button queue-refresh" id="review-queue-refresh">Refresh queue</button>
-        </div>
-      </div>
-      <p class="panel-intro" id="review-queue-summary">
-        Risky or unresolved cases surface here with the current status, reason, and review priority.
-      </p>
-      <div class="queue-table-wrap">
-        <table class="queue-table" aria-describedby="review-queue-summary">
-          <thead>
-            <tr>
-              <th scope="col">Case</th>
-              <th scope="col">Workflow</th>
-              <th scope="col">Recommendation</th>
-              <th scope="col">Risk</th>
-              <th scope="col">Reason for review</th>
-              <th scope="col">Timestamp</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody id="review-queue-body">
-            <tr>
-              <td colspan="7" class="queue-empty">Loading review queue.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
-    </section>
-
-    <section class="panel eval-panel" aria-label="Evaluation dashboard" data-tab-panel="evaluation" hidden>
-      <div class="panel-header">
-        <div>
-          <p class="eyebrow">Evaluation Dashboard</p>
-          <h2>Reliability checks and latest eval results</h2>
-        </div>
-        <div class="queue-header-actions">
-          <span class="status-pill" id="eval-dashboard-status">Loading</span>
-          <button type="button" class="secondary-button queue-refresh" id="eval-dashboard-refresh">Refresh eval</button>
-          <a class="secondary-button queue-refresh eval-download" id="eval-results-link" href="/eval-results.json" download>Download JSON</a>
-        </div>
-      </div>
-      <p class="panel-intro" id="eval-dashboard-summary">
-        The evaluation summary will appear here after the app loads.
-      </p>
-      <div class="eval-summary-grid" id="eval-summary-grid" aria-label="Evaluation summary metrics">
-        <article class="metric-card eval-metric">
-          <span class="result-label">Dataset size</span>
-          <strong id="eval-dataset-size">-</strong>
-          <p id="eval-dataset-detail">The number of bundled cases in the latest run.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Passed cases</span>
-          <strong id="eval-passed-cases">-</strong>
-          <p id="eval-passed-detail">How many cases passed every check.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Pass rate</span>
-          <strong id="eval-pass-rate">-</strong>
-          <p id="eval-pass-detail">Overall evaluation success rate.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Workflow routing</span>
-          <strong id="eval-routing-rate">-</strong>
-          <p id="eval-routing-detail">How often AP and AR routing matched the expected case.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Extraction match</span>
-          <strong id="eval-extraction-rate">-</strong>
-          <p id="eval-extraction-detail">How often extracted fields matched the target data.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Citation coverage</span>
-          <strong id="eval-citation-rate">-</strong>
-          <p id="eval-citation-detail">How often the final answer cited the expected sources.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Grounding support</span>
-          <strong id="eval-grounding-rate">-</strong>
-          <p id="eval-grounding-detail">How often cited evidence was actually grounded in retrieval.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Review gate rate</span>
-          <strong id="eval-review-rate">-</strong>
-          <p id="eval-review-detail">How often the workflow asked for human review.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">AR subject check</span>
-          <strong id="eval-subject-rate">-</strong>
-          <p id="eval-subject-detail">How often AR follow-up subjects matched expectations.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">AR draft check</span>
-          <strong id="eval-mention-rate">-</strong>
-          <p id="eval-mention-detail">How often the follow-up body text matched expectations.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Average latency</span>
-          <strong id="eval-latency">-</strong>
-          <p id="eval-latency-detail">How long a case takes on average.</p>
-        </article>
-        <article class="metric-card eval-metric">
-          <span class="result-label">Latest run</span>
-          <strong id="eval-generated-at">-</strong>
-          <p id="eval-generated-detail">When the latest eval snapshot was produced.</p>
-        </article>
-      </div>
-      <div class="queue-table-wrap eval-table-wrap">
-        <table class="queue-table eval-table" aria-describedby="eval-dashboard-summary">
-          <thead>
-            <tr>
-              <th scope="col">Case</th>
-              <th scope="col">Workflow</th>
-              <th scope="col">Latency</th>
-              <th scope="col">Failed checks</th>
-            </tr>
-          </thead>
-          <tbody id="eval-failure-body">
-            <tr>
-              <td colspan="4" class="queue-empty">Loading evaluation cases.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
-    </section>
-
-    <section class="sample-board" aria-label="Sample workflow cards" data-tab-panel="workflow">
+    <section class="sample-board" id="capture" aria-label="Sample workflow cards">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Workflow Selection</p>
@@ -341,7 +220,7 @@
     </section>
 
     <main class="workspace">
-      <section class="panel controls-panel" data-tab-panel="workflow">
+      <section class="panel controls-panel" id="extract">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Input Contract</p>
@@ -366,7 +245,7 @@
         </form>
       </section>
 
-      <section class="panel controls-panel" data-tab-panel="workflow">
+      <section class="panel controls-panel">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Document Intake</p>
@@ -391,7 +270,7 @@
         </form>
       </section>
 
-      <section class="panel results-panel" data-tab-panel="workflow">
+      <section class="panel results-panel" id="decide">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Decision Board</p>
@@ -454,7 +333,7 @@
         </div>
       </section>
 
-      <section class="panel detail-panel" data-tab-panel="advanced" hidden>
+      <section class="panel detail-panel" id="inspect">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Inspection Console</p>
@@ -516,7 +395,7 @@
         </div>
       </section>
 
-      <section class="panel raw-panel" data-tab-panel="advanced" hidden>
+      <section class="panel raw-panel">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Debug Payload</p>
@@ -533,6 +412,140 @@
         </details>
       </section>
     </main>
+
+    <section class="panel queue-panel" id="review" aria-label="Human review queue">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Human Review Queue</p>
+          <h2>Cases awaiting operator attention</h2>
+        </div>
+        <div class="queue-header-actions">
+          <span class="status-pill" id="review-queue-status">Loading</span>
+          <button type="button" class="secondary-button queue-refresh" id="review-queue-refresh">Refresh queue</button>
+        </div>
+      </div>
+      <p class="panel-intro" id="review-queue-summary">
+        Risky or unresolved cases surface here with the current status, reason, and review priority.
+      </p>
+      <div class="queue-table-wrap">
+        <table class="queue-table" aria-describedby="review-queue-summary">
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Workflow</th>
+              <th scope="col">Recommendation</th>
+              <th scope="col">Risk</th>
+              <th scope="col">Reason for review</th>
+              <th scope="col">Timestamp</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="review-queue-body">
+            <tr>
+              <td colspan="7" class="queue-empty">Loading review queue.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="queue-meta" id="review-queue-meta">Waiting for queue data.</p>
+    </section>
+
+    <section class="panel eval-panel" id="evaluate" aria-label="Evaluation dashboard">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Evaluation Dashboard</p>
+          <h2>Reliability checks and latest eval results</h2>
+        </div>
+        <div class="queue-header-actions">
+          <span class="status-pill" id="eval-dashboard-status">Loading</span>
+          <button type="button" class="secondary-button queue-refresh" id="eval-dashboard-refresh">Refresh eval</button>
+          <a class="secondary-button queue-refresh eval-download" id="eval-results-link" href="/eval-results.json" download>Download JSON</a>
+        </div>
+      </div>
+      <p class="panel-intro" id="eval-dashboard-summary">
+        The evaluation summary will appear here after the app loads.
+      </p>
+      <div class="eval-summary-grid" id="eval-summary-grid" aria-label="Evaluation summary metrics">
+        <article class="metric-card eval-metric">
+          <span class="result-label">Dataset size</span>
+          <strong id="eval-dataset-size">-</strong>
+          <p id="eval-dataset-detail">The number of bundled cases in the latest run.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Passed cases</span>
+          <strong id="eval-passed-cases">-</strong>
+          <p id="eval-passed-detail">How many cases passed every check.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Pass rate</span>
+          <strong id="eval-pass-rate">-</strong>
+          <p id="eval-pass-detail">Overall evaluation success rate.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Workflow routing</span>
+          <strong id="eval-routing-rate">-</strong>
+          <p id="eval-routing-detail">How often AP and AR routing matched the expected case.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Extraction match</span>
+          <strong id="eval-extraction-rate">-</strong>
+          <p id="eval-extraction-detail">How often extracted fields matched the target data.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Citation coverage</span>
+          <strong id="eval-citation-rate">-</strong>
+          <p id="eval-citation-detail">How often the final answer cited the expected sources.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Grounding support</span>
+          <strong id="eval-grounding-rate">-</strong>
+          <p id="eval-grounding-detail">How often cited evidence was actually grounded in retrieval.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Review gate rate</span>
+          <strong id="eval-review-rate">-</strong>
+          <p id="eval-review-detail">How often the workflow asked for human review.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">AR subject check</span>
+          <strong id="eval-subject-rate">-</strong>
+          <p id="eval-subject-detail">How often AR follow-up subjects matched expectations.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">AR draft check</span>
+          <strong id="eval-mention-rate">-</strong>
+          <p id="eval-mention-detail">How often the follow-up body text matched expectations.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Average latency</span>
+          <strong id="eval-latency">-</strong>
+          <p id="eval-latency-detail">How long a case takes on average.</p>
+        </article>
+        <article class="metric-card eval-metric">
+          <span class="result-label">Latest run</span>
+          <strong id="eval-generated-at">-</strong>
+          <p id="eval-generated-detail">When the latest eval snapshot was produced.</p>
+        </article>
+      </div>
+      <div class="queue-table-wrap eval-table-wrap">
+        <table class="queue-table eval-table" aria-describedby="eval-dashboard-summary">
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Workflow</th>
+              <th scope="col">Latency</th>
+              <th scope="col">Failed checks</th>
+            </tr>
+          </thead>
+          <tbody id="eval-failure-body">
+            <tr>
+              <td colspan="4" class="queue-empty">Loading evaluation cases.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
+    </section>
   </div>
 
   <script src="/static/app.js" defer></script>
