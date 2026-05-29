@@ -697,6 +697,7 @@ The strongest next steps are:
 - 2026-05-25 - Updated the UI section after the operator-console polish phase. The repo now documents the brand bar, grid-backed hero, reliability callouts, visible self-healing RAG repair status, LLM gateway call count, and the fresh local verification run on port `8010`.
 - 2026-05-28 - Added the evaluation dashboard layer that surfaces dataset size, pass rate, workflow routing accuracy, extraction match, citation coverage, grounding support, AR subject/draft checks, review gate rate, average latency, the latest eval timestamp, and downloadable `eval-results.json` output from the FastAPI app.
 - 2026-05-29 - Refined the future-upgrade roadmap so the repo now separates immediate portfolio work from later OCR, persistence, reviewer access, notification, and multi-tenant ideas.
+- 2026-05-29 - Added the tabbed workspace shell, AP/AR explainer copy, and pastel accent tuning so the finance console stays input-first while moving review queue, evaluation, and debug content into clearer sections.
 
 ---
 
