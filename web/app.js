@@ -66,7 +66,10 @@ const evalSubjectRate = document.getElementById("eval-subject-rate");
 const evalMentionRate = document.getElementById("eval-mention-rate");
 const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
+const tabButtons = document.querySelectorAll("[data-tab-target]");
+const tabPanels = document.querySelectorAll("[data-tab-panel]");
 
+activateTab("workflow");
 bootstrap();
 reviewQueueRefresh.addEventListener("click", () => {
   loadReviewQueue();
@@ -74,6 +77,15 @@ reviewQueueRefresh.addEventListener("click", () => {
 evalDashboardRefresh.addEventListener("click", () => {
   loadEvalDashboard(true);
 });
+
+for (const button of tabButtons) {
+  button.addEventListener("click", () => {
+    const target = button.dataset.tabTarget;
+    if (target) {
+      activateTab(target);
+    }
+  });
+}
 
 for (const button of sampleRunButtons) {
   button.dataset.defaultLabel = button.textContent;
@@ -87,6 +99,18 @@ for (const button of sampleRunButtons) {
       runSampleWorkflow(sampleId, sampleMode.value, button);
     }
   });
+}
+
+function activateTab(targetTab) {
+  for (const button of tabButtons) {
+    const isActive = button.dataset.tabTarget === targetTab;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
+  for (const panel of tabPanels) {
+    panel.hidden = panel.dataset.tabPanel !== targetTab;
+  }
 }
 
 async function bootstrap() {
