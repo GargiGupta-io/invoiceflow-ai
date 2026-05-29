@@ -547,6 +547,8 @@ The next refinement opened the page up even more. Instead of keeping the workflo
 
 The newest pass went one level further and borrowed the reference-style page rhythm: a strong hero, a mid-page thesis band, a numbered flow rail, then the product sections in order. That matters because the page now teaches the product before it starts showing controls, which is closer to a real product site than a dashboard shell.
 
+The latest layout refinement tightened that even more: the header is now centered, the upload chooser lives at the top with an AP/AR hint dropdown, the loading cue appears before the lower workspace opens, and the detail tabs stay hidden until a run completes. That makes the first screen feel like a guided entry point instead of a page full of controls.
+
 ## Documentation Upgrade
 
 Plain English: the project now describes itself as an LLM workflow agent instead of just a finance automation demo.
@@ -704,6 +706,7 @@ The strongest next steps are:
 - 2026-05-29 - Added the tabbed workspace shell, AP/AR explainer copy, and pastel accent tuning so the finance console stays input-first while moving review queue, evaluation, and debug content into clearer sections.
 - 2026-05-29 - Flattened the tabbed workspace further so the workflow tab reads as open page bands instead of boxed dashboard panels. The workflow, result, trace, and advanced sections now rely on separators and vertical spacing instead of framed cards.
 - 2026-05-29 - Reworked the page into a reference-style flow with a manifesto band, numbered section rail, and a linear order for capture, extract, decide, review, evaluate, and inspect.
+- 2026-05-29 - Recentered the page around a top upload chooser with AP/AR hinting, a loading cue, three featured demo cases, and a staged reveal where the tabbed workspace appears only after a run completes.
 
 ---
 
