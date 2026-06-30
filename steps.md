@@ -778,3 +778,37 @@ The learning folder no longer keeps old UI experiments as if they are still part
 ~ modified: steps.md
 
 ---
+
+## Step 39 - Align Hero Section Headings
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/styles.css` - makes “Start the review” and “What's inside?” share the same left edge, font scale, weight, and section width.
+
+**In plain English**
+The two section headings now belong to the same visual system. They should start from the same line and use the same type treatment, so the page feels more organized and less randomly styled.
+
+**Files changed**
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
+## Step 40 - Make Aurora Cursor Reactive
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - adds a dedicated hero canvas and loads the aurora script before the main app script.
+- `web/styles.css` - disables the failed CSS-gradient aurora and positions the canvas behind the hero content.
+- `web/aurora.js` - draws a thicker cursor-reactive aurora line near the hero heading.
+
+**In plain English**
+The hero glow now behaves more like the React Bits Soft Aurora reference without adding React. It is drawn as a canvas line, sits closer to the hero heading, is thicker than the first attempt, and subtly responds when the cursor moves across the hero.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
++ created: web/aurora.js
+~ modified: steps.md
+
+---
