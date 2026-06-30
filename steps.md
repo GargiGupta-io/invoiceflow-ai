@@ -383,3 +383,28 @@ The evaluation area now feels like supporting proof instead of the main product.
 ~ modified: web/styles.css
 
 ---
+
+## Step 25 - Refresh Screenshots
+*Completed: 2026-06-30*
+
+**What was built**
+- `docs/screenshots/operator-console.png` - captures the polished centered operator entry screen.
+- `docs/screenshots/ap-result.png` - captures the AP Missing PO decision-first result.
+- `docs/screenshots/evidence-panel.png` - captures the policy evidence and reasoning view.
+- `docs/screenshots/human-review-queue.png` - captures the human review and audit queue.
+- `docs/screenshots/eval-dashboard.png` - captures the secondary evaluation proof view.
+- `docs/screenshots/ar-follow-up.png` - captures the AR overdue follow-up result.
+
+**In plain English**
+The repo now has fresh screenshots that match the current product UI. A reviewer can see the operator entry, AP decision, evidence trail, review queue, evaluation proof, and AR follow-up without needing to run the app first.
+
+**Files changed**
++ created: docs/screenshots/operator-console.png
++ created: docs/screenshots/ap-result.png
++ created: docs/screenshots/evidence-panel.png
++ created: docs/screenshots/human-review-queue.png
++ created: docs/screenshots/eval-dashboard.png
++ created: docs/screenshots/ar-follow-up.png
+~ modified: steps.md
+
+---
