@@ -459,3 +459,18 @@ The backend now handles bad inputs more cleanly. Instead of leaking raw internal
 ~ modified: steps.md
 
 ---
+
+## Step 29 - Add CI Test And Eval Gate
+*Completed: 2026-06-30*
+
+**What was built**
+- `.github/workflows/eval.yml` - renames the workflow to InvoiceFlow CI and runs backend compile checks, unit tests, eval threshold checks, and eval artifact upload.
+
+**In plain English**
+GitHub will now prove more of the project automatically. Instead of only running the evaluation gate, CI also checks that backend modules compile and the API reliability tests pass before publishing the eval report.
+
+**Files changed**
+~ modified: .github/workflows/eval.yml
+~ modified: steps.md
+
+---
