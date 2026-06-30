@@ -339,3 +339,17 @@ The upload flow now tells the user what went wrong and what to try next. If a fi
 ~ modified: web/styles.css
 
 ---
+
+## Step 22 - Improve Mobile Layout
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/styles.css` - strengthens the final mobile breakpoints for page padding, hero sizing, workflow visual stacking, upload controls, buttons, tabs, cards, result grids, tables, and long text wrapping.
+
+**In plain English**
+The page now behaves better on smaller screens. Controls stack cleanly, buttons become full-width when space is tight, the workflow visual becomes vertical, and long labels are less likely to overflow.
+
+**Files changed**
+~ modified: web/styles.css
+
+---
