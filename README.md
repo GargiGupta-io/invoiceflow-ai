@@ -396,6 +396,59 @@ Default CI thresholds require:
 - `rag_repair_success_rate >= 1.0`
 - `average_latency_ms <= 1000`
 
+## Safety And Privacy
+
+InvoiceFlow is designed as an evidence-backed assistant, not an unchecked
+autopilot.
+
+- No raw API keys are committed.
+- Demo mode uses bundled sample data by default.
+- Uploaded files are processed for the current workflow run.
+- Recommendations are shown with policy evidence and audit metadata.
+- Low-confidence, risky, or weakly grounded cases route to human review.
+- Raw model/debug outputs stay behind advanced inspection views.
+- The audit trail records decision metadata, tool trace steps, retrieved
+  evidence, review-gate status, latency, and prompt metadata when available.
+
+## Demo Mode And Live AI Mode
+
+The project is built so the main demo does not break without paid API keys.
+
+| Mode | What it does | When to use |
+| --- | --- | --- |
+| Demo mode | Uses deterministic sample fixtures, local policy retrieval, AP/AR logic, evidence, review gates, and evals. | Portfolio demos, recruiter walkthroughs, local testing, and deployment without secrets. |
+| Live AI mode | Uses the configured LLM path for schema-shaped extraction and repair metadata when credentials are available. | Technical review of LLM extraction, guardrails, prompt versions, and runtime metadata. |
+
+## How This Can Be Adapted For A Client
+
+InvoiceFlow can be customized for:
+
+- company-specific invoice approval policies
+- vendor-specific purchase-order rules
+- duplicate invoice detection logic
+- ERP or accounting export formats
+- AR reminder and escalation templates
+- approval workflows and reviewer queues
+- Slack, Teams, or email notifications
+- CSV exports and finance reporting
+- department-specific audit requirements
+
+## What This Project Demonstrates
+
+- AI workflow orchestration
+- document ingestion and structured extraction
+- retrieval-augmented policy evidence
+- schema validation and repair-aware extraction
+- AP invoice review logic
+- AR follow-up drafting logic
+- human-in-the-loop review design
+- audit-friendly AI outputs
+- FastAPI backend development
+- frontend operator-console design
+- evaluation-driven AI development
+- CI/CD quality gating for AI workflows
+- production-aware failure handling
+
 ## Demo Path
 
 Best short walkthrough:
