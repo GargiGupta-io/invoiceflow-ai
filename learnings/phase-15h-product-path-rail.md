@@ -30,9 +30,9 @@ This makes the top of the page feel more like a polished product site instead of
 
 ### Soft Aurora Background
 
-Plain English: the background now has a visible glow ribbon inspired by the React Bits Soft Aurora component.
+Plain English: the background now has a visible single-line glow ribbon inspired by the React Bits Soft Aurora component.
 
-The project does not have a React frontend layer, so the aurora was recreated in CSS rather than adding a full React/Vite setup just for one visual effect.
+The project does not have a React frontend layer, so the aurora is implemented as a small standalone canvas script rather than adding a full React/Vite setup just for one visual effect.
 
 The aurora uses InvoiceFlow colors:
 
@@ -40,7 +40,7 @@ The aurora uses InvoiceFlow colors:
 - warm amber
 - cream highlight
 
-It should feel creative, but still calm enough for a finance workflow product.
+It should feel creative, but still calm enough for a finance workflow product. The line also reacts to cursor movement across the hero by shifting its bright highlight toward the pointer.
 
 ### Start The Review
 
@@ -135,7 +135,8 @@ Clicking these stages changes the main workspace panel. This avoids showing two 
 ## Current Files
 
 - `web/index.html` - contains the hero, upload form, guide cards, and Product Path buttons.
-- `web/styles.css` - controls the aurora, full-width hero layout, card spacing, sample buttons, and Product Path styling.
+- `web/styles.css` - positions the aurora canvas, full-width hero layout, card spacing, sample buttons, and Product Path styling.
+- `web/aurora.js` - draws the cursor-reactive aurora line on canvas.
 - `web/app.js` - fills guide cards with live case data after a sample or upload run.
 
 ## Verification
