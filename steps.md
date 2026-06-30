@@ -488,3 +488,20 @@ GitHub has now proved the CI workflow works after the push. The backend compile 
 ~ modified: steps.md
 
 ---
+
+## Step 31 - Polish Frontend States
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/app.js` - formats structured backend error details into readable UI messages and tracks the currently selected demo sample.
+- `web/styles.css` - adds selected sample styling, clearer focus states, and a softer active loading cue.
+
+**In plain English**
+The page now gives cleaner feedback while someone runs demos or hits an upload error. Selected cases stay visually marked, keyboard focus is easier to see, and structured backend errors become useful messages instead of technical object text.
+
+**Files changed**
+~ modified: web/app.js
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
