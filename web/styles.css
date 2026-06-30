@@ -99,24 +99,45 @@ body {
 
 .hero-context {
   display: grid;
-  gap: 6px;
-  margin: 16px 0 0;
-  max-width: 56ch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 720px);
+  margin: 20px 0 0;
+  text-align: left;
+}
+
+.hero-context article {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(31, 39, 33, 0.09);
+  border-radius: 18px;
+  background: rgba(255, 251, 241, 0.46);
+  box-shadow: 0 14px 34px rgba(58, 41, 23, 0.06);
+}
+
+.hero-context span {
+  display: block;
+  margin-bottom: 8px;
   color: var(--muted);
-  line-height: 1.55;
-  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .hero-context strong {
-  font-weight: 800;
+  display: block;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.2;
 }
 
-.hero-context strong:first-of-type {
-  color: var(--green);
-}
-
-.hero-context strong:last-of-type {
-  color: var(--warning);
+.hero-context p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .hero {
@@ -262,13 +283,27 @@ body.workflow-running .workflow-node:nth-child(5) {
   animation-delay: 0.48s;
 }
 
-.intake-label {
+.intake-copy {
+  display: grid;
+  gap: 6px;
   margin: 22px 0 0;
+  text-align: center;
+}
+
+.intake-label {
+  margin: 0;
   color: var(--warm-deep);
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.intake-copy p:last-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
 }
 
 .hero-upload {
@@ -377,7 +412,7 @@ body.workflow-running .workflow-node:nth-child(5) {
 .manifesto-band {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 16px;
   justify-items: center;
   margin: 0 0 24px;
   padding: 26px 0 30px;
@@ -398,9 +433,33 @@ body.workflow-running .workflow-node:nth-child(5) {
 .manifesto-text {
   margin: 0;
   color: var(--muted);
-  font-size: 1.03rem;
-  line-height: 1.8;
-  max-width: 52ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 66ch;
+}
+
+.path-sentence {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: min(100%, 880px);
+}
+
+.path-sentence span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 11px;
+  border: 1px solid rgba(31, 39, 33, 0.09);
+  border-radius: 999px;
+  background: rgba(255, 251, 241, 0.48);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1;
+  box-shadow: 0 10px 26px rgba(58, 41, 23, 0.05);
 }
 
 .entry-card {
@@ -1693,7 +1752,7 @@ button.is-selected {
 }
 
 .hero-context {
-  text-align: center;
+  text-align: left;
 }
 
 .hero-upload {
@@ -1859,6 +1918,10 @@ body:not(.workspace-ready) .eval-panel {
   .panel-intro,
   .upload-guidance {
     max-width: 100%;
+  }
+
+  .hero-context {
+    grid-template-columns: 1fr;
   }
 
   .workflow-orbit {
