@@ -170,13 +170,25 @@ body {
   color: var(--ink);
 }
 
+.intake-label {
+  margin: 22px 0 0;
+  color: var(--warm-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .hero-upload {
   display: grid;
   grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr) auto;
   gap: 12px;
   align-items: end;
-  width: min(100%, 760px);
-  margin-top: 18px;
+  width: min(100%, 820px);
+  margin-top: 10px;
+  padding: 14px 0 16px;
+  border-top: 1px solid rgba(31, 39, 33, 0.1);
+  border-bottom: 1px solid rgba(31, 39, 33, 0.1);
   text-align: left;
 }
 
@@ -1364,8 +1376,11 @@ button:disabled {
   grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr) auto;
   gap: 12px;
   align-items: end;
-  width: min(100%, 760px);
-  margin-top: 18px;
+  width: min(100%, 820px);
+  margin-top: 10px;
+  padding: 14px 0 16px;
+  border-top: 1px solid rgba(31, 39, 33, 0.1);
+  border-bottom: 1px solid rgba(31, 39, 33, 0.1);
   text-align: left;
 }
 
