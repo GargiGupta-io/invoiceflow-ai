@@ -221,6 +221,7 @@ function showLoadingCue(stages) {
       }
     }, 850);
   }
+  document.body.classList.add("workflow-running");
   loadingCue.hidden = false;
 }
 
@@ -232,6 +233,7 @@ function hideLoadingCue() {
   if (loadingCue) {
     loadingCue.hidden = true;
   }
+  document.body.classList.remove("workflow-running");
 }
 
 async function loadReviewQueue() {
