@@ -505,3 +505,18 @@ The page now gives cleaner feedback while someone runs demos or hits an upload e
 ~ modified: steps.md
 
 ---
+
+## Step 32 - Browser Check Upload Row
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/styles.css` - widens the top workflow selector and document upload columns so the workflow type label is readable in the browser.
+
+**In plain English**
+The top upload controls now read more clearly. The workflow dropdown no longer cuts off “AP - vendor invoice review,” so a first-time viewer can understand the upload choice without guessing.
+
+**Files changed**
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
