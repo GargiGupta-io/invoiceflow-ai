@@ -174,3 +174,18 @@ The correction makes the aurora visible by adding:
 - final CSS overrides so the ribbon wins over older hero background rules
 
 The goal is still not to copy the neon React Bits palette. The project keeps InvoiceFlow's calmer finance palette, but the effect now reads as an actual aurora instead of a flat background wash.
+
+### 2026-07-01 - Section Spacing And Sample Clickability
+
+Plain English: the page needed clearer separation between the upload action and the three explanatory cards. Without a heading, the cards felt like they were part of the upload form instead of their own “what this product contains” section.
+
+The fix adds a `What's inside?` heading above the three cards, similar to the reference layout where a section title introduces a card grid. The upload area also now uses a larger `Start the review` heading instead of a tiny eyebrow label.
+
+The sample launcher was also corrected:
+
+- `Run sample` is plain label text, not a pill.
+- The card’s fade overlay no longer catches pointer events.
+- The sample list has enough vertical room for all five buttons.
+- `AR Overdue` should now be clickable like the other sample cases.
+
+This improves both clarity and basic usability.
