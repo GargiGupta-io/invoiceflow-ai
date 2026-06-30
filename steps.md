@@ -227,3 +227,19 @@ The result page now explains the recommendation with concrete facts instead of o
 ~ modified: web/styles.css
 
 ---
+
+## Step 15 - Clarify Missing Info Versus Reject
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/app.js` - changes recommendation labels and explanations so missing info, human review, and rejection read as separate operator actions.
+- `web/index.html` - replaces raw expected-result codes in the demo cards with beginner-readable outcome labels.
+
+**In plain English**
+The app now avoids making “missing info” sound like a rejection. A user can tell that missing info means “ask for more details,” human review means “send to a person,” and reject means “do not proceed.”
+
+**Files changed**
+~ modified: web/app.js
+~ modified: web/index.html
+
+---
