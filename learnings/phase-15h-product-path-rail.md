@@ -160,3 +160,17 @@ It now stays on one centered line on desktop and only wraps on narrow screens. T
 - `web/index.html` - rewrote the left and right operator cards into guide/live-summary cards.
 - `web/styles.css` - added the aurora layer, guide card styles, mini timeline styles, and one-line upload helper styling.
 - `web/app.js` - writes real case and decision data into the guide cards after a run.
+
+### 2026-07-01 - Aurora Needed A Clear Ribbon
+
+Plain English: the first aurora pass was too subtle. It added atmosphere, but it did not look like the React Bits Soft Aurora reference because there was no obvious glowing ribbon across the hero.
+
+The correction makes the aurora visible by adding:
+
+- a horizontal wave band across the hero
+- stronger green and amber glow pockets
+- a bright cream center ribbon
+- slow drift animation
+- final CSS overrides so the ribbon wins over older hero background rules
+
+The goal is still not to copy the neon React Bits palette. The project keeps InvoiceFlow's calmer finance palette, but the effect now reads as an actual aurora instead of a flat background wash.
