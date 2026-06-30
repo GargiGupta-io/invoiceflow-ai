@@ -147,3 +147,17 @@ The upload area now reads like the main intake point instead of a plain form sit
 ~ modified: web/styles.css
 
 ---
+
+## Step 10 - Add Staged Loading Cue
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/app.js` - cycles the loading cue through reading/uploading, extracting facts, retrieving policy evidence, checking risk signals, and preparing the recommendation while a sample or upload is running.
+
+**In plain English**
+The app now tells the user what kind of work is happening instead of showing one static loading message. This makes the workflow feel more understandable while the result is being prepared.
+
+**Files changed**
+~ modified: web/app.js
+
+---
