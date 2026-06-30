@@ -1737,17 +1737,150 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 @media (max-width: 980px) {
+  .page-shell {
+    padding: 18px 14px 32px;
+  }
+
+  .site-header {
+    padding: 14px 0 18px;
+  }
+
+  .hero {
+    min-height: auto;
+    margin-bottom: 14px;
+    padding: 4px 0 14px;
+  }
+
+  .hero-copy,
+  .panel {
+    padding: 20px 0 0;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.45rem, 12vw, 3.6rem);
+  }
+
+  .hero-text,
+  .hero-context,
+  .manifesto-text,
+  .panel-intro,
+  .upload-guidance {
+    max-width: 100%;
+  }
+
+  .workflow-orbit {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    max-width: 360px;
+  }
+
+  .workflow-orbit::before {
+    left: 50%;
+    right: auto;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    height: auto;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(86, 127, 111, 0.12), rgba(208, 162, 101, 0.24), rgba(86, 127, 111, 0.12));
+  }
+
+  .workflow-orbit::after {
+    display: none;
+  }
+
   .hero-upload {
     grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .hero-actions,
+  .queue-header-actions {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .hero-actions,
+  .hero-upload,
+  .queue-header-actions {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button,
+  .hero-upload button,
+  .hero-actions button,
+  .queue-header-actions button,
+  .queue-header-actions a {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .entry-board,
+  .detail-grid,
+  .result-grid,
+  .eval-summary-grid,
+  .flow-map,
+  .decision-summary-card,
+  .why-list {
+    grid-template-columns: 1fr;
   }
 
   .sample-card-grid {
     grid-template-columns: 1fr;
   }
 
-  .entry-board {
-    grid-template-columns: 1fr;
+  .sample-board {
+    padding: 20px 0 24px;
+  }
+
+  .tab-nav {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tab-button {
+    width: 100%;
+  }
+
+  .decision-main strong {
+    font-size: clamp(1.75rem, 10vw, 2.3rem);
+  }
+
+  .queue-table {
+    min-width: 680px;
+  }
+
+  .advanced-debug-panel pre {
+    max-height: 320px;
+    overflow-wrap: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    padding-inline: 12px;
+  }
+
+  .hero-copy h1,
+  .manifesto-copy h2 {
+    max-width: 100%;
+  }
+
+  .workflow-node,
+  .status-pill,
+  .workflow-badge,
+  .risk-badge,
+  .tag,
+  .sample-chips button {
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .evidence-meta,
+  .sample-card-top {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
