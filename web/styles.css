@@ -3166,3 +3166,67 @@ body {
     text-align: center;
   }
 }
+
+/* Full-width product layout refinements. */
+.page-shell {
+  max-width: none;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.hero {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: max(22px, calc((100vw - 1120px) / 2));
+  padding-right: max(22px, calc((100vw - 1120px) / 2));
+}
+
+.hero-copy {
+  max-width: 1120px;
+}
+
+.hero-context {
+  margin-top: clamp(28px, 4vw, 48px);
+}
+
+.intake-copy {
+  width: min(100%, 980px);
+  margin-top: clamp(54px, 7vw, 86px);
+  text-align: left;
+}
+
+.intake-copy p:last-child {
+  max-width: 68ch;
+}
+
+.hero-upload,
+.upload-guidance {
+  width: min(100%, 980px);
+}
+
+.manifesto-band,
+.workspace,
+.sample-board,
+.detail-panel {
+  width: min(calc(100% - 44px), 1120px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.manifesto-copy h2 {
+  max-width: 18ch;
+  font-size: clamp(3rem, 5.4vw, 4.7rem);
+}
+
+@media (max-width: 760px) {
+  .intake-copy {
+    text-align: center;
+  }
+
+  .intake-copy p:last-child {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
