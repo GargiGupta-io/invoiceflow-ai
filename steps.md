@@ -209,3 +209,21 @@ The page now keeps technical JSON available for engineers, but normal users do n
 ~ modified: web/styles.css
 
 ---
+
+## Step 14 - Add Why This Decision
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - adds a dedicated reasoning checklist under the main decision summary.
+- `web/app.js` - fills the checklist from extracted fields, policy assessment, evidence, risk, recommendation, and human review metadata.
+- `web/styles.css` - styles the checklist as a lightweight fact grid that stays readable on desktop and mobile.
+
+**In plain English**
+The result page now explains the recommendation with concrete facts instead of only a short summary. A user can see whether a PO was required, whether one was found, what amount and policy were used, what risk level applied, and whether human review is needed.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+
+---
