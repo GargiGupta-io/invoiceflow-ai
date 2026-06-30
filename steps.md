@@ -243,3 +243,21 @@ The app now avoids making “missing info” sound like a rejection. A user can 
 ~ modified: web/index.html
 
 ---
+
+## Step 16 - Clean Policy Evidence Panel
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - renames the evidence column to Policy evidence.
+- `web/app.js` - renders each evidence item with source, citation, matched rule, excerpt, decision impact, and why it was relevant.
+- `web/styles.css` - improves the evidence panel spacing, citation chips, and excerpt treatment while keeping the unboxed layout.
+
+**In plain English**
+The evidence area now reads like a policy match instead of a technical data card. A user can see which policy source was used, the citation ID, the matched rule, why it mattered, and what part of the decision it influenced.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+
+---
