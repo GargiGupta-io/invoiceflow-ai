@@ -7,9 +7,14 @@
   --line: rgba(31, 39, 33, 0.12);
   --warm: #9d5c2f;
   --warm-deep: #6f3713;
-  --green: #4f7f6d;
-  --green-soft: rgba(79, 127, 109, 0.14);
-  --warning: #c49052;
+  --green: #5f8f7c;
+  --green-soft: rgba(95, 143, 124, 0.16);
+  --warning: #b98443;
+  --warning-soft: rgba(222, 184, 124, 0.24);
+  --danger: #9d463c;
+  --danger-soft: rgba(190, 103, 93, 0.16);
+  --info: #5f6f7a;
+  --info-soft: rgba(95, 111, 122, 0.14);
   --shadow: 0 18px 48px rgba(58, 41, 23, 0.1);
   --grid-line: rgba(31, 39, 33, 0.08);
   --radius-lg: 8px;
@@ -688,18 +693,18 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 .queue-status.warning {
-  background: rgba(196, 144, 82, 0.16);
+  background: var(--warning-soft);
   color: var(--warning);
 }
 
 .queue-status.error {
-  background: rgba(140, 45, 36, 0.14);
-  color: #8c2d24;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .queue-status.neutral {
-  background: rgba(95, 102, 93, 0.12);
-  color: var(--muted);
+  background: var(--info-soft);
+  color: var(--info);
 }
 
 .sample-chips {
@@ -712,14 +717,14 @@ body:not(.workspace-ready) .eval-panel {
 .sample-chips button {
   padding: 8px 10px;
   border-radius: 999px;
-  background: rgba(79, 127, 109, 0.1);
+  background: var(--green-soft);
   color: var(--green);
   font-size: 0.84rem;
   box-shadow: none;
 }
 
 .sample-chips button:hover {
-  background: rgba(79, 127, 109, 0.16);
+  background: rgba(95, 143, 124, 0.22);
 }
 
 .sample-board {
@@ -799,28 +804,28 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 .workflow-badge.ap {
-  background: rgba(157, 92, 47, 0.14);
+  background: var(--warning-soft);
   color: var(--warm-deep);
 }
 
 .workflow-badge.ar {
-  background: rgba(36, 91, 69, 0.12);
+  background: var(--green-soft);
   color: var(--green);
 }
 
 .risk-badge.low {
-  background: rgba(36, 91, 69, 0.1);
+  background: var(--green-soft);
   color: var(--green);
 }
 
 .risk-badge.medium {
-  background: rgba(168, 106, 29, 0.16);
+  background: var(--warning-soft);
   color: var(--warning);
 }
 
 .risk-badge.high {
-  background: rgba(140, 45, 36, 0.14);
-  color: #8c2d24;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .sample-card h3 {
@@ -941,7 +946,7 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 .status-pill.running {
-  background: rgba(196, 144, 82, 0.16);
+  background: var(--warning-soft);
   color: var(--warning);
 }
 
@@ -961,13 +966,13 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 .status-pill.error {
-  background: rgba(140, 45, 36, 0.14);
-  color: #8c2d24;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .status-pill.neutral {
-  background: rgba(95, 102, 93, 0.12);
-  color: var(--muted);
+  background: var(--info-soft);
+  color: var(--info);
 }
 
 .form-stack {
@@ -1285,19 +1290,19 @@ button:disabled {
 .tag {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(36, 91, 69, 0.1);
+  background: var(--green-soft);
   color: var(--green);
   font-size: 0.88rem;
 }
 
 .tag.warning {
-  background: rgba(196, 144, 82, 0.16);
+  background: var(--warning-soft);
   color: var(--warning);
 }
 
 .tag.error {
-  background: rgba(140, 45, 36, 0.14);
-  color: #8c2d24;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .evidence-list {
