@@ -2705,3 +2705,23 @@ body {
     margin-top: 0;
   }
 }
+
+/* Product Path now carries the workflow rail. */
+.manifesto-band {
+  margin-top: 34px;
+  padding: 44px 0 46px;
+  gap: 24px;
+}
+
+.manifesto-band .workflow-orbit {
+  width: min(100%, 1120px);
+  margin: 6px 0 0;
+}
+
+.manifesto-band .workflow-node {
+  min-height: 58px;
+}
+
+.hero .workflow-orbit {
+  display: none;
+}
