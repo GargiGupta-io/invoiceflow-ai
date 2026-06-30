@@ -59,6 +59,22 @@ Input
 | Finance policy documents | Retrieved policy evidence with source names, citation IDs, and decision influence. |
 | Workflow result | Confidence/risk summary, human review decision, tool trace, audit metadata, and raw JSON for debugging. |
 
+## Best Demo Path
+
+Use this path when showing the project to a recruiter, client, or technical
+reviewer:
+
+1. Open the operator console at `/ui`.
+2. Select the `Missing PO Invoice` sample.
+3. Review the extracted invoice fields.
+4. Check the final recommendation.
+5. Open the policy evidence panel.
+6. Review the anomaly list and "Why this decision?" explanation.
+7. Send the case to human review.
+8. Open the compact audit trail.
+9. Run the `AR Overdue Follow-Up` sample.
+10. Show the drafted follow-up email and escalation reasoning.
+
 ## Product Snapshot
 
 ```text
