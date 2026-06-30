@@ -2306,3 +2306,187 @@ html {
     font-size: 0.78rem;
   }
 }
+
+/* Phase 15D: cohesive surface and motion layer. */
+:root {
+  --line: rgba(31, 39, 33, 0.09);
+  --grid-line: rgba(31, 39, 33, 0.055);
+  --panel: rgba(255, 251, 241, 0.68);
+  --green: #5f927f;
+  --green-soft: rgba(112, 166, 139, 0.18);
+  --warning: #c58d4f;
+  --warning-soft: rgba(221, 174, 111, 0.2);
+  --danger: #b8665d;
+  --danger-soft: rgba(207, 127, 116, 0.16);
+  --info-soft: rgba(95, 111, 122, 0.11);
+  --glass-border: rgba(31, 39, 33, 0.08);
+  --glass-surface: rgba(255, 251, 241, 0.54);
+  --glass-surface-strong: rgba(255, 251, 241, 0.76);
+  --soft-lift: 0 16px 42px rgba(58, 41, 23, 0.07);
+}
+
+body {
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle at top left, rgba(215, 199, 164, 0.38), transparent 32%),
+    radial-gradient(circle at top right, rgba(109, 145, 119, 0.16), transparent 28%),
+    linear-gradient(180deg, #f7f2e7 0%, #efe9db 100%);
+}
+
+.hero-context article,
+.entry-card,
+.sample-card,
+.decision-summary-card,
+.why-panel,
+.result-card,
+.detail-column,
+.flow-step,
+.guardrail-item,
+.eval-metric,
+.metric-card,
+.debug-disclosure,
+.queue-table-wrap {
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--glass-surface-strong), rgba(255, 251, 241, 0.36));
+  box-shadow: var(--soft-lift);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.entry-card,
+.sample-card,
+.result-card,
+.detail-column,
+.eval-metric,
+.metric-card {
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.entry-card:hover,
+.sample-card:hover,
+.result-card:hover,
+.detail-column:hover,
+.eval-metric:hover,
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(95, 146, 127, 0.2);
+  background: linear-gradient(180deg, rgba(255, 251, 241, 0.84), rgba(255, 251, 241, 0.46));
+  box-shadow: 0 20px 48px rgba(58, 41, 23, 0.09);
+}
+
+.entry-board,
+.manifesto-band,
+.sample-board,
+.panel,
+.results-panel,
+.detail-panel,
+.eval-summary-grid {
+  border-color: rgba(31, 39, 33, 0.075);
+}
+
+.entry-card,
+.sample-card,
+.result-card,
+.detail-column,
+.eval-metric,
+.metric-card {
+  padding: 16px;
+}
+
+.sample-card {
+  border-top: 1px solid var(--glass-border);
+}
+
+.sample-card.is-running,
+.sample-card.is-selected {
+  border-color: rgba(95, 146, 127, 0.28);
+  background: linear-gradient(180deg, rgba(236, 249, 241, 0.72), rgba(255, 248, 237, 0.38));
+}
+
+.sample-card.is-selected {
+  box-shadow: 0 22px 54px rgba(95, 146, 127, 0.12);
+}
+
+.status-pill,
+.workflow-badge,
+.risk-badge,
+.queue-status,
+.sample-chips button,
+.path-sentence span,
+.workflow-node {
+  border: 1px solid rgba(31, 39, 33, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.status-pill.success,
+.queue-status.success,
+.risk-badge.low,
+.workflow-badge.ar,
+.sample-chips button {
+  background: var(--green-soft);
+  color: #477564;
+}
+
+.status-pill.running,
+.queue-status.warning,
+.risk-badge.medium,
+.workflow-badge.ap {
+  background: var(--warning-soft);
+  color: #8a5d28;
+}
+
+.status-pill.error,
+.queue-status.error,
+.risk-badge.high {
+  background: var(--danger-soft);
+  color: #8e4f48;
+}
+
+.primary-button,
+.secondary-button,
+.queue-refresh,
+.eval-download {
+  box-shadow: 0 14px 30px rgba(58, 41, 23, 0.11);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.queue-refresh:hover,
+.eval-download:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.04);
+  box-shadow: 0 18px 38px rgba(58, 41, 23, 0.14);
+}
+
+.workflow-orbit {
+  border-radius: 22px;
+}
+
+.workflow-node {
+  background: linear-gradient(180deg, rgba(255, 251, 241, 0.82), rgba(255, 251, 241, 0.52));
+}
+
+.workflow-node.is-active {
+  background: linear-gradient(180deg, rgba(239, 253, 245, 0.92), rgba(236, 249, 241, 0.68));
+}
+
+.workflow-node.is-complete {
+  background: linear-gradient(180deg, rgba(238, 246, 241, 0.74), rgba(238, 246, 241, 0.42));
+}
+
+.queue-table-wrap {
+  overflow-x: auto;
+}
+
+.queue-table thead {
+  background: rgba(255, 251, 241, 0.56);
+}
+
+.loading-cue {
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-surface);
+  box-shadow: var(--soft-lift);
+}
