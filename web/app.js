@@ -80,6 +80,7 @@ const visibleDemoCases = {
   ar_003_payment_claim_no_proof: "AR Overdue Follow-Up"
 };
 let loadingCueTimer = null;
+let activeSampleId = null;
 
 activateTab("workflow");
 bootstrap();
@@ -161,9 +162,10 @@ uploadForm.addEventListener("submit", async (event) => {
     });
     const payload = await response.json();
     if (!response.ok) {
-      throw new Error(payload.detail || "Upload workflow failed.");
+      throw new Error(formatApiError(payload.detail, "Upload workflow failed."));
     }
     renderResult(payload);
+    setActiveSample(null);
     setStatus(uploadStatus, "Completed", "success");
     setUploadGuidance("Upload complete. Review the recommendation, evidence, and human review status below.", false);
     setWorkspaceReady();
@@ -296,7 +298,7 @@ async function loadReviewQueue() {
     const response = await fetch("/review-queue");
     const payload = await response.json();
     if (!response.ok) {
-      throw new Error(payload.detail || "Review queue failed.");
+      throw new Error(formatApiError(payload.detail, "Review queue failed."));
     }
     renderReviewQueue(payload);
     setStatus(reviewQueueStatus, "Ready", "success");
@@ -312,7 +314,7 @@ async function loadEvalDashboard(refresh = false) {
     const response = await fetch(`/eval/summary${refresh ? "?refresh=1" : ""}`);
     const payload = await response.json();
     if (!response.ok) {
-      throw new Error(payload.detail || "Evaluation dashboard failed.");
+      throw new Error(formatApiError(payload.detail, "Evaluation dashboard failed."));
     }
     renderEvalDashboard(payload);
     setStatus(evalDashboardStatus, payload.failing_case_count ? "Needs review" : "Ready", payload.failing_case_count ? "warning" : "success");
@@ -578,9 +580,10 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
     });
     const payload = await response.json();
     if (!response.ok) {
-      throw new Error(payload.detail || "Sample workflow failed.");
+      throw new Error(formatApiError(payload.detail, "Sample workflow failed."));
     }
     renderResult(payload);
+    setActiveSample(sampleId);
     setStatus(sampleStatus, "Completed", "success");
     resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
@@ -609,6 +612,24 @@ function setSampleRunState(sampleId, isRunning) {
     const card = button.closest(".sample-card");
     if (card && isCurrent) {
       card.classList.toggle("is-running", isRunning);
+    }
+  }
+}
+
+function setActiveSample(sampleId) {
+  activeSampleId = sampleId;
+  for (const button of sampleRunButtons) {
+    const isActive = button.dataset.runSample === activeSampleId;
+    button.classList.toggle("is-selected", isActive);
+    if (isActive) {
+      button.setAttribute("aria-current", "true");
+    } else {
+      button.removeAttribute("aria-current");
+    }
+
+    const card = button.closest(".sample-card");
+    if (card) {
+      card.classList.toggle("is-selected", isActive);
     }
   }
 }
@@ -1561,4 +1582,36 @@ function formatError(error) {
     return error.message;
   }
   return String(error);
+}
+
+function formatApiError(detail, fallback) {
+  if (!detail) {
+    return fallback;
+  }
+
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (typeof detail === "object") {
+    const message = detail.message || fallback;
+    const helperParts = [];
+
+    if (Array.isArray(detail.allowed_extensions) && detail.allowed_extensions.length) {
+      helperParts.push(`Allowed: ${detail.allowed_extensions.join(", ")}`);
+    }
+    if (Array.isArray(detail.allowed) && detail.allowed.length) {
+      helperParts.push(`Allowed: ${detail.allowed.join(", ")}`);
+    }
+    if (detail.ocr_note) {
+      helperParts.push(detail.ocr_note);
+    }
+    if (detail.fallback) {
+      helperParts.push(detail.fallback);
+    }
+
+    return helperParts.length ? `${message} ${helperParts.join(" ")}` : message;
+  }
+
+  return fallback;
 }
