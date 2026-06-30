@@ -175,3 +175,21 @@ The result workspace now has clearer labels. Instead of sounding like a mix of w
 ~ modified: web/index.html
 
 ---
+
+## Step 12 - Put Decision First
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - rewrites the top result card labels around the operator decision, confidence/risk, human review, evidence, and why.
+- `web/app.js` - prefixes AP output with a clear reason and AR output with the draft subject so the top summary reads like a decision, not metadata.
+- `web/styles.css` - gives the decision card stronger visual hierarchy with subtle rules and larger recommendation type.
+
+**In plain English**
+The result now starts by answering what the operator should do, why, how risky it is, whether a person needs to review it, and what evidence supports it. A finance user no longer has to scan technical details first.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+
+---
