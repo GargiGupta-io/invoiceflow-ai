@@ -1,15 +1,28 @@
 # InvoiceFlow AI
 
-AI-assisted invoice review and receivables follow-up with evidence, audit
-trails, and human review gates.
+AI-assisted invoice review and receivables follow-up for finance teams.
+
+InvoiceFlow AI helps operations teams review AP invoices, detect missing or
+risky information, retrieve policy evidence, draft AR follow-ups, and route
+uncertain cases to human review with a full audit trail.
+
+I originally built InvoiceFlow AI as a YC-style product prototype for finance
+workflow automation, then expanded it into a general AI operations project
+focused on invoice review, AR follow-ups, policy evidence, and audit trails.
+
+The product promise is simple:
+
+```text
+Select or upload an invoice/AR case
+  -> extract key facts
+  -> check policy evidence
+  -> detect risk
+  -> recommend an action
+  -> route uncertain cases to human review
+  -> preserve an audit trail
+```
 
 Review faster. Decide with evidence. Escalate safely.
-
-InvoiceFlow AI is a finance operations console for two workflows:
-Accounts Payable invoice review and Accounts Receivable follow-up drafting. It
-ingests documents or sample cases, extracts structured fields, retrieves policy
-evidence, recommends the next action, and shows the audit trail behind that
-recommendation.
 
 ## Product Snapshot
 
