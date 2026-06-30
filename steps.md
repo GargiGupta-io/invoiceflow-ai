@@ -423,3 +423,22 @@ The demo now has a clear script for what to click and what to say. Someone showi
 ~ modified: steps.md
 
 ---
+
+## Step 27 - Add Prompt Schema Guardrail Panel
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - adds a compact Prompt, Schema, and Guardrail readout inside the collapsed Advanced Debug panel.
+- `web/app.js` - renders prompt version, extractor mode, schema status, repair status, PII redaction, LLM gateway calls, stage latency, and token metadata from the workflow audit payload.
+- `web/styles.css` - styles the guardrail readout as a quiet technical grid that collapses cleanly on small screens.
+
+**In plain English**
+The app now gives technical reviewers a clear place to inspect how the AI workflow was controlled. Normal operators still see the simple decision-first flow, while advanced users can expand Debug to check prompts, schema validation, repair behavior, gateway metadata, and latency.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
