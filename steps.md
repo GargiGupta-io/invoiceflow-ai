@@ -16,6 +16,20 @@ The project now explains itself immediately. A reader sees that InvoiceFlow AI i
 
 ---
 
+## Step 4.5 - Reduce README Technical Density
+*Completed: 2026-06-30*
+
+**What was built**
+- `README.md` - moves safety, demo-mode, client adaptation, and skills sections before the technical reference, removes the duplicate demo path, and collapses dense API/eval metadata behind optional details.
+
+**In plain English**
+The README now stays easier for a beginner for longer. The product story, demo path, trust language, and client value come before the dense engineering details, while technical reviewers can still open the deeper API and CI information when they need it.
+
+**Files changed**
+~ modified: README.md
+
+---
+
 ## Step 4 - Add Trust And Client Framing
 *Completed: 2026-06-30*
 
