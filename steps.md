@@ -307,3 +307,17 @@ The page now feels more alive while a workflow is running. The motion is tied to
 ~ modified: web/styles.css
 
 ---
+
+## Step 20 - Badge And Color Polish
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/styles.css` - adds softer shared green, amber, red, and blue-gray tokens and applies them to status pills, risk badges, queue statuses, sample chips, and anomaly tags.
+
+**In plain English**
+The badges now feel calmer and more consistent. Green still means safe, amber still means review or missing info, red still means high risk, and blue-gray now handles neutral/information states without making the page feel loud.
+
+**Files changed**
+~ modified: web/styles.css
+
+---
