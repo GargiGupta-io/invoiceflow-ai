@@ -101,3 +101,17 @@ The page no longer assumes the user already knows finance abbreviations. Someone
 ~ modified: web/index.html
 
 ---
+
+## Step 7 - Match UI Case Names To README
+*Completed: 2026-06-30*
+
+**What was built**
+- `README.md` - replaces the older raw sample list with the same five case names shown in the UI, including sample IDs and expected results.
+
+**In plain English**
+The README and app now use the same names for the main demo cases. A viewer will not see one label in the instructions and a different label inside the product.
+
+**Files changed**
+~ modified: README.md
+
+---
