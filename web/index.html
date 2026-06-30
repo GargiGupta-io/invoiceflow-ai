@@ -7,15 +7,25 @@
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <div class="page-shell">
+  <div class="page-shell" id="top">
     <nav class="site-header" aria-label="Primary">
-      <div class="brand-lockup">
-        <span class="brand-mark">iflow</span>
-        <span class="brand-name">InvoiceFlow AI</span>
-      </div>
-      <div class="system-status">
-        <span>AP/AR Agent</span>
-        <strong>READY</strong>
+      <div class="site-header-inner">
+        <a class="brand-lockup" href="#top" aria-label="InvoiceFlow AI home">
+          <span class="brand-mark">iflow</span>
+          <span class="brand-name">InvoiceFlow AI</span>
+        </a>
+        <div class="header-tabs" aria-label="Page sections">
+          <a class="header-tab" href="#top">Overview</a>
+          <a class="header-tab" href="#capture">Cases</a>
+          <button type="button" class="header-tab" data-tab-target="workflow" aria-pressed="true">Decision</button>
+          <button type="button" class="header-tab" data-tab-target="inspect" aria-pressed="false">Evidence</button>
+          <button type="button" class="header-tab" data-tab-target="review" aria-pressed="false">Review</button>
+          <button type="button" class="header-tab" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
+        </div>
+        <div class="system-status">
+          <span>AP/AR Agent</span>
+          <strong>READY</strong>
+        </div>
       </div>
     </nav>
 
