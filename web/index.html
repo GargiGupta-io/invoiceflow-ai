@@ -51,7 +51,7 @@
           </article>
         </div>
         <div class="intake-copy">
-          <p class="intake-label">Start the review</p>
+          <h2 class="intake-heading">Start the review</h2>
           <p>Upload a document with AP/AR selected, or run a polished sample case below.</p>
         </div>
         <form id="upload-form" class="hero-upload">
@@ -79,8 +79,13 @@
           <span class="status-pill neutral" id="sample-status">Idle</span>
           <span class="status-pill neutral" id="upload-status">Idle</span>
         </div>
-        <section class="entry-board" aria-label="Operator snapshot">
-          <article class="entry-card current-case-card" id="capture">
+        <section class="entry-section" aria-labelledby="entry-section-title">
+          <div class="entry-section-heading">
+            <h2 id="entry-section-title">What's inside?</h2>
+            <p>Three compact panels show how to start, what the sample cases cover, and how the decision is checked.</p>
+          </div>
+          <div class="entry-board" aria-label="Operator snapshot">
+            <article class="entry-card current-case-card" id="capture">
             <div class="entry-visual case-preview" aria-label="Current case guide">
               <div class="case-stat">
                 <span>1. Choose</span>
@@ -104,8 +109,8 @@
               <strong id="entry-workflow-state">Ready for AP or AR</strong>
               <p id="entry-workflow-detail">Run a sample or upload a finance document to start a reviewed workflow.</p>
             </div>
-          </article>
-          <article class="entry-card">
+            </article>
+            <article class="entry-card">
             <div class="entry-visual sample-preview">
               <span class="sample-preview-label">Run sample</span>
               <div class="sample-chips" aria-label="Highlighted samples">
@@ -121,8 +126,8 @@
               <strong id="entry-sample-count">Loading</strong>
               <p>Five curated cases cover clean approval, missing info, duplicate risk, high-value review, and AR follow-up.</p>
             </div>
-          </article>
-          <article class="entry-card latest-decision-card">
+            </article>
+            <article class="entry-card latest-decision-card">
             <div class="entry-visual decision-preview" aria-label="Latest decision guide">
               <div class="decision-meter">
                 <span>Decision output</span>
@@ -143,7 +148,8 @@
               <strong id="entry-audit-state">No run yet</strong>
               <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
             </div>
-          </article>
+            </article>
+          </div>
         </section>
       </div>
     </header>
