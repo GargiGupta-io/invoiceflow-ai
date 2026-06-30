@@ -800,7 +800,7 @@ function buildApWhyRows(extraction, policy, finalDecision, evidence, risk, revie
     {
       label: "Recommended action",
       value: formatRecommendation(finalDecision.recommendation),
-      note: finalDecision.reviewer_summary || "No reviewer summary was returned."
+      note: buildRecommendationMeaning(finalDecision.recommendation, finalDecision.reviewer_summary)
     },
     {
       label: "Human review",
@@ -861,6 +861,22 @@ function buildArWhyRows(extraction, policy, finalDecision, evidence, risk, revie
         : "No human review gate was triggered."
     }
   ];
+}
+
+function buildRecommendationMeaning(recommendation, fallbackSummary) {
+  if (recommendation === "missing_info") {
+    return "Ask for the missing required details before approving, reviewing, or rejecting the invoice.";
+  }
+  if (recommendation === "review") {
+    return "Send the case to a human reviewer because the invoice may be valid but needs inspection.";
+  }
+  if (recommendation === "reject") {
+    return "Do not proceed with payment unless the issue is corrected and the case is resubmitted.";
+  }
+  if (recommendation === "approve") {
+    return "The invoice can move forward because no blocking issue was found.";
+  }
+  return fallbackSummary || "No reviewer summary was returned.";
 }
 
 function buildRiskLabel(finalDecision, audit, workflowType) {
@@ -1197,9 +1213,9 @@ function formatRecommendation(value) {
   }
   const labels = {
     approve: "Approve",
-    review: "Review",
-    reject: "Reject",
-    missing_info: "Missing Info",
+    review: "Human Review",
+    reject: "Reject / Do Not Proceed",
+    missing_info: "Request Missing Info",
     escalate: "Escalate",
     draft_follow_up: "Draft Follow-Up"
   };
@@ -1300,13 +1316,13 @@ function buildDecisionExplanation(value, workflowType) {
       return "The system believes the invoice can move forward without extra intervention.";
     }
     if (value === "review") {
-      return "The system found something that should be checked by a person before payment continues.";
+      return "Human review means the invoice may still be valid, but a person must inspect policy, evidence, or risk signals before payment continues.";
     }
     if (value === "reject") {
-      return "The system believes the invoice should not move forward in its current state.";
+      return "Reject means the invoice should not move forward in its current state because the workflow found a likely invalid or unsupported case.";
     }
     if (value === "missing_info") {
-      return "The system believes the safest next step is to request missing details before continuing.";
+      return "Request missing info means the invoice is not being rejected; the safest next step is to ask for the required details before deciding.";
     }
   }
 
