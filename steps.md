@@ -710,3 +710,18 @@ The top area now has more personality and more guidance. Before a sample runs, t
 ~ modified: steps.md
 
 ---
+
+## Step 35 - Strengthen Hero Aurora Ribbon
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/styles.css` - replaces the faint hero haze with a visible Soft Aurora-style horizontal ribbon using green, cream, and amber gradients.
+
+**In plain English**
+The hero background now reads more like an actual aurora instead of a barely visible wash. The glow stays in the existing InvoiceFlow palette, but it has a clearer wave shape like the React Bits reference.
+
+**Files changed**
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
