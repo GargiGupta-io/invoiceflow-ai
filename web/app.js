@@ -939,7 +939,7 @@ function renderTags(container, tags, emptyText) {
 function renderEvidence(container, evidence) {
   container.innerHTML = "";
   if (!evidence || evidence.length === 0) {
-    container.textContent = "No evidence returned.";
+    container.textContent = "No supporting policy evidence was returned. Route this case to review before acting.";
     container.className = "evidence-list empty-state";
     return;
   }
@@ -953,23 +953,24 @@ function renderEvidence(container, evidence) {
     meta.className = "evidence-meta";
 
     const source = document.createElement("span");
-    source.textContent = item.source_title || "Policy source";
+    source.textContent = `Source: ${extractEvidenceSourceName(item)}`;
 
     const citation = document.createElement("span");
-    citation.textContent = item.source_id || "uncited";
+    citation.textContent = `Citation: ${item.source_id || "uncited"}`;
 
     meta.appendChild(source);
     meta.appendChild(citation);
 
     const title = document.createElement("strong");
-    title.textContent = "Policy match";
+    title.textContent = extractEvidenceRuleName(item);
 
     const excerpt = document.createElement("p");
+    excerpt.className = "evidence-excerpt";
     excerpt.textContent = item.excerpt;
 
     const detailList = document.createElement("dl");
     detailList.className = "evidence-details";
-    appendEvidenceDetail(detailList, "Used for", inferEvidenceInfluence(item));
+    appendEvidenceDetail(detailList, "Decision impact", inferEvidenceInfluence(item));
     appendEvidenceDetail(detailList, "Why relevant", item.relevance_reason || "Supports this workflow decision.");
 
     card.appendChild(meta);
@@ -978,6 +979,22 @@ function renderEvidence(container, evidence) {
     card.appendChild(detailList);
     container.appendChild(card);
   }
+}
+
+function extractEvidenceSourceName(item) {
+  const title = item.source_title || "";
+  if (!title) {
+    return "Policy source";
+  }
+  return title.split(" - ")[0] || title;
+}
+
+function extractEvidenceRuleName(item) {
+  const title = item.source_title || "";
+  if (title.includes(" - ")) {
+    return title.split(" - ").slice(1).join(" - ");
+  }
+  return item.source_id ? `Policy Match ${item.source_id}` : "Policy match";
 }
 
 function appendEvidenceDetail(list, label, value) {

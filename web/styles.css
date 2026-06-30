@@ -1187,7 +1187,7 @@ button:disabled {
 }
 
 .evidence-item {
-  padding: 16px 0 18px;
+  padding: 18px 0 20px;
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -1196,7 +1196,9 @@ button:disabled {
 
 .evidence-item strong {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  font-size: 1.02rem;
+  line-height: 1.35;
 }
 
 .evidence-meta {
@@ -1212,21 +1214,26 @@ button:disabled {
   align-items: center;
   border-radius: 999px;
   padding: 5px 9px;
-  background: rgba(36, 91, 69, 0.1);
-  color: var(--green);
+  background: rgba(86, 127, 111, 0.14);
+  color: #3f725f;
   font-size: 0.76rem;
   font-weight: 800;
 }
 
 .evidence-meta span + span {
-  background: rgba(157, 92, 47, 0.12);
-  color: var(--warm-deep);
+  background: rgba(208, 162, 101, 0.2);
+  color: #946b36;
 }
 
 .evidence-item p {
   margin: 0 0 8px;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.evidence-excerpt {
+  padding: 0 0 0 14px;
+  border-left: 2px solid rgba(86, 127, 111, 0.26);
 }
 
 .evidence-details {
