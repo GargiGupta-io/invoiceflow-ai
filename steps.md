@@ -115,3 +115,19 @@ The README and app now use the same names for the main demo cases. A viewer will
 ~ modified: README.md
 
 ---
+
+## Step 8 - Create Centered Product Entry
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - moves the operator snapshot into the hero so upload, sample status, sample chips, and latest audit feel like one entry surface.
+- `web/styles.css` - centers the hero as a taller product entry and constrains the snapshot width so the first screen feels more focused.
+
+**In plain English**
+The top of the page now feels more like one clean starting point instead of a hero followed by a separate dashboard strip. The user sees the product promise, upload controls, sample actions, and current workflow state together.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+
+---
