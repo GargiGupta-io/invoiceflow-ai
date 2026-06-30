@@ -80,14 +80,27 @@
           <span class="status-pill neutral" id="upload-status">Idle</span>
         </div>
         <section class="entry-board" aria-label="Operator snapshot">
-          <article class="entry-card" id="capture">
-            <div class="entry-visual workflow-preview" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
+          <article class="entry-card current-case-card" id="capture">
+            <div class="entry-visual case-preview" aria-label="Current case guide">
+              <div class="case-stat">
+                <span>1. Choose</span>
+                <strong id="entry-case-desk">AP invoice or AR follow-up</strong>
+              </div>
+              <div class="case-stat">
+                <span>2. Extract</span>
+                <strong id="entry-case-party">Vendor, customer, amount</strong>
+              </div>
+              <div class="case-stat">
+                <span>3. Check</span>
+                <strong id="entry-case-amount">Policy + risk signals</strong>
+              </div>
+              <div class="case-stat">
+                <span>4. Decide</span>
+                <strong id="entry-case-recommendation">Approve, review, or follow up</strong>
+              </div>
             </div>
             <div class="entry-copy">
-              <span class="result-label">Workflow State</span>
+              <span class="result-label">Current Case</span>
               <strong id="entry-workflow-state">Ready for AP or AR</strong>
               <p id="entry-workflow-detail">Run a sample or upload a finance document to start a reviewed workflow.</p>
             </div>
@@ -109,15 +122,24 @@
               <p>Five curated cases cover clean approval, missing info, duplicate risk, high-value review, and AR follow-up.</p>
             </div>
           </article>
-          <article class="entry-card">
-            <div class="entry-visual audit-preview" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
+          <article class="entry-card latest-decision-card">
+            <div class="entry-visual decision-preview" aria-label="Latest decision guide">
+              <div class="decision-meter">
+                <span>Decision output</span>
+                <strong id="entry-decision-recommendation">Evidence first</strong>
+              </div>
+              <div class="decision-facts">
+                <span><strong id="entry-decision-evidence">Policy</strong> evidence used</span>
+                <span><strong id="entry-decision-review">Human</strong> review gate</span>
+              </div>
+              <ol class="audit-mini-timeline" aria-label="Mini audit timeline">
+                <li id="entry-timeline-extract">Extract</li>
+                <li id="entry-timeline-policy">Policy</li>
+                <li id="entry-timeline-decision">Decision</li>
+              </ol>
             </div>
             <div class="entry-copy">
-              <span class="result-label">Latest Audit</span>
+              <span class="result-label">Latest Decision</span>
               <strong id="entry-audit-state">No run yet</strong>
               <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
             </div>
