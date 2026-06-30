@@ -182,6 +182,20 @@ The Evidence section now keeps extracted fields open because that is the easiest
 
 The Evaluation section still shows the KPI cards first. The internal case table is behind a collapsed details control so the page does not feel academic unless someone chooses to inspect it.
 
+### Case Sheet Result Layout
+
+Plain English: the result should read like an operator case file, not a wall of boxes.
+
+The selected-case Summary view was changed experimentally so the decision appears as a clean case sheet:
+
+- the repeated panel intro hides after a case is selected
+- the main recommendation becomes the dominant headline
+- confidence, risk, review, and evidence move into compact right-side facts
+- the “Why this decision?” block becomes a thinner explanation row
+- the reasoning checklist and workflow facts use rows/dividers instead of bulky cards
+
+This is intentionally reversible. If the case sheet direction feels weaker visually, the change is isolated in the `try case sheet result layout` commit.
+
 ## Current Files
 
 - `web/index.html` - contains the hero, upload form, guide cards, Product Path buttons, evidence disclosures, and eval details disclosure.
@@ -214,5 +228,6 @@ A beginner should understand the page like this:
 - 2026-07-01 - The visible review queue and eval dashboard now use the same five curated cases as the sample launcher.
 - 2026-07-01 - A selected-case state now collapses the intro guide cards, compacts the Product Path, and scrolls to the result after sample/upload completion.
 - 2026-07-01 - Evidence and evaluation details now use collapsed sections so the default read stays decision-first.
+- 2026-07-01 - The selected-case Summary view was tested as a cleaner case-sheet layout with fewer boxed sections and shorter visible result copy.
 
 This is the current source of truth for the top-page UI.
