@@ -2748,3 +2748,120 @@ body {
 .hero .workflow-orbit {
   display: none;
 }
+
+/* Merged Product Path + workspace navigation. */
+.workflow-view-rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 1120px);
+  margin: 6px 0 0;
+}
+
+.workflow-view-rail::before {
+  content: "";
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 50%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(95, 146, 127, 0.2), rgba(214, 161, 87, 0.18), transparent);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.workflow-view-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 76px;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px solid rgba(95, 146, 127, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 241, 0.84), rgba(255, 251, 241, 0.52)),
+    radial-gradient(circle at 50% 0%, rgba(236, 249, 241, 0.46), transparent 62%);
+  color: var(--muted);
+  font: inherit;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 18px 42px rgba(58, 41, 23, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.44);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.workflow-view-card:hover,
+.workflow-view-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(95, 146, 127, 0.26);
+  color: var(--ink);
+  box-shadow: 0 22px 48px rgba(58, 41, 23, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.52);
+}
+
+.workflow-view-card.is-active {
+  border-color: rgba(95, 146, 127, 0.32);
+  background:
+    linear-gradient(180deg, rgba(239, 253, 245, 0.94), rgba(236, 249, 241, 0.68)),
+    radial-gradient(circle at 50% 0%, rgba(112, 166, 139, 0.24), transparent 66%);
+  color: #386754;
+  box-shadow: 0 22px 52px rgba(95, 146, 127, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.workflow-view-index {
+  color: currentColor;
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  opacity: 0.72;
+}
+
+.workflow-view-card strong {
+  color: currentColor;
+  font-size: clamp(0.98rem, 1.4vw, 1.16rem);
+  font-weight: 950;
+}
+
+.workflow-view-card small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.workflow-view-card.is-active small {
+  color: #477564;
+}
+
+.upload-guidance {
+  max-width: 72ch;
+  margin: 10px auto 0;
+  padding-top: 0;
+  border-top: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .workflow-view-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workflow-view-rail::before {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .workflow-view-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-view-card {
+    min-height: 66px;
+  }
+}
