@@ -131,3 +131,19 @@ The top of the page now feels more like one clean starting point instead of a he
 ~ modified: web/styles.css
 
 ---
+
+## Step 9 - Clarify Upload Intake Row
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - adds a short intake cue above the upload controls so users know they can start with a document or a sample case.
+- `web/styles.css` - makes the upload row feel like a primary top action with a wider centered layout and subtle top/bottom rules.
+
+**In plain English**
+The upload area now reads like the main intake point instead of a plain form sitting under the hero text. A user can see immediately that they can either upload a document or run a sample case.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+
+---
