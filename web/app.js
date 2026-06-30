@@ -69,6 +69,13 @@ const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
 const tabButtons = document.querySelectorAll("[data-tab-target]");
 const tabPanels = document.querySelectorAll("[data-tab-panel]");
+const visibleDemoCases = {
+  ap_001_clean_invoice: "Clean Invoice",
+  ap_002_missing_po: "Missing PO Invoice",
+  ap_004_duplicate_invoice: "Duplicate Invoice Risk",
+  ap_003_threshold_review: "High-Value Approval Required",
+  ar_003_payment_claim_no_proof: "AR Overdue Follow-Up"
+};
 
 activateTab("workflow");
 bootstrap();
@@ -155,9 +162,13 @@ uploadForm.addEventListener("submit", async (event) => {
 });
 
 function updateEntrySampleCount(samples) {
-  const apCount = samples.filter((sample) => sample.category === "invoices").length;
-  const arCount = samples.filter((sample) => sample.category === "emails").length;
-  entrySampleCount.textContent = `${apCount} AP / ${arCount} AR`;
+  const visibleIds = new Set(Object.keys(visibleDemoCases));
+  const availableVisibleCases = samples.filter((sample) => visibleIds.has(sample.sample_id));
+  const apCount = availableVisibleCases.filter((sample) => sample.category === "invoices").length;
+  const arCount = availableVisibleCases.filter((sample) => sample.category === "emails").length;
+  entrySampleCount.textContent = `${availableVisibleCases.length} curated cases`;
+  const arLabel = arCount === 1 ? "case is" : "cases are";
+  entryWorkflowDetail.textContent = `${apCount} AP review cases and ${arCount} AR follow-up ${arLabel} ready for the guided demo.`;
 }
 
 function activateTab(targetTab) {
@@ -461,9 +472,10 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
   setStatus(sampleStatus, "Running sample", "running");
   setSampleRunState(sampleId, true);
   const sampleFamily = sampleId.startsWith("ar_") ? "AR" : "AP";
+  const sampleName = visibleDemoCases[sampleId] || sampleId;
   showLoadingCue(`Reading ${sampleFamily} sample`);
   entryWorkflowState.textContent = "Running sample";
-  entryWorkflowDetail.textContent = `Processing ${sampleId} through extraction, retrieval, validation, and decisioning.`;
+  entryWorkflowDetail.textContent = `Processing ${sampleName} through extraction, retrieval, validation, and decisioning.`;
   entryAuditState.textContent = "In progress";
   entryAuditDetail.textContent = "Waiting for recommendation, evidence, review gate, and latency.";
 
@@ -488,7 +500,7 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
   } catch (error) {
     setStatus(sampleStatus, "Run failed", "error");
     entryWorkflowState.textContent = "Sample failed";
-    entryWorkflowDetail.textContent = `${sampleId} could not complete.`;
+    entryWorkflowDetail.textContent = `${sampleName} could not complete.`;
     entryAuditState.textContent = "Run failed";
     entryAuditDetail.textContent = formatError(error);
     rawJson.textContent = formatError(error);
