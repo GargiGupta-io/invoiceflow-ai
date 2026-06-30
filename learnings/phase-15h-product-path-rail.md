@@ -196,6 +196,20 @@ The selected-case Summary view was changed experimentally so the decision appear
 
 This is intentionally reversible. If the case sheet direction feels weaker visually, the change is isolated in the `try case sheet result layout` commit.
 
+### Supporting Tabs Match The Case Sheet
+
+Plain English: Evidence, Review, and Evaluation now follow the same visual language as Summary.
+
+The supporting tabs were adjusted so they do not feel like separate mini dashboards:
+
+- Evidence uses a shorter “Evidence trail” title and a compact extraction/retrieval/validation/decision trace.
+- Evidence details use row-like disclosure sections instead of heavy cards.
+- Review is labeled as a review queue and keeps the five-case demo story clear.
+- Evaluation is labeled as a quality snapshot instead of an academic dashboard.
+- Eval metrics use compact divided cells rather than a scattered card wall.
+
+This keeps the demo path consistent: Summary gives the decision, Evidence explains it, Review shows human handling, and Evaluation proves the workflow quality.
+
 ## Current Files
 
 - `web/index.html` - contains the hero, upload form, guide cards, Product Path buttons, evidence disclosures, and eval details disclosure.
@@ -229,5 +243,6 @@ A beginner should understand the page like this:
 - 2026-07-01 - A selected-case state now collapses the intro guide cards, compacts the Product Path, and scrolls to the result after sample/upload completion.
 - 2026-07-01 - Evidence and evaluation details now use collapsed sections so the default read stays decision-first.
 - 2026-07-01 - The selected-case Summary view was tested as a cleaner case-sheet layout with fewer boxed sections and shorter visible result copy.
+- 2026-07-01 - Evidence, Review, and Evaluation were restyled to match the case-sheet approach with shorter labels, row-based proof sections, and compact quality metrics.
 
 This is the current source of truth for the top-page UI.
