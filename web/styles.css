@@ -3431,42 +3431,50 @@ body.case-selected .decision-reason p {
 
 body.case-selected .why-panel {
   margin: 0 0 24px;
-  padding: 8px 0 30px;
+  padding: 18px 0 34px;
   border: 0;
   border-bottom: 1px solid rgba(31, 39, 33, 0.1);
 }
 
 body.case-selected .why-panel > div:first-child {
-  display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
-  gap: 20px;
-  align-items: baseline;
-  margin-bottom: 14px;
+  display: block;
+  max-width: 720px;
+  margin-bottom: 22px;
 }
 
 body.case-selected .why-panel h3 {
-  margin: 0;
-  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  margin: 8px 0 0;
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  line-height: 1.05;
 }
 
 body.case-selected .why-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0;
   border-top: 1px solid rgba(31, 39, 33, 0.1);
 }
 
 body.case-selected .why-item {
-  padding: 14px 18px 16px 0;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 18px 0;
   border-top: 0;
   border-bottom: 1px solid rgba(31, 39, 33, 0.08);
 }
 
+body.case-selected .why-item span {
+  padding-top: 2px;
+}
+
 body.case-selected .why-item strong {
-  font-size: 0.98rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
 }
 
 body.case-selected .why-item p {
+  grid-column: 2;
   font-size: 0.86rem;
   line-height: 1.45;
 }
@@ -3518,13 +3526,17 @@ body.case-selected .why-panel:hover {
 @media (max-width: 900px) {
   body.case-selected .decision-summary-card,
   body.case-selected .decision-reason,
-  body.case-selected .why-panel > div:first-child {
+  body.case-selected .why-panel > div:first-child,
+  body.case-selected .why-item {
     grid-template-columns: 1fr;
   }
 
-  body.case-selected .why-list,
   body.case-selected .result-grid {
     grid-template-columns: 1fr;
+  }
+
+  body.case-selected .why-item p {
+    grid-column: 1;
   }
 
   body.case-selected .result-card,
