@@ -399,6 +399,17 @@ The UI focuses on these five demo cases:
 
 ## Evaluation Proof
 
+InvoiceFlow includes evaluation cases for routing, extraction, policy citation,
+anomaly detection, human review behavior, and AR follow-up safety.
+
+| Eval case | Expected | Actual | Status |
+| --- | --- | --- | --- |
+| Clean Invoice | `approve` | `approve` | Pass |
+| Missing PO Invoice | `request_missing_info` | `request_missing_info` | Pass |
+| Duplicate Invoice Risk | `human_review` | `human_review` | Pass |
+| High-Value Approval Required | `manager_review` | `manager_review` | Pass |
+| AR Overdue Follow-Up | `draft_follow_up` | `draft_follow_up` | Pass |
+
 Run the built-in evaluation suite from the repo root:
 
 ```bash
