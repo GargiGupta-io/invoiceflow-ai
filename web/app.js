@@ -84,6 +84,7 @@ const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
 const siteHeader = document.querySelector(".site-header");
 const headerTabs = document.querySelectorAll(".site-header .header-tab");
+const overviewLinks = document.querySelectorAll('.site-header .header-tab[href="#top"]');
 const captureSection = document.getElementById("capture");
 const productPathSection = document.querySelector(".manifesto-band");
 const workspace = document.getElementById("workspace");
@@ -111,6 +112,13 @@ reviewQueueRefresh.addEventListener("click", () => {
 evalDashboardRefresh.addEventListener("click", () => {
   loadEvalDashboard(true);
 });
+
+for (const link of overviewLinks) {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    resetToOverview();
+  });
+}
 
 for (const button of sampleRunButtons) {
   button.dataset.defaultLabel = button.textContent;
@@ -279,6 +287,34 @@ function setWorkspaceReady() {
   document.body.classList.add("workspace-ready");
   document.body.classList.add("case-selected");
   activateTab("workflow");
+}
+
+function resetToOverview() {
+  document.body.classList.remove("workspace-ready", "case-selected");
+  setActiveSample(null);
+  hideLoadingCue();
+  setStatus(sampleStatus, "Ready", "success");
+  setStatus(uploadStatus, "Idle", "neutral");
+
+  entryWorkflowState.textContent = "Ready for AP or AR";
+  entryWorkflowDetail.textContent = "Run a sample or upload a finance document to start a reviewed workflow.";
+  entryAuditState.textContent = "No run yet";
+  entryAuditDetail.textContent = "The last recommendation, review gate, evidence count, and latency appear here.";
+
+  entryCaseDesk.textContent = "AP invoice or AR follow-up";
+  entryCaseParty.textContent = "Vendor, customer, amount";
+  entryCaseAmount.textContent = "Policy + risk signals";
+  entryCaseRecommendation.textContent = "Approve, review, or follow up";
+  entryDecisionRecommendation.textContent = "Evidence first";
+  entryDecisionEvidence.textContent = "Policy";
+  entryDecisionReview.textContent = "Human";
+  markTimelineStep(entryTimelineExtract, false, false);
+  markTimelineStep(entryTimelinePolicy, false, false);
+  markTimelineStep(entryTimelineDecision, false, false);
+
+  activateTab("workflow");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.setTimeout(syncHeaderState, 250);
 }
 
 function buildLoadingStages(firstStage) {
