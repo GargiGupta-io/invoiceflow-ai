@@ -3,6 +3,8 @@ const uploadWorkflowHint = document.getElementById("upload-workflow-hint");
 const uploadGuidance = document.getElementById("upload-guidance");
 const loadingCue = document.getElementById("loading-cue");
 const loadingCueText = document.getElementById("loading-cue-text");
+const workflowOrbit = document.querySelector(".workflow-orbit");
+const workflowNodes = document.querySelectorAll(".workflow-node");
 const sampleStatus = document.getElementById("sample-status");
 const uploadStatus = document.getElementById("upload-status");
 const resultKind = document.getElementById("result-kind");
@@ -237,6 +239,7 @@ function showLoadingCue(stages) {
     return;
   }
   const stageList = Array.isArray(stages) ? stages : [stages].filter(Boolean);
+  setWorkflowStage(0);
   if (loadingCueTimer) {
     clearInterval(loadingCueTimer);
     loadingCueTimer = null;
@@ -247,6 +250,7 @@ function showLoadingCue(stages) {
     loadingCueTimer = setInterval(() => {
       stageIndex = Math.min(stageIndex + 1, stageList.length - 1);
       loadingCueText.textContent = stageList[stageIndex];
+      setWorkflowStage(stageIndex);
       if (stageIndex === stageList.length - 1 && loadingCueTimer) {
         clearInterval(loadingCueTimer);
         loadingCueTimer = null;
@@ -266,6 +270,20 @@ function hideLoadingCue() {
     loadingCue.hidden = true;
   }
   document.body.classList.remove("workflow-running");
+  setWorkflowStage(5);
+}
+
+function setWorkflowStage(activeIndex) {
+  if (!workflowOrbit) {
+    return;
+  }
+  const normalizedIndex = Number.isFinite(activeIndex) ? activeIndex : 0;
+  workflowOrbit.dataset.activeStage = String(normalizedIndex);
+  for (const node of workflowNodes) {
+    const nodeIndex = Number(node.dataset.stageIndex || 0);
+    node.classList.toggle("is-active", nodeIndex === normalizedIndex);
+    node.classList.toggle("is-complete", nodeIndex < normalizedIndex);
+  }
 }
 
 function isSupportedUploadFile(file) {
