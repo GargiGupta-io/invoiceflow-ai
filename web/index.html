@@ -75,13 +75,9 @@
           <span class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></span>
           <span id="loading-cue-text">Reading your file</span>
         </div>
-        <div class="hero-statuses" aria-label="Run status">
+        <div class="hero-statuses" aria-label="Run status" hidden>
           <span class="status-pill neutral" id="sample-status">Idle</span>
           <span class="status-pill neutral" id="upload-status">Idle</span>
-        </div>
-        <div class="hero-actions" aria-label="Primary actions">
-          <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run AP Sample</button>
-          <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
         </div>
         <section class="entry-board" aria-label="Operator snapshot">
           <article class="entry-card" id="capture">
@@ -98,6 +94,7 @@
           </article>
           <article class="entry-card">
             <div class="entry-visual sample-preview">
+              <span class="sample-preview-label">Run sample</span>
               <div class="sample-chips" aria-label="Highlighted samples">
                 <button type="button" data-run-sample="ap_001_clean_invoice">Clean Invoice</button>
                 <button type="button" data-run-sample="ap_002_missing_po">Missing PO</button>
