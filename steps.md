@@ -725,3 +725,20 @@ The hero background now reads more like an actual aurora instead of a barely vis
 ~ modified: steps.md
 
 ---
+
+## Step 36 - Clarify Hero Section Spacing And Samples
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - adds a “What's inside?” heading above the three operator cards and turns “Start the review” into a real heading.
+- `web/styles.css` - improves vertical spacing, removes the pill styling from the “Run sample” label, prevents the sample overlay from blocking clicks, and gives all five sample buttons enough room.
+
+**In plain English**
+The top of the page now separates the upload flow from the three explanatory cards more clearly. The sample card label is plain text instead of a small bubble, and the AR Overdue button has enough space to be clickable like the other sample buttons.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
