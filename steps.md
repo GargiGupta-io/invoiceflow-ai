@@ -474,3 +474,17 @@ GitHub will now prove more of the project automatically. Instead of only running
 ~ modified: steps.md
 
 ---
+
+## Step 30 - Verify GitHub CI Run
+*Completed: 2026-06-30*
+
+**What was built**
+- `steps.md` - records that the latest `InvoiceFlow CI` GitHub Actions run completed successfully.
+
+**In plain English**
+GitHub has now proved the CI workflow works after the push. The backend compile check, backend tests, eval threshold gate, and eval artifact upload all passed in the `Backend tests and eval thresholds` job.
+
+**Files changed**
+~ modified: steps.md
+
+---
