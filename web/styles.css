@@ -199,11 +199,11 @@ body {
 .workflow-orbit {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  width: min(100%, 760px);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  width: min(100%, 860px);
   margin: 24px 0 2px;
-  padding: 12px 0;
+  padding: 14px 0;
 }
 
 .workflow-orbit::before,
@@ -219,32 +219,42 @@ body {
 }
 
 .workflow-orbit::before {
-  background: linear-gradient(90deg, rgba(86, 127, 111, 0.12), rgba(208, 162, 101, 0.24), rgba(86, 127, 111, 0.12));
+  background: linear-gradient(90deg, rgba(86, 127, 111, 0.16), rgba(208, 162, 101, 0.3), rgba(86, 127, 111, 0.16));
 }
 
 .workflow-orbit::after {
-  width: 18%;
+  width: 15%;
   right: auto;
-  background: linear-gradient(90deg, transparent, rgba(86, 127, 111, 0.58), transparent);
-  animation: workflowSweep 5.8s infinite ease-in-out;
+  background: linear-gradient(90deg, transparent, rgba(95, 143, 124, 0.72), rgba(185, 132, 67, 0.5), transparent);
+  filter: blur(0.5px);
+  animation: workflowSweep 6.2s infinite ease-in-out;
 }
 
 .workflow-node {
   position: relative;
   z-index: 1;
-  display: inline-flex;
-  min-height: 42px;
+  display: grid;
+  min-height: 54px;
   align-items: center;
   justify-content: center;
-  padding: 10px 12px;
+  gap: 5px;
+  padding: 10px 9px;
   border: 1px solid rgba(31, 39, 33, 0.12);
-  border-radius: 999px;
-  background: rgba(255, 251, 241, 0.76);
+  border-radius: 18px;
+  background: rgba(255, 251, 241, 0.68);
   color: var(--ink);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 800;
   line-height: 1.2;
   box-shadow: 0 10px 26px rgba(58, 41, 23, 0.06);
+  transition: transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease, color 220ms ease;
+}
+
+.workflow-node small {
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
 }
 
 .workflow-node:nth-child(3) {
@@ -257,6 +267,24 @@ body {
   border-color: rgba(86, 127, 111, 0.24);
   background: rgba(238, 246, 241, 0.72);
   color: #3f725f;
+}
+
+.workflow-node.is-active {
+  transform: translateY(-3px);
+  border-color: rgba(95, 143, 124, 0.5);
+  background: rgba(245, 255, 249, 0.86);
+  color: #315f4d;
+  box-shadow: 0 16px 34px rgba(95, 143, 124, 0.16);
+}
+
+.workflow-node.is-active small {
+  color: var(--green);
+}
+
+.workflow-node.is-complete {
+  border-color: rgba(95, 143, 124, 0.24);
+  background: rgba(238, 246, 241, 0.62);
+  color: #476d5d;
 }
 
 body.workflow-running .workflow-orbit::after {
@@ -281,6 +309,10 @@ body.workflow-running .workflow-node:nth-child(4) {
 
 body.workflow-running .workflow-node:nth-child(5) {
   animation-delay: 0.48s;
+}
+
+body.workflow-running .workflow-node:nth-child(6) {
+  animation-delay: 0.6s;
 }
 
 .intake-copy {
