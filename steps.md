@@ -691,3 +691,22 @@ The Product Path and the lower tabs no longer feel like two different things. Th
 ~ modified: steps.md
 
 ---
+
+## Step 34 - Add Hero Aurora And Guide Cards
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - turns the side snapshot cards into first-time user guides for the current case and latest decision.
+- `web/styles.css` - adds a subtle soft aurora hero layer, one-line desktop helper note, and styles for guide facts, decision facts, and the mini audit timeline.
+- `web/app.js` - updates the guide cards with real case facts, recommendation, evidence count, review gate, and timeline state after a run.
+
+**In plain English**
+The top area now has more personality and more guidance. Before a sample runs, the side cards explain how to read the product: choose a case, extract facts, check policy, decide, then review the evidence-backed output. After a run, those same cards turn into live summaries showing the desk, party, amount, recommendation, evidence count, review gate, and audit progress.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: web/app.js
+~ modified: steps.md
+
+---
