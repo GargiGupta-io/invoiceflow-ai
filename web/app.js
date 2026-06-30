@@ -746,8 +746,8 @@ function renderResult(payload) {
   if (apDecision) {
     decisionValue.textContent = formatRecommendation(apDecision.recommendation);
     decisionSummary.textContent = apDecision.reviewer_summary
-      ? `Reason: ${apDecision.reviewer_summary}`
-      : "Reason: no reviewer summary was returned.";
+      ? shortDecisionSummary(apDecision.reviewer_summary)
+      : "No reviewer summary was returned.";
     decisionExplainer.textContent = buildDecisionExplanation(apDecision.recommendation, workflow.workflow_type);
     renderTags(anomalyList, (apDecision.anomalies || []).map(mapAnomalyTag), "No anomalies.");
   } else if (arDecision) {
@@ -1084,12 +1084,17 @@ function buildRiskLabel(finalDecision, audit, workflowType) {
 
 function buildRiskText(risk) {
   if (risk === "High risk") {
-    return "Treat this output as blocked until a finance reviewer checks it.";
+    return "Blocked until finance review.";
   }
   if (risk === "Medium risk") {
-    return "Review context and evidence before acting on this recommendation.";
+    return "Check evidence before acting.";
   }
-  return "The workflow did not find a blocking review condition.";
+  return "No blocking condition found.";
+}
+
+function shortDecisionSummary(summary) {
+  const firstSentence = String(summary || "").split(".")[0].trim();
+  return firstSentence ? `${firstSentence}.` : "Review the extracted fields and evidence.";
 }
 
 function updateEntryRunSummary(workflow, finalDecision, evidence, audit, extraction = {}) {
