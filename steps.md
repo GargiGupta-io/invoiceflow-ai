@@ -442,3 +442,20 @@ The app now gives technical reviewers a clear place to inspect how the AI workfl
 ~ modified: steps.md
 
 ---
+
+## Step 28 - Strengthen Backend Reliability
+*Completed: 2026-06-30*
+
+**What was built**
+- `api/main.py` - adds extractor-mode validation, upload size/type checks, structured error responses, OCR/text fallback hints, and safer generic workflow errors.
+- `tests/test_api_reliability.py` - adds API tests for health, missing samples, invalid extractor modes, empty uploads, unsupported file types, and text upload fallback behavior.
+
+**In plain English**
+The backend now handles bad inputs more cleanly. Instead of leaking raw internal errors or accepting unsupported files, the API returns clear error codes and practical next steps while keeping the happy-path upload and sample workflows working.
+
+**Files changed**
+~ modified: api/main.py
++ created: tests/test_api_reliability.py
+~ modified: steps.md
+
+---
