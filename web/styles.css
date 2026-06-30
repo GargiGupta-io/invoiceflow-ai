@@ -1457,6 +1457,53 @@ button:disabled {
   line-height: 1.65;
 }
 
+.guardrail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 18px 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.08);
+  border-bottom: 1px solid rgba(31, 39, 33, 0.08);
+}
+
+.guardrail-item {
+  min-width: 0;
+  padding: 16px 14px;
+  background: rgba(255, 255, 255, 0.28);
+  border-right: 1px solid rgba(31, 39, 33, 0.08);
+}
+
+.guardrail-item:nth-child(4n) {
+  border-right: 0;
+}
+
+.guardrail-item span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--copper);
+  font-family: "Space Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.guardrail-item strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.98rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.guardrail-item p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .advanced-debug-panel pre {
   margin: 0;
   max-height: 440px;
@@ -1478,6 +1525,7 @@ button:disabled {
   .sample-card-grid,
   .eval-summary-grid,
   .flow-map,
+  .guardrail-grid,
   .decision-summary-card,
   .why-list {
     grid-template-columns: 1fr;
