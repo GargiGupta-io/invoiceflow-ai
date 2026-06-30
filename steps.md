@@ -2,6 +2,40 @@
 
 ---
 
+## Step 41 - Simplify Hero Sample Controls
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - hides the hero status row, removes the two large AP/AR sample buttons, and adds a “Run sample” label inside the compact sample card.
+- `web/styles.css` - stacks the five compact sample buttons vertically and keeps hover, focus, selected, and running states.
+
+**In plain English**
+The extra buttons under the upload area are gone. The five curated sample buttons inside the compact card now line up one below another, with a clear “Run sample” label so users understand that clicking a case launches the demo.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
+## Step 40 - Move Workflow Rail Into Product Path
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - moves the six-step workflow rail from the hero into the Product Path section and removes the extra path chips and paragraph.
+- `web/styles.css` - adjusts Product Path spacing so the section is just the heading and workflow rail.
+
+**In plain English**
+The Product Path section now has the big “One readable route from case intake to audit” heading with the six-step workflow rail directly below it. The duplicate explanatory chips and paragraph were removed so the section is cleaner.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 39 - Move Sample Launch Into Compact Card
 *Completed: 2026-07-01*
 
