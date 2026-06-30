@@ -161,3 +161,17 @@ The app now tells the user what kind of work is happening instead of showing one
 ~ modified: web/app.js
 
 ---
+
+## Step 11 - Create Four Main Visible Areas
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - renames the workspace navigation and panel headings around Case Summary, Evidence & Reasoning, Human Review & Audit, and Evaluation.
+
+**In plain English**
+The result workspace now has clearer labels. Instead of sounding like a mix of workflow, inspect, queue, and debug panels, the page points users toward the main areas they need after running a case.
+
+**Files changed**
+~ modified: web/index.html
+
+---
