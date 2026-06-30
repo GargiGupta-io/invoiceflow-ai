@@ -261,3 +261,17 @@ The evidence area now reads like a policy match instead of a technical data card
 ~ modified: web/styles.css
 
 ---
+
+## Step 17 - Add Weak Evidence Behavior
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/app.js` - detects missing, uncited, or fallback evidence and routes the visible recommendation toward human review instead of sounding automatic.
+
+**In plain English**
+The app now says when evidence is too weak to trust as an automatic decision. If policy support is missing or weak, the decision summary and reasoning checklist tell the operator to send the case to human review before acting.
+
+**Files changed**
+~ modified: web/app.js
+
+---
