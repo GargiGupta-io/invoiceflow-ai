@@ -349,6 +349,23 @@
             This collapsed view keeps the complete backend payload available for engineers without making
             operators read raw extraction, evidence, audit, and workflow JSON first.
           </p>
+          <div class="guardrail-grid" id="guardrail-panel" aria-label="Prompt schema and guardrail transparency">
+            <article class="guardrail-item">
+              <span>Prompt version</span>
+              <strong>-</strong>
+              <p>Run a workflow to see which extractor prompt version was used.</p>
+            </article>
+            <article class="guardrail-item">
+              <span>Schema validation</span>
+              <strong>-</strong>
+              <p>Strict extraction status appears after the backend validates the case payload.</p>
+            </article>
+            <article class="guardrail-item">
+              <span>LLM gateway</span>
+              <strong>-</strong>
+              <p>Gateway call count, redaction, token, and latency metadata appear when available.</p>
+            </article>
+          </div>
           <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
         </details>
       </section>
