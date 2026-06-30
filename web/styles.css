@@ -346,18 +346,18 @@ body.workflow-running .workflow-node:nth-child(6) {
 
 .intake-copy {
   display: grid;
-  gap: 6px;
-  margin: 22px 0 0;
+  gap: 10px;
+  margin: 38px 0 0;
   text-align: center;
 }
 
-.intake-label {
+.intake-heading {
   margin: 0;
-  color: var(--warm-deep);
-  font-size: 0.82rem;
-  font-weight: 800;
+  color: var(--ink);
+  font-size: clamp(1.4rem, 2.4vw, 2.05rem);
+  font-weight: 950;
   letter-spacing: 0;
-  text-transform: uppercase;
+  line-height: 1.05;
 }
 
 .intake-copy p:last-child {
@@ -2573,6 +2573,7 @@ body {
   inset: auto 0 0;
   height: 54px;
   background: linear-gradient(180deg, transparent, rgba(255, 251, 241, 0.72));
+  pointer-events: none;
 }
 
 .entry-copy {
@@ -3077,5 +3078,91 @@ body {
 
   100% {
     transform: translate3d(2%, 6px, 0) skewY(2deg) scaleX(1.06);
+  }
+}
+
+/* Section spacing and clearer sample launcher. */
+.intake-copy {
+  margin-top: clamp(34px, 5vw, 58px);
+}
+
+.intake-heading {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.45rem, 2.6vw, 2.15rem);
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.entry-section {
+  width: min(100%, 1080px);
+  margin: clamp(46px, 6vw, 76px) 0 0;
+}
+
+.entry-section-heading {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 24px;
+  text-align: left;
+}
+
+.entry-section-heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 850;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.entry-section-heading p {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.entry-section .entry-board {
+  width: 100%;
+  margin-top: 0;
+}
+
+.sample-preview {
+  align-content: start;
+  justify-items: stretch;
+  gap: 12px;
+  min-height: 300px;
+  padding: 22px;
+  overflow: visible;
+}
+
+.sample-preview-label {
+  justify-self: start;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sample-preview .sample-chips {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  gap: 8px;
+}
+
+.sample-preview .sample-chips button {
+  position: relative;
+  z-index: 2;
+  min-height: 38px;
+  pointer-events: auto;
+}
+
+@media (max-width: 760px) {
+  .entry-section-heading {
+    text-align: center;
   }
 }
