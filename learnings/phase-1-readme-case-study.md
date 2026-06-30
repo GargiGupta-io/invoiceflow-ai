@@ -68,10 +68,12 @@ Product intro
   -> what the product does
   -> input/output table
   -> best demo path
-  -> technical architecture
-  -> evaluation proof
   -> safety and deployment framing
   -> client adaptation
+  -> skills demonstrated
+  -> technical review divider
+  -> technical architecture
+  -> evaluation proof
   -> limitations and next improvements
 ```
 
@@ -510,17 +512,25 @@ Can a beginner human understand the README as it goes?
 
 Mostly yes for Phase 1.
 
-The top of the README now explains the product, the business problem, the
-workflow path, what goes in, what comes out, and how to demo it. That is enough
-for a beginner to understand the value before reaching the technical sections.
+Yes for the product-facing path.
 
-The remaining issue is that the later README still contains dense technical
-sections like API response fields, CI thresholds, and eval details. Those are
-useful, but the UI and future README polish should make them feel secondary
-rather than central.
+The README now explains the product, the business problem, the workflow path,
+what goes in, what comes out, how to demo it, why the project is safer than an
+unchecked AI workflow, and how it could be adapted for client work before the
+reader reaches technical details.
+
+The dense parts are still available, but they are clearly marked as technical
+review material. API response metadata, prompt-audit details, and CI thresholds
+are no longer forced into the main beginner path.
+
+The remaining issue has moved from README framing to the application UI: the UI
+still needs to match this cleaner five-case product story in the next phase.
 
 ## Updates
 
 - 2026-06-30 - Created after Phase 1 to document the README case-study rewrite,
   product framing decisions, demo-path structure, safety/trust sections, and
   client adaptation framing.
+- 2026-06-30 - Updated after the README density cleanup to document the new
+  technical-review divider, moved trust/client sections, removed duplicate demo
+  path, and collapsed dense API/eval details.
