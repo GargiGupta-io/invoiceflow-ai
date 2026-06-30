@@ -75,6 +75,64 @@ reviewer:
 9. Run the `AR Overdue Follow-Up` sample.
 10. Show the drafted follow-up email and escalation reasoning.
 
+## Safety And Privacy
+
+InvoiceFlow is designed as an evidence-backed assistant, not an unchecked
+autopilot.
+
+- No raw API keys are committed.
+- Demo mode uses bundled sample data by default.
+- Uploaded files are processed for the current workflow run.
+- Recommendations are shown with policy evidence and audit metadata.
+- Low-confidence, risky, or weakly grounded cases route to human review.
+- Raw model/debug outputs stay behind advanced inspection views.
+- The audit trail records decision metadata, tool trace steps, retrieved
+  evidence, review-gate status, latency, and prompt metadata when available.
+
+## Demo Mode And Live AI Mode
+
+The project is built so the main demo does not break without paid API keys.
+
+| Mode | What it does | When to use |
+| --- | --- | --- |
+| Demo mode | Uses deterministic sample fixtures, local policy retrieval, AP/AR logic, evidence, review gates, and evals. | Portfolio demos, recruiter walkthroughs, local testing, and deployment without secrets. |
+| Live AI mode | Uses the configured LLM path for schema-shaped extraction and repair metadata when credentials are available. | Technical review of LLM extraction, guardrails, prompt versions, and runtime metadata. |
+
+## How This Can Be Adapted For A Client
+
+InvoiceFlow can be customized for:
+
+- company-specific invoice approval policies
+- vendor-specific purchase-order rules
+- duplicate invoice detection logic
+- ERP or accounting export formats
+- AR reminder and escalation templates
+- approval workflows and reviewer queues
+- Slack, Teams, or email notifications
+- CSV exports and finance reporting
+- department-specific audit requirements
+
+## What This Project Demonstrates
+
+- AI workflow orchestration
+- document ingestion and structured extraction
+- retrieval-augmented policy evidence
+- schema validation and repair-aware extraction
+- AP invoice review logic
+- AR follow-up drafting logic
+- human-in-the-loop review design
+- audit-friendly AI outputs
+- FastAPI backend development
+- frontend operator-console design
+- evaluation-driven AI development
+- CI/CD quality gating for AI workflows
+- production-aware failure handling
+
+## Technical Review
+
+The sections below are for reviewers who want implementation details after the
+product story is clear.
+
 ## Product Snapshot
 
 ```text
@@ -128,7 +186,7 @@ generic chat. The main story is:
 
 ![InvoiceFlow AI AP result view](docs/screenshots/ap-missing-po-result.png)
 
-## Current Status
+## Implementation Snapshot
 
 Implemented:
 - sample and upload ingestion
@@ -160,7 +218,7 @@ Still worth improving:
 - LLM-based AP/AR decision drafting behind the existing schemas
 - cost and token tracking for LLM mode
 
-## Architecture
+## Technical Architecture
 
 ```text
 [Document Input: PDF / text / email fixture]
@@ -191,7 +249,7 @@ Still worth improving:
       [Structured Result + Evidence]
 ```
 
-## Workflow Design
+## Workflow Logic
 
 ### AP Flow
 
@@ -278,7 +336,7 @@ Then open:
 - API root: `http://127.0.0.1:8000/`
 - Operator UI: `http://127.0.0.1:8000/ui`
 
-## UI And API
+## Technical UI And API Reference
 
 ### UI
 
@@ -306,7 +364,11 @@ For screenshots or quick demos, the UI also supports:
 - `POST /workflow/sample`
 - `POST /workflow/upload`
 
-Workflow responses now include:
+<details>
+<summary>Workflow response metadata</summary>
+
+Workflow responses include:
+
 - `audit_trail.requested_extractor_mode`
 - `audit_trail.effective_extractor_mode`
 - `audit_trail.prompt_version`
@@ -321,6 +383,8 @@ Workflow responses now include:
 - `audit_trail.evidence_sources`
 - `audit_trail.retrieved_chunks`
 
+</details>
+
 ### Sample Run
 
 Good sample cases to show:
@@ -330,7 +394,7 @@ Good sample cases to show:
 - `ar_001_first_followup`
 - `ar_003_payment_claim_no_proof`
 
-## Evaluation
+## Evaluation Proof
 
 Run the built-in evaluation suite from the repo root:
 
@@ -358,7 +422,8 @@ The eval runner checks:
 - prompt-applied rate for LLM runs
 - case latency
 
-Technical prompt audit:
+<details>
+<summary>Technical prompt audit</summary>
 
 ```bash
 python -m app.eval.prompt_ab
@@ -370,6 +435,8 @@ This support script:
 - runs dataset-level runtime comparison too when `OPENAI_API_KEY` is configured
 
 It is not part of the main operator workflow. The product demo should stay focused on AP review, AR follow-up, evidence, human review, and eval quality.
+
+</details>
 
 The current heuristic baseline already shows:
 - `100%` workflow-routing accuracy on the bundled eval set
@@ -384,7 +451,11 @@ manual dispatches. The workflow installs dependencies, runs the eval threshold
 gate, fails the build if quality drops below configured minimums, and uploads
 `eval-results.json` as an artifact for inspection.
 
+<details>
+<summary>Default CI thresholds</summary>
+
 Default CI thresholds require:
+
 - `pass_rate >= 1.0`
 - `workflow_match_rate >= 1.0`
 - `extraction_field_match_rate >= 1.0`
@@ -396,78 +467,7 @@ Default CI thresholds require:
 - `rag_repair_success_rate >= 1.0`
 - `average_latency_ms <= 1000`
 
-## Safety And Privacy
-
-InvoiceFlow is designed as an evidence-backed assistant, not an unchecked
-autopilot.
-
-- No raw API keys are committed.
-- Demo mode uses bundled sample data by default.
-- Uploaded files are processed for the current workflow run.
-- Recommendations are shown with policy evidence and audit metadata.
-- Low-confidence, risky, or weakly grounded cases route to human review.
-- Raw model/debug outputs stay behind advanced inspection views.
-- The audit trail records decision metadata, tool trace steps, retrieved
-  evidence, review-gate status, latency, and prompt metadata when available.
-
-## Demo Mode And Live AI Mode
-
-The project is built so the main demo does not break without paid API keys.
-
-| Mode | What it does | When to use |
-| --- | --- | --- |
-| Demo mode | Uses deterministic sample fixtures, local policy retrieval, AP/AR logic, evidence, review gates, and evals. | Portfolio demos, recruiter walkthroughs, local testing, and deployment without secrets. |
-| Live AI mode | Uses the configured LLM path for schema-shaped extraction and repair metadata when credentials are available. | Technical review of LLM extraction, guardrails, prompt versions, and runtime metadata. |
-
-## How This Can Be Adapted For A Client
-
-InvoiceFlow can be customized for:
-
-- company-specific invoice approval policies
-- vendor-specific purchase-order rules
-- duplicate invoice detection logic
-- ERP or accounting export formats
-- AR reminder and escalation templates
-- approval workflows and reviewer queues
-- Slack, Teams, or email notifications
-- CSV exports and finance reporting
-- department-specific audit requirements
-
-## What This Project Demonstrates
-
-- AI workflow orchestration
-- document ingestion and structured extraction
-- retrieval-augmented policy evidence
-- schema validation and repair-aware extraction
-- AP invoice review logic
-- AR follow-up drafting logic
-- human-in-the-loop review design
-- audit-friendly AI outputs
-- FastAPI backend development
-- frontend operator-console design
-- evaluation-driven AI development
-- CI/CD quality gating for AI workflows
-- production-aware failure handling
-
-## Demo Path
-
-Best short walkthrough:
-
-1. Start the API with `uvicorn api.main:app --reload`
-2. Open `/ui`
-3. Run `ap_002_missing_po`
-4. Show:
-   - structured extraction
-   - route to AP
-   - policy evidence
-   - `missing_info` recommendation
-5. Run `ar_003_payment_claim_no_proof`
-6. Show:
-   - route to AR
-   - escalation level
-   - grounded follow-up draft
-7. Run `python -m app.eval.run_eval`
-8. Point out the current weak spots and what you would improve next
+</details>
 
 ## Known Limitations
 
