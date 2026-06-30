@@ -92,7 +92,7 @@
           <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
         </div>
         <section class="entry-board" aria-label="Operator snapshot">
-          <article class="entry-card">
+          <article class="entry-card" id="capture">
             <div class="entry-visual workflow-preview" aria-hidden="true">
               <span></span>
               <span></span>
@@ -162,97 +162,6 @@
       <button type="button" class="tab-button" data-tab-target="review" aria-pressed="false">Human Review & Audit</button>
       <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
     </nav>
-
-    <section class="sample-board" id="capture" aria-label="Sample workflow cards">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Workflow Selection</p>
-          <h2>Run a focused demo case</h2>
-        </div>
-        <p>Pick one case. Each one teaches a single finance control without making the demo feel crowded.</p>
-      </div>
-      <div class="sample-card-grid">
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ap">AP</span>
-            <span class="risk-badge low">Low risk</span>
-          </div>
-          <h3>Clean Invoice</h3>
-          <p>Shows the happy path when the vendor, PO, terms, and amount all pass review.</p>
-          <dl>
-            <div>
-              <dt>Expected result</dt>
-              <dd>Approve</dd>
-            </div>
-          </dl>
-          <button type="button" class="primary-button" data-run-sample="ap_001_clean_invoice">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ap">AP</span>
-            <span class="risk-badge medium">Medium risk</span>
-          </div>
-          <h3>Missing PO Invoice</h3>
-          <p>Checks whether a vendor invoice requires a PO before approval.</p>
-          <dl>
-            <div>
-              <dt>Expected result</dt>
-              <dd>Request missing info</dd>
-            </div>
-          </dl>
-          <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ap">AP</span>
-            <span class="risk-badge high">High risk</span>
-          </div>
-          <h3>Duplicate Invoice Risk</h3>
-          <p>Flags a duplicate invoice hint so payment does not proceed blindly.</p>
-          <dl>
-            <div>
-              <dt>Expected result</dt>
-              <dd>Human review</dd>
-            </div>
-          </dl>
-          <button type="button" class="primary-button" data-run-sample="ap_004_duplicate_invoice">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ap">AP</span>
-            <span class="risk-badge high">High risk</span>
-          </div>
-          <h3>High-Value Approval Required</h3>
-          <p>Checks whether a high-value invoice crosses the approval threshold before payment.</p>
-          <dl>
-            <div>
-              <dt>Expected result</dt>
-              <dd>Manager review</dd>
-            </div>
-          </dl>
-          <button type="button" class="primary-button" data-run-sample="ap_003_threshold_review">Run sample</button>
-        </article>
-
-        <article class="sample-card">
-          <div class="sample-card-top">
-            <span class="workflow-badge ar">AR</span>
-            <span class="risk-badge medium">Medium risk</span>
-          </div>
-          <h3>AR Overdue Follow-Up</h3>
-          <p>Drafts a safe follow-up when payment is overdue or claimed without proof.</p>
-          <dl>
-            <div>
-              <dt>Expected result</dt>
-              <dd>Draft follow-up</dd>
-            </div>
-          </dl>
-          <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run sample</button>
-        </article>
-      </div>
-    </section>
 
     <main class="workspace">
       <section class="panel results-panel" id="decide" data-tab-panel="workflow">
