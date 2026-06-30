@@ -367,3 +367,19 @@ The README now shows the expected result, actual result, and pass status for the
 ~ modified: README.md
 
 ---
+
+## Step 24 - Keep Eval UI Secondary
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - reframes the eval tab as Evaluation Proof and explains that it supports the operator workflow.
+- `web/styles.css` - quiets the eval metric grid with smaller metric type, lighter separators, and fewer dominant columns.
+
+**In plain English**
+The evaluation area now feels like supporting proof instead of the main product. It still shows quality gates, but the page continues to prioritize the operator workflow, recommendation, evidence, and human review path.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+
+---
