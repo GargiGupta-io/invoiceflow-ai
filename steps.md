@@ -672,3 +672,22 @@ The top upload controls now read more clearly. The workflow dropdown no longer c
 ~ modified: steps.md
 
 ---
+
+## Step 33 - Merge Product Path And Workspace Tabs
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - replaces the separate product path rail and lower tab row with one clickable four-stage workflow rail.
+- `web/styles.css` - styles the merged rail like the product path cards and shrinks the upload support line into a mini note.
+- `web/app.js` - keeps the header highlight matched to Overview, Cases, Summary, Evidence, Review, or Eval based on page position and selected workspace view.
+
+**In plain English**
+The Product Path and the lower tabs no longer feel like two different things. The path itself now works as the section switcher, so a viewer can click Case Summary, Evidence, Review, or Evaluation and immediately understand what part of the workflow they are opening. The top header also behaves more naturally: it highlights Overview near the hero, Cases near the sample area, and the correct workspace view once the user reaches the workflow area.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: web/app.js
+~ modified: steps.md
+
+---
