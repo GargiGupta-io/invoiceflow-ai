@@ -656,10 +656,10 @@ function buildExtractionFlowDetail(extraction, workflowType, missingFields) {
 }
 
 function buildRetrievalFlowDetail(evidence, repair) {
-  if (!evidence.length) {
+  if (isEvidenceWeak(evidence)) {
     return repair.attempted
       ? "No supporting evidence found after retrieval repair."
-      : "No supporting policy evidence was returned.";
+      : "Evidence is missing or too weak to support an automatic decision.";
   }
 
   const repairState = repair.attempted
@@ -692,9 +692,11 @@ function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType
   const confidence = finalDecision.confidence;
   const risk = buildRiskLabel(finalDecision, audit, workflowType);
   const review = audit.human_review || {};
+  const weakEvidence = isEvidenceWeak(evidence);
   const reviewRequired = typeof finalDecision.human_review_required === "boolean"
     ? finalDecision.human_review_required
     : review.required;
+  const effectiveReviewRequired = reviewRequired || weakEvidence;
   const evidenceLabel = evidence.length === 1 ? "1 source" : `${evidence.length} sources`;
 
   confidenceValue.textContent = confidence == null
@@ -702,13 +704,17 @@ function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType
     : `${Math.round(confidence * 100)}% | ${risk}`;
   riskText.textContent = buildRiskText(risk);
 
-  reviewValue.textContent = reviewRequired ? "Required" : "Not required";
-  reviewText.textContent = reviewRequired
+  reviewValue.textContent = effectiveReviewRequired ? "Required" : "Not required";
+  reviewText.textContent = weakEvidence
+    ? "Required: policy evidence is missing or too weak for an automatic decision."
+    : reviewRequired
     ? `${review.blocking ? "Blocking" : "Non-blocking"} review: ${(review.reason_codes || []).join(", ") || "policy check"}`
     : "No human review gate was triggered for this run.";
 
   decisionEvidenceValue.textContent = evidenceLabel;
-  decisionEvidenceText.textContent = evidence.length
+  decisionEvidenceText.textContent = weakEvidence
+    ? "Weak or missing evidence. Route to human review before acting."
+    : evidence.length
     ? `Top cited source: ${evidence[0].source_id}`
     : "No supporting policy evidence was returned.";
 }
@@ -724,13 +730,15 @@ function renderWhyDecision(container, extraction, policy, finalDecision, evidenc
 
   const risk = buildRiskLabel(finalDecision, audit, workflowType);
   const review = audit.human_review || {};
+  const weakEvidence = isEvidenceWeak(evidence);
   const reviewRequired = typeof finalDecision.human_review_required === "boolean"
     ? finalDecision.human_review_required
     : review.required;
+  const effectiveReviewRequired = reviewRequired || weakEvidence;
 
   const rows = workflowType === "accounts_payable"
-    ? buildApWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired)
-    : buildArWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired);
+    ? buildApWhyRows(extraction, policy, finalDecision, evidence, risk, effectiveReviewRequired, weakEvidence)
+    : buildArWhyRows(extraction, policy, finalDecision, evidence, risk, effectiveReviewRequired, weakEvidence);
 
   container.className = "why-list";
   for (const row of rows) {
@@ -753,7 +761,7 @@ function renderWhyDecision(container, extraction, policy, finalDecision, evidenc
   }
 }
 
-function buildApWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired) {
+function buildApWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired, weakEvidence = false) {
   const vendorPolicy = policy.vendor_policy || {};
   const poThreshold = vendorPolicy.po_required_above;
   const poRequired = poThreshold == null || extraction.amount == null
@@ -805,14 +813,16 @@ function buildApWhyRows(extraction, policy, finalDecision, evidence, risk, revie
     {
       label: "Human review",
       value: reviewRequired ? "Required" : "Not required",
-      note: reviewRequired
+      note: weakEvidence
+        ? "Required because supporting policy evidence is missing or weak."
+        : reviewRequired
         ? "A person should review this before payment action."
         : "No human review gate was triggered."
     }
   ];
 }
 
-function buildArWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired) {
+function buildArWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired, weakEvidence = false) {
   const triggerCodes = Array.isArray(policy.trigger_codes) ? policy.trigger_codes : [];
   const escalation = finalDecision.escalation_level || "none";
   const topEvidence = evidence[0];
@@ -856,11 +866,24 @@ function buildArWhyRows(extraction, policy, finalDecision, evidence, risk, revie
     {
       label: "Human review",
       value: reviewRequired ? "Required" : "Not required",
-      note: reviewRequired
+      note: weakEvidence
+        ? "Required because supporting policy evidence is missing or weak."
+        : reviewRequired
         ? "A person should review this before sending the follow-up."
         : "No human review gate was triggered."
     }
   ];
+}
+
+function isEvidenceWeak(evidence) {
+  if (!Array.isArray(evidence) || evidence.length === 0) {
+    return true;
+  }
+  return evidence.some((item) => {
+    const sourceId = String(item.source_id || "").trim().toLowerCase();
+    const reason = String(item.relevance_reason || "").trim().toLowerCase();
+    return !sourceId || sourceId === "uncited" || sourceId === "fallback" || reason.includes("fallback");
+  });
 }
 
 function buildRecommendationMeaning(recommendation, fallbackSummary) {
