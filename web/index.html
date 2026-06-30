@@ -294,28 +294,28 @@
           </article>
         </div>
         <div class="detail-grid">
-          <div class="detail-column">
-            <h3>Extracted fields</h3>
+          <details class="detail-column detail-disclosure" open>
+            <summary>Extracted fields</summary>
             <div id="key-field-list" class="key-field-list empty-state">No extracted fields yet.</div>
-          </div>
-          <div class="detail-column">
-            <h3>Anomalies / Triggers</h3>
+          </details>
+          <details class="detail-column detail-disclosure">
+            <summary>Anomalies / Triggers</summary>
             <div id="anomaly-list" class="tag-list empty-state">No anomalies yet.</div>
             <h3>Matched signals</h3>
             <div id="signal-list" class="tag-list empty-state">No signals yet.</div>
-          </div>
-          <div class="detail-column">
-            <h3>Policy evidence</h3>
+          </details>
+          <details class="detail-column detail-disclosure">
+            <summary>Policy evidence</summary>
             <div id="evidence-list" class="evidence-list empty-state">No evidence yet.</div>
-          </div>
-          <div class="detail-column">
-            <h3>Agent tool trace</h3>
+          </details>
+          <details class="detail-column detail-disclosure">
+            <summary>Agent tool trace</summary>
             <div id="agent-trace-list" class="evidence-list empty-state">No tool calls yet.</div>
-          </div>
-          <div class="detail-column">
-            <h3>Audit metadata</h3>
+          </details>
+          <details class="detail-column detail-disclosure">
+            <summary>Audit metadata</summary>
             <div id="audit-detail-list" class="key-field-list empty-state">No audit metadata yet.</div>
-          </div>
+          </details>
         </div>
       </section>
 
@@ -465,24 +465,30 @@
           <p id="eval-generated-detail">When the latest eval snapshot was produced.</p>
         </article>
       </div>
-      <div class="queue-table-wrap eval-table-wrap">
-        <table class="queue-table eval-table" aria-describedby="eval-dashboard-summary">
-          <thead>
-            <tr>
-              <th scope="col">Case</th>
-              <th scope="col">Workflow</th>
-              <th scope="col">Latency</th>
-              <th scope="col">Failed checks</th>
-            </tr>
-          </thead>
-          <tbody id="eval-failure-body">
-            <tr>
-              <td colspan="4" class="queue-empty">Loading evaluation cases.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
+      <details class="debug-disclosure eval-detail-disclosure">
+        <summary>
+          <span>Internal eval case details</span>
+          <small>Open only when checking failures or latency</small>
+        </summary>
+        <div class="queue-table-wrap eval-table-wrap">
+          <table class="queue-table eval-table" aria-describedby="eval-dashboard-summary">
+            <thead>
+              <tr>
+                <th scope="col">Case</th>
+                <th scope="col">Workflow</th>
+                <th scope="col">Latency</th>
+                <th scope="col">Failed checks</th>
+              </tr>
+            </thead>
+            <tbody id="eval-failure-body">
+              <tr>
+                <td colspan="4" class="queue-empty">Loading evaluation cases.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="queue-meta" id="eval-dashboard-meta">Waiting for evaluation data.</p>
+      </details>
     </section>
   </div>
 

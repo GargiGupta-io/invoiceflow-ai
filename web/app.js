@@ -192,6 +192,7 @@ uploadForm.addEventListener("submit", async (event) => {
     setUploadGuidance("Upload complete. Review the recommendation, evidence, and human review status below.", false);
     setWorkspaceReady();
     loadReviewQueue();
+    resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     const friendlyError = buildUploadErrorMessage(error);
     setStatus(uploadStatus, "Run failed", "error");
@@ -276,6 +277,7 @@ function syncActiveHeaderTab() {
 
 function setWorkspaceReady() {
   document.body.classList.add("workspace-ready");
+  document.body.classList.add("case-selected");
   activateTab("workflow");
 }
 

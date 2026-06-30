@@ -3217,7 +3217,10 @@ body {
 
 .manifesto-copy h2 {
   max-width: 18ch;
-  font-size: clamp(3rem, 5.4vw, 4.7rem);
+  font-family: var(--font-sans);
+  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
+  font-weight: 950;
+  line-height: 1.05;
 }
 
 @media (max-width: 760px) {
@@ -3274,4 +3277,65 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* When a case has been run, shorten the path from action to result. */
+body.case-selected .entry-section {
+  display: none;
+}
+
+body.case-selected .manifesto-band {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding: 14px 0 18px;
+}
+
+body.case-selected .manifesto-copy {
+  display: none;
+}
+
+body.case-selected .workflow-view-rail {
+  margin-top: 0;
+}
+
+body.case-selected .workspace {
+  scroll-margin-top: 110px;
+}
+
+.detail-disclosure {
+  padding: 0;
+}
+
+.detail-disclosure summary {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.25;
+  list-style: none;
+}
+
+.detail-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.detail-disclosure summary::after {
+  content: "+";
+  color: var(--warm);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.detail-disclosure[open] summary::after {
+  content: "-";
+}
+
+.eval-detail-disclosure {
+  margin-top: 22px;
 }
