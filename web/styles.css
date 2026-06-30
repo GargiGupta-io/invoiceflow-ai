@@ -3230,3 +3230,48 @@ body {
     margin-right: auto;
   }
 }
+
+/* Match the review and card-section headings. */
+.intake-copy,
+.entry-section {
+  width: min(100%, 980px);
+}
+
+.entry-section {
+  margin-top: clamp(64px, 8vw, 96px);
+}
+
+.intake-heading,
+.entry-section-heading h2 {
+  font-family: var(--font-sans);
+  font-size: clamp(1.9rem, 3.2vw, 2.55rem);
+  font-weight: 950;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.entry-section-heading p,
+.intake-copy p:last-child {
+  max-width: 68ch;
+}
+
+@media (max-width: 760px) {
+  .entry-section {
+    width: min(100%, 980px);
+  }
+}
+
+/* Canvas aurora replaces the failed CSS-gradient imitation. */
+.hero::before,
+.hero::after {
+  content: none;
+}
+
+.aurora-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
