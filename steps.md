@@ -2,6 +2,37 @@
 
 ---
 
+## Step 38 - Redesign Operator Snapshot Cards
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - restructures the three operator snapshot cards into feature cards with preview areas and copy areas.
+- `web/styles.css` - styles the snapshot cards with ReactBits-inspired visual panels, staggered layout, preview graphics, and responsive stacking.
+
+**In plain English**
+The three cards under the upload controls now look more like polished product feature cards. Each card has a visual preview on top and the useful text below, so the section feels closer to the ReactBits reference instead of looking like plain dashboard boxes.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
+## Step 37 - Run Final Verification Pass
+*Completed: 2026-07-01*
+
+**What was built**
+- `steps.md` - records the final verification pass for the creative UI phase.
+
+**In plain English**
+The app passed the final command checks after the creative UI work. JavaScript syntax is valid, the health endpoint is responding, sample cases load, and the evaluation summary reports all bundled cases passing. Browser automation was unavailable in this session, so that visual check was not claimed.
+
+**Files changed**
+~ modified: steps.md
+
+---
+
 ## Step 36 - Polish Surfaces And Motion
 *Completed: 2026-07-01*
 
