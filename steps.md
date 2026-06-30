@@ -16,6 +16,20 @@ The project now explains itself immediately. A reader sees that InvoiceFlow AI i
 
 ---
 
+## Step 3 - Add Best Demo Path
+*Completed: 2026-06-30*
+
+**What was built**
+- `README.md` - adds a guided demo path from opening the operator console through the Missing PO sample, evidence review, human review, audit trail, and AR follow-up sample.
+
+**In plain English**
+The README now tells a viewer exactly how to try the product instead of making them explore randomly. A recruiter or client can follow the path and see the strongest AP and AR moments in the right order.
+
+**Files changed**
+~ modified: README.md
+
+---
+
 ## Step 2 - Add Problem And Workflow Outputs
 *Completed: 2026-06-30*
 
