@@ -58,32 +58,31 @@
           <button type="button" class="primary-button" data-run-sample="ap_002_missing_po">Run AP Sample</button>
           <button type="button" class="secondary-button" data-run-sample="ar_003_payment_claim_no_proof">Run AR Sample</button>
         </div>
+        <section class="entry-board" aria-label="Operator snapshot">
+          <article class="entry-card">
+            <span class="result-label">Workflow State</span>
+            <strong id="entry-workflow-state">Ready for AP or AR</strong>
+            <p id="entry-workflow-detail">Run a sample or upload a finance document to start a reviewed workflow.</p>
+          </article>
+          <article class="entry-card">
+            <span class="result-label">Sample Cases</span>
+            <strong id="entry-sample-count">Loading</strong>
+            <div class="sample-chips" aria-label="Highlighted samples">
+              <button type="button" data-run-sample="ap_001_clean_invoice">Clean Invoice</button>
+              <button type="button" data-run-sample="ap_002_missing_po">Missing PO</button>
+              <button type="button" data-run-sample="ap_004_duplicate_invoice">Duplicate Risk</button>
+              <button type="button" data-run-sample="ap_003_threshold_review">High-Value</button>
+              <button type="button" data-run-sample="ar_003_payment_claim_no_proof">AR Overdue</button>
+            </div>
+          </article>
+          <article class="entry-card">
+            <span class="result-label">Latest Audit</span>
+            <strong id="entry-audit-state">No run yet</strong>
+            <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
+          </article>
+        </section>
       </div>
     </header>
-
-    <section class="entry-board" aria-label="Operator snapshot">
-      <article class="entry-card">
-        <span class="result-label">Workflow State</span>
-        <strong id="entry-workflow-state">Ready for AP or AR</strong>
-        <p id="entry-workflow-detail">Run a sample or upload a finance document to start a reviewed workflow.</p>
-      </article>
-      <article class="entry-card">
-        <span class="result-label">Sample Cases</span>
-        <strong id="entry-sample-count">Loading</strong>
-        <div class="sample-chips" aria-label="Highlighted samples">
-          <button type="button" data-run-sample="ap_001_clean_invoice">Clean Invoice</button>
-          <button type="button" data-run-sample="ap_002_missing_po">Missing PO</button>
-          <button type="button" data-run-sample="ap_004_duplicate_invoice">Duplicate Risk</button>
-          <button type="button" data-run-sample="ap_003_threshold_review">High-Value</button>
-          <button type="button" data-run-sample="ar_003_payment_claim_no_proof">AR Overdue</button>
-        </div>
-      </article>
-      <article class="entry-card">
-        <span class="result-label">Latest Audit</span>
-        <strong id="entry-audit-state">No run yet</strong>
-        <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
-      </article>
-    </section>
 
     <section class="manifesto-band" aria-label="Product statement">
       <div class="manifesto-copy">
