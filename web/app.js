@@ -70,6 +70,7 @@ const evalSubjectRate = document.getElementById("eval-subject-rate");
 const evalMentionRate = document.getElementById("eval-mention-rate");
 const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
+const siteHeader = document.querySelector(".site-header");
 const tabButtons = document.querySelectorAll("[data-tab-target]");
 const tabPanels = document.querySelectorAll("[data-tab-panel]");
 const visibleDemoCases = {
@@ -83,7 +84,9 @@ let loadingCueTimer = null;
 let activeSampleId = null;
 
 activateTab("workflow");
+syncHeaderState();
 bootstrap();
+window.addEventListener("scroll", syncHeaderState, { passive: true });
 reviewQueueRefresh.addEventListener("click", () => {
   loadReviewQueue();
 });
@@ -205,6 +208,13 @@ function activateTab(targetTab) {
   for (const panel of tabPanels) {
     panel.hidden = panel.dataset.tabPanel !== targetTab;
   }
+}
+
+function syncHeaderState() {
+  if (!siteHeader) {
+    return;
+  }
+  siteHeader.classList.toggle("is-scrolled", window.scrollY > 28);
 }
 
 function setWorkspaceReady() {
