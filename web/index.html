@@ -45,11 +45,22 @@
           <span class="workflow-node">Decision</span>
           <span class="workflow-node">Audit</span>
         </div>
-        <p class="hero-context">
-          <strong>AP means Accounts Payable:</strong> review vendor invoices before the company pays them.
-          <strong>AR means Accounts Receivable:</strong> follow up on overdue customer payments safely.
-        </p>
-        <p class="intake-label">Start with a document, or run one of the sample cases.</p>
+        <div class="hero-context" aria-label="AP and AR explanation">
+          <article>
+            <span>AP desk</span>
+            <strong>Accounts Payable</strong>
+            <p>Review vendor invoices before money leaves the company.</p>
+          </article>
+          <article>
+            <span>AR desk</span>
+            <strong>Accounts Receivable</strong>
+            <p>Follow up on overdue customer payments with evidence.</p>
+          </article>
+        </div>
+        <div class="intake-copy">
+          <p class="intake-label">Start the review</p>
+          <p>Upload a document with AP/AR selected, or run a polished sample case below.</p>
+        </div>
         <form id="upload-form" class="hero-upload">
           <label class="field">
             <span>Workflow type</span>
@@ -107,12 +118,20 @@
 
     <section class="manifesto-band" aria-label="Product statement">
       <div class="manifesto-copy">
-        <p class="eyebrow">Workflow language</p>
-        <h2>Two finance desks, one evidence-backed path.</h2>
+        <p class="eyebrow">Product path</p>
+        <h2>One readable route from case intake to audit.</h2>
+      </div>
+      <div class="path-sentence" aria-label="InvoiceFlow product path">
+        <span>Select or upload</span>
+        <span>Extract facts</span>
+        <span>Check policy</span>
+        <span>Detect risk</span>
+        <span>Recommend action</span>
+        <span>Save audit trail</span>
       </div>
       <p class="manifesto-text">
-        AP asks whether a vendor invoice is safe to approve. AR asks what to send when a customer payment is overdue.
-        InvoiceFlow keeps both paths readable: capture the case, extract facts, check policy, recommend the next action, and keep an audit trail.
+        The page follows this order on purpose: choose the case first, see the decision next,
+        then open evidence, review, evaluation, or debug details only when needed.
       </p>
     </section>
 
@@ -129,7 +148,7 @@
           <p class="eyebrow">Workflow Selection</p>
           <h2>Run a focused demo case</h2>
         </div>
-        <p>Each sample is designed to show one finance control clearly.</p>
+        <p>Pick one case. Each one teaches a single finance control without making the demo feel crowded.</p>
       </div>
       <div class="sample-card-grid">
         <article class="sample-card">
