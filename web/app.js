@@ -49,6 +49,16 @@ const entryWorkflowDetail = document.getElementById("entry-workflow-detail");
 const entrySampleCount = document.getElementById("entry-sample-count");
 const entryAuditState = document.getElementById("entry-audit-state");
 const entryAuditDetail = document.getElementById("entry-audit-detail");
+const entryCaseDesk = document.getElementById("entry-case-desk");
+const entryCaseParty = document.getElementById("entry-case-party");
+const entryCaseAmount = document.getElementById("entry-case-amount");
+const entryCaseRecommendation = document.getElementById("entry-case-recommendation");
+const entryDecisionRecommendation = document.getElementById("entry-decision-recommendation");
+const entryDecisionEvidence = document.getElementById("entry-decision-evidence");
+const entryDecisionReview = document.getElementById("entry-decision-review");
+const entryTimelineExtract = document.getElementById("entry-timeline-extract");
+const entryTimelinePolicy = document.getElementById("entry-timeline-policy");
+const entryTimelineDecision = document.getElementById("entry-timeline-decision");
 const reviewQueueStatus = document.getElementById("review-queue-status");
 const reviewQueueSummary = document.getElementById("review-queue-summary");
 const reviewQueueBody = document.getElementById("review-queue-body");
@@ -767,7 +777,7 @@ function renderResult(payload) {
   const auditMeta = buildAuditMeta(finalDecision.confidence, audit);
   auditValue.textContent = auditMeta.title;
   auditText.textContent = workflowHint ? `${auditMeta.body} | Upload hint: ${workflowHint}` : auditMeta.body;
-  updateEntryRunSummary(workflow, finalDecision, evidence, audit);
+  updateEntryRunSummary(workflow, finalDecision, evidence, audit, extraction);
 
   rawJson.textContent = JSON.stringify(payload, null, 2);
   setWorkspaceReady();
@@ -1077,18 +1087,42 @@ function buildRiskText(risk) {
   return "The workflow did not find a blocking review condition.";
 }
 
-function updateEntryRunSummary(workflow, finalDecision, evidence, audit) {
+function updateEntryRunSummary(workflow, finalDecision, evidence, audit, extraction = {}) {
   const workflowName = prettifyWorkflow(workflow.workflow_type);
   const decision = finalDecision.recommendation || finalDecision.escalation_level || "complete";
+  const formattedDecision = formatRecommendation(decision);
   const review = audit.human_review && audit.human_review.required
     ? "review required"
     : "no review gate";
   const latency = audit.total_latency_ms != null ? `${audit.total_latency_ms} ms` : "latency pending";
+  const party = workflow.workflow_type === "accounts_receivable"
+    ? extraction.customer_name
+    : extraction.vendor_name;
+  const amount = formatAmount(extraction.amount, extraction.currency);
 
   entryWorkflowState.textContent = workflowName;
-  entryWorkflowDetail.textContent = `Current workflow finished with ${decision}.`;
-  entryAuditState.textContent = `${decision} | ${review}`;
+  entryWorkflowDetail.textContent = `Current workflow finished with ${formattedDecision.toLowerCase()}.`;
+  entryAuditState.textContent = `${formattedDecision} | ${review}`;
   entryAuditDetail.textContent = `${evidence.length} evidence sources | ${latency}`;
+
+  entryCaseDesk.textContent = workflowName || "AP or AR";
+  entryCaseParty.textContent = party || "Unknown party";
+  entryCaseAmount.textContent = amount || "Amount not found";
+  entryCaseRecommendation.textContent = formattedDecision;
+  entryDecisionRecommendation.textContent = formattedDecision;
+  entryDecisionEvidence.textContent = String(evidence.length);
+  entryDecisionReview.textContent = audit.human_review && audit.human_review.required ? "Required" : "No";
+  markTimelineStep(entryTimelineExtract, true, false);
+  markTimelineStep(entryTimelinePolicy, evidence.length > 0, evidence.length === 0);
+  markTimelineStep(entryTimelineDecision, true, audit.human_review && audit.human_review.required);
+}
+
+function markTimelineStep(node, complete, review) {
+  if (!node) {
+    return;
+  }
+  node.classList.toggle("is-complete", Boolean(complete) && !review);
+  node.classList.toggle("is-review", Boolean(review));
 }
 
 function renderTags(container, tags, emptyText) {
