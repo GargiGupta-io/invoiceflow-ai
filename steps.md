@@ -2,6 +2,23 @@
 
 ---
 
+## Step 34 - Organize Page Copy
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - turns loose AP/AR explanation text into compact paired cards and adds a clearer product path sentence.
+- `web/styles.css` - styles the new AP/AR cards, intake copy group, and path chips so the page reads in cleaner sections.
+
+**In plain English**
+The page now explains itself in a more ordered way. Instead of scattered sentences, the viewer sees what AP and AR mean, how to start, and the product path from upload to audit in grouped pieces that are easier to scan.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 33 - Add Floating Glass Header
 *Completed: 2026-06-30*
 
