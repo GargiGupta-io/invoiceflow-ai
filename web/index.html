@@ -261,11 +261,11 @@
         <div class="panel-header">
           <div>
             <p class="eyebrow">Evidence & Reasoning</p>
-            <h2>Fields, anomalies, policy evidence, and tool trace</h2>
+            <h2>Evidence trail</h2>
           </div>
         </div>
         <p class="panel-intro">
-          Use this area after the case summary to inspect what was extracted, which checks fired, what evidence was used, and how the workflow reached its result.
+          Check the extracted facts first, then open policy evidence, triggers, tool trace, or audit details only when needed.
         </p>
         <div class="flow-map" aria-label="Workflow trace">
           <article class="flow-step">
@@ -355,7 +355,7 @@
       <div class="panel-header">
         <div>
           <p class="eyebrow">Human Review & Audit</p>
-          <h2>Cases awaiting operator attention</h2>
+          <h2>Review queue</h2>
         </div>
         <div class="queue-header-actions">
           <span class="status-pill" id="review-queue-status">Loading</span>
@@ -363,7 +363,7 @@
         </div>
       </div>
       <p class="panel-intro" id="review-queue-summary">
-        Risky or unresolved cases surface here with the current status, reason, and review priority.
+        Curated demo cases that need approval, missing info, rejection, or escalation appear here.
       </p>
       <div class="queue-table-wrap">
         <table class="queue-table" aria-describedby="review-queue-summary">
@@ -392,7 +392,7 @@
       <div class="panel-header">
         <div>
           <p class="eyebrow">Evaluation Proof</p>
-          <h2>Quality gates behind the workflow</h2>
+          <h2>Quality snapshot</h2>
         </div>
         <div class="queue-header-actions">
           <span class="status-pill" id="eval-dashboard-status">Loading</span>
@@ -401,7 +401,7 @@
         </div>
       </div>
       <p class="panel-intro" id="eval-dashboard-summary">
-        Evaluation stays secondary to the operator workflow. Use it to confirm routing, extraction, citation, review, and AR draft quality after the demo path is clear.
+        A compact proof layer for routing, extraction, evidence coverage, review gates, and AR draft quality.
       </p>
       <div class="eval-summary-grid" id="eval-summary-grid" aria-label="Evaluation summary metrics">
         <article class="metric-card eval-metric">
