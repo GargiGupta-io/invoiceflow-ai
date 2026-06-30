@@ -275,3 +275,19 @@ The app now says when evidence is too weak to trust as an automatic decision. If
 ~ modified: web/app.js
 
 ---
+
+## Step 18 - Add Workflow Visual
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - adds a top workflow visual showing Invoice, Extract, Policy Check, Decision, and Audit.
+- `web/styles.css` - styles the visual with a restrained animated sweep and responsive mobile stacking.
+
+**In plain English**
+The top of the page now shows the product flow visually before the user reaches the upload controls. It explains the path from invoice intake to audit trail in one glance without adding a heavy animation or distracting 3D effect.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+
+---
