@@ -87,3 +87,17 @@ The app now gives users five clear demo choices instead of making the sample are
 ~ modified: web/app.js
 
 ---
+
+## Step 6 - Explain AP And AR In The UI
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - explains AP as Accounts Payable/vendor invoice review and AR as Accounts Receivable/overdue payment follow-up in the hero, upload workflow selector, and product statement.
+
+**In plain English**
+The page no longer assumes the user already knows finance abbreviations. Someone can now understand that AP is about checking vendor invoices before payment, while AR is about following up when customers owe money.
+
+**Files changed**
+~ modified: web/index.html
+
+---
