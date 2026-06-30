@@ -742,3 +742,39 @@ The top of the page now separates the upload flow from the three explanatory car
 ~ modified: steps.md
 
 ---
+
+## Step 37 - Make Hero Full Width
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/styles.css` - removes the boxed hero margins, lets the hero background span the full page width, left-aligns the “Start the review” block with the upload form, adds more spacing between heading groups, and widens the Product Path heading so it breaks into two lines.
+
+**In plain English**
+The top hero should now feel more like a full product page instead of a centered card sitting on the background. The upload section is easier to scan because its heading aligns with the form, and the Product Path headline should read in two clean lines instead of three cramped lines.
+
+**Files changed**
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
+## Step 38 - Clean Up Replaced Learning Docs
+*Completed: 2026-07-01*
+
+**What was built**
+- `learnings/phase-15h-product-path-rail.md` - rewrites the visual UI learning note as the current source of truth for the full-width hero, guide cards, sample launcher, and Product Path.
+- `learnings/phase-7-signature-visual.md` - removed because it described the old workflow-orbit visual.
+- `learnings/phase-15c-unified-workflow-visual.md` - removed because it described a replaced workflow rail.
+- `learnings/phase-15f-operator-snapshot-cards.md` - removed because the older card experiment was replaced by the current guide cards.
+
+**In plain English**
+The learning folder no longer keeps old UI experiments as if they are still part of the product. The current visual documentation now describes the page that actually exists: full-width hero, Soft Aurora-style ribbon, Start the review, What's inside cards, sample launcher, Latest Decision, and the four-stage Product Path.
+
+**Files changed**
+- deleted: learnings/phase-7-signature-visual.md
+- deleted: learnings/phase-15c-unified-workflow-visual.md
+- deleted: learnings/phase-15f-operator-snapshot-cards.md
+~ modified: learnings/phase-15h-product-path-rail.md
+~ modified: steps.md
+
+---
