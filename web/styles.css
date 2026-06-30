@@ -2606,11 +2606,34 @@ body {
 
 .sample-preview {
   align-content: center;
+  gap: 14px;
   padding: 24px;
 }
 
+.sample-preview-label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  justify-self: center;
+  min-height: 30px;
+  align-items: center;
+  padding: 7px 11px;
+  border: 1px solid rgba(31, 39, 33, 0.07);
+  border-radius: 999px;
+  background: rgba(255, 251, 241, 0.68);
+  color: var(--warm-deep);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 26px rgba(58, 41, 23, 0.06);
+}
+
 .sample-preview .sample-chips {
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+  width: min(100%, 240px);
   margin: 0;
 }
 
@@ -2625,7 +2648,7 @@ body {
 
 .sample-preview .sample-chips button:nth-child(2),
 .sample-preview .sample-chips button:nth-child(5) {
-  transform: translateY(10px);
+  transform: none;
 }
 
 .sample-preview .sample-chips button:hover,
@@ -2639,7 +2662,7 @@ body {
 .sample-preview .sample-chips button:nth-child(2):focus-visible,
 .sample-preview .sample-chips button:nth-child(5):hover,
 .sample-preview .sample-chips button:nth-child(5):focus-visible {
-  transform: translateY(8px) scale(1.02);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .sample-preview .sample-chips button:not(:nth-child(2)):not(:nth-child(5)):hover,
