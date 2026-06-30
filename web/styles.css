@@ -778,16 +778,19 @@ body:not(.workspace-ready) .eval-panel {
 }
 
 .results-panel,
-.raw-panel,
 .detail-panel {
   grid-column: 1 / -1;
   margin-top: 6px;
 }
 
 .results-panel,
-.detail-panel,
-.raw-panel {
+.detail-panel {
   border-top: 1px solid var(--line);
+}
+
+.advanced-debug-panel {
+  grid-column: 1 / -1;
+  margin-top: -6px;
 }
 
 .panel-intro {
@@ -1210,13 +1213,24 @@ button:disabled {
   background: transparent;
   border: 0;
   border-top: 1px solid rgba(31, 39, 33, 0.08);
+  border-bottom: 1px solid rgba(31, 39, 33, 0.06);
 }
 
 .debug-disclosure summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   cursor: pointer;
-  padding: 16px 18px;
+  padding: 14px 0;
   font-weight: 700;
   list-style: none;
+}
+
+.debug-disclosure summary small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .debug-disclosure summary::-webkit-details-marker {
@@ -1229,17 +1243,17 @@ button:disabled {
 
 .debug-note {
   margin: 0;
-  padding: 14px 18px 0;
+  padding: 14px 0 0;
   color: var(--muted);
   line-height: 1.65;
 }
 
-.raw-panel pre {
+.advanced-debug-panel pre {
   margin: 0;
   max-height: 440px;
   overflow: auto;
   padding: 18px;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: #1c201e;
   color: #f6f2e8;
   font-size: 0.88rem;

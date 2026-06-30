@@ -320,18 +320,15 @@
         </div>
       </section>
 
-      <section class="panel raw-panel" data-tab-panel="inspect" hidden>
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Debug Payload</p>
-            <h2>Raw backend response</h2>
-          </div>
-        </div>
+      <section class="advanced-debug-panel" data-tab-panel="inspect" hidden aria-label="Advanced debug">
         <details class="debug-disclosure">
-          <summary>Open raw JSON</summary>
+          <summary>
+            <span>Advanced Debug</span>
+            <small>Raw JSON for technical review</small>
+          </summary>
           <p class="debug-note">
-            This secondary debug view contains the complete JSON payload, including extraction output,
-            grounded context, audit metadata, and the raw workflow result.
+            This collapsed view keeps the complete backend payload available for engineers without making
+            operators read raw extraction, evidence, audit, and workflow JSON first.
           </p>
           <pre id="raw-json">Run a workflow to inspect the full JSON response.</pre>
         </details>
