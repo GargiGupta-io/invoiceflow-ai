@@ -3037,3 +3037,45 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Visible Soft Aurora-style hero ribbon. */
+.hero {
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 241, 0.3), rgba(255, 251, 241, 0.08)),
+    radial-gradient(circle at 50% 52%, rgba(255, 251, 241, 0.62), transparent 48%);
+}
+
+.hero::before {
+  inset: 18% -18% 20%;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse at 15% 46%, rgba(95, 143, 124, 0.5) 0%, rgba(95, 143, 124, 0.2) 24%, transparent 54%),
+    radial-gradient(ellipse at 82% 43%, rgba(222, 184, 124, 0.58) 0%, rgba(222, 184, 124, 0.24) 26%, transparent 56%),
+    linear-gradient(96deg, transparent 5%, rgba(95, 143, 124, 0.26) 20%, rgba(255, 251, 241, 0.82) 43%, rgba(222, 184, 124, 0.34) 68%, transparent 92%);
+  filter: blur(24px) saturate(1.18);
+  opacity: 1;
+  transform-origin: center;
+  animation: softAuroraRibbon 14s ease-in-out infinite alternate;
+}
+
+.hero::after {
+  inset: 34% -12% 31%;
+  z-index: -1;
+  background:
+    linear-gradient(92deg, transparent 0%, rgba(95, 143, 124, 0.08) 13%, rgba(95, 143, 124, 0.34) 26%, rgba(255, 251, 241, 0.72) 43%, rgba(222, 184, 124, 0.38) 62%, rgba(222, 184, 124, 0.12) 78%, transparent 100%);
+  filter: blur(14px);
+  opacity: 0.96;
+  transform: skewY(-3deg);
+  animation: softAuroraRibbon 11s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes softAuroraRibbon {
+  0% {
+    transform: translate3d(-2%, -4px, 0) skewY(-2deg) scaleX(1);
+  }
+
+  100% {
+    transform: translate3d(2%, 6px, 0) skewY(2deg) scaleX(1.06);
+  }
+}
