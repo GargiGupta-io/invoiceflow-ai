@@ -12,6 +12,7 @@ const documentText = document.getElementById("document-text");
 const decisionValue = document.getElementById("decision-value");
 const decisionSummary = document.getElementById("decision-summary");
 const decisionExplainer = document.getElementById("decision-explainer");
+const whyDecisionList = document.getElementById("why-decision-list");
 const confidenceValue = document.getElementById("confidence-value");
 const riskText = document.getElementById("risk-text");
 const reviewValue = document.getElementById("review-value");
@@ -608,6 +609,7 @@ function renderResult(payload) {
   renderKeyFields(keyFieldList, extraction, finalDecision.missing_fields || []);
   renderAuditDetails(auditDetailList, audit, finalDecision, evidence);
   updateFlowMap(extraction, evidence, audit, finalDecision, workflow.workflow_type);
+  renderWhyDecision(whyDecisionList, extraction, policy, finalDecision, evidence, audit, workflow.workflow_type);
 
   evidenceCount.textContent = String(evidence.length);
   evidenceText.textContent = buildEvidenceText(evidence.length);
@@ -709,6 +711,156 @@ function updateDecisionSummaryCards(finalDecision, evidence, audit, workflowType
   decisionEvidenceText.textContent = evidence.length
     ? `Top cited source: ${evidence[0].source_id}`
     : "No supporting policy evidence was returned.";
+}
+
+function renderWhyDecision(container, extraction, policy, finalDecision, evidence, audit, workflowType) {
+  container.innerHTML = "";
+
+  if (!workflowType) {
+    container.textContent = "Run a workflow to see the policy facts, extracted fields, risk level, and review gate behind the recommendation.";
+    container.className = "why-list empty-state";
+    return;
+  }
+
+  const risk = buildRiskLabel(finalDecision, audit, workflowType);
+  const review = audit.human_review || {};
+  const reviewRequired = typeof finalDecision.human_review_required === "boolean"
+    ? finalDecision.human_review_required
+    : review.required;
+
+  const rows = workflowType === "accounts_payable"
+    ? buildApWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired)
+    : buildArWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired);
+
+  container.className = "why-list";
+  for (const row of rows) {
+    const item = document.createElement("div");
+    item.className = "why-item";
+
+    const label = document.createElement("span");
+    label.textContent = row.label;
+
+    const value = document.createElement("strong");
+    value.textContent = row.value;
+
+    const note = document.createElement("p");
+    note.textContent = row.note;
+
+    item.appendChild(label);
+    item.appendChild(value);
+    item.appendChild(note);
+    container.appendChild(item);
+  }
+}
+
+function buildApWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired) {
+  const vendorPolicy = policy.vendor_policy || {};
+  const poThreshold = vendorPolicy.po_required_above;
+  const poRequired = poThreshold == null || extraction.amount == null
+    ? null
+    : Number(extraction.amount) > Number(poThreshold);
+  const amount = formatAmount(extraction.amount, extraction.currency) || "Unknown";
+  const threshold = poThreshold == null
+    ? "Policy threshold not found"
+    : formatAmount(poThreshold, extraction.currency) || String(poThreshold);
+  const topEvidence = evidence[0];
+
+  return [
+    {
+      label: "PO required?",
+      value: poRequired == null ? "Unknown" : poRequired ? "Yes" : "No",
+      note: poRequired == null
+        ? "No clear PO threshold was available in the retrieved vendor policy."
+        : `Vendor policy uses ${threshold} as the PO threshold.`
+    },
+    {
+      label: "PO found?",
+      value: extraction.po_number || "No",
+      note: extraction.po_number
+        ? "The invoice includes a purchase order number."
+        : "No purchase order number was extracted from the invoice."
+    },
+    {
+      label: "Invoice amount",
+      value: amount,
+      note: `Approval threshold checked against ${threshold}.`
+    },
+    {
+      label: "Matching policy",
+      value: topEvidence ? topEvidence.source_id : "No citation",
+      note: topEvidence ? topEvidence.source_title : "No supporting policy evidence was returned."
+    },
+    {
+      label: "Risk level",
+      value: risk,
+      note: risk === "High risk"
+        ? "The workflow treats this as blocked until review."
+        : "Risk is based on review gates and policy checks."
+    },
+    {
+      label: "Recommended action",
+      value: formatRecommendation(finalDecision.recommendation),
+      note: finalDecision.reviewer_summary || "No reviewer summary was returned."
+    },
+    {
+      label: "Human review",
+      value: reviewRequired ? "Required" : "Not required",
+      note: reviewRequired
+        ? "A person should review this before payment action."
+        : "No human review gate was triggered."
+    }
+  ];
+}
+
+function buildArWhyRows(extraction, policy, finalDecision, evidence, risk, reviewRequired) {
+  const triggerCodes = Array.isArray(policy.trigger_codes) ? policy.trigger_codes : [];
+  const escalation = finalDecision.escalation_level || "none";
+  const topEvidence = evidence[0];
+  const amount = formatAmount(extraction.amount, extraction.currency) || "Unknown";
+
+  return [
+    {
+      label: "Customer / invoice",
+      value: [extraction.customer_name, extraction.invoice_number].filter(Boolean).join(" | ") || "Unknown",
+      note: `Amount on case: ${amount}.`
+    },
+    {
+      label: "Due date",
+      value: extraction.due_date || "Unknown",
+      note: "The follow-up is grounded in the extracted receivables case data."
+    },
+    {
+      label: "Escalation level",
+      value: capitalize(escalation),
+      note: triggerCodes.length
+        ? `Triggered by ${triggerCodes.slice(0, 3).join(", ")}.`
+        : "No escalation trigger codes were returned."
+    },
+    {
+      label: "Matching policy",
+      value: topEvidence ? topEvidence.source_id : "No citation",
+      note: topEvidence ? topEvidence.source_title : "No supporting policy evidence was returned."
+    },
+    {
+      label: "Risk level",
+      value: risk,
+      note: risk === "High risk"
+        ? "The workflow treats this as blocked until review."
+        : "Risk is based on escalation and review signals."
+    },
+    {
+      label: "Recommended action",
+      value: ["medium", "high"].includes(escalation) ? "Escalate" : "Draft Follow-Up",
+      note: finalDecision.followup_subject || finalDecision.subject || "No draft subject was returned."
+    },
+    {
+      label: "Human review",
+      value: reviewRequired ? "Required" : "Not required",
+      note: reviewRequired
+        ? "A person should review this before sending the follow-up."
+        : "No human review gate was triggered."
+    }
+  ];
 }
 
 function buildRiskLabel(finalDecision, audit, workflowType) {
