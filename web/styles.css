@@ -3601,23 +3601,16 @@ body.case-selected .detail-disclosure summary {
 
 body.case-selected .flow-map {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0;
+  gap: 12px;
   margin: 0 0 34px;
-  border-top: 1px solid rgba(31, 39, 33, 0.1);
-  border-bottom: 1px solid rgba(31, 39, 33, 0.1);
-}
-
-body.case-selected .flow-step {
-  padding: 18px 18px 20px 0;
   border: 0;
 }
 
-body.case-selected .flow-step:not(:last-child) {
-  border-right: 1px solid rgba(31, 39, 33, 0.08);
-}
-
-body.case-selected .flow-step:not(:first-child) {
-  padding-left: 18px;
+body.case-selected .flow-step {
+  padding: 18px 18px 20px;
+  border: 1px solid rgba(31, 39, 33, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 251, 241, 0.34);
 }
 
 body.case-selected .flow-step:not(:last-child)::after {
