@@ -2,6 +2,25 @@
 
 ---
 
+## Step 35 - Add Unified Workflow Visual
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - expands the hero workflow visual into six numbered stages from invoice intake through audit.
+- `web/app.js` - updates the workflow visual as the loading stages progress.
+- `web/styles.css` - styles the connected workflow rail with active and completed states.
+
+**In plain English**
+The top visual now behaves more like a product workflow instead of a row of static labels. When a case runs, the visual can move from invoice to extraction, policy, risk, decision, and audit so a viewer understands what the system is doing.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 34 - Organize Page Copy
 *Completed: 2026-06-30*
 
