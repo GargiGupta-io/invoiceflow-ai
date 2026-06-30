@@ -97,10 +97,10 @@
     </section>
 
     <nav class="tab-nav" aria-label="Workspace sections">
-      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Workflow</button>
-      <button type="button" class="tab-button" data-tab-target="review" aria-pressed="false">Review Queue</button>
+      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Case Summary</button>
+      <button type="button" class="tab-button" data-tab-target="inspect" aria-pressed="false">Evidence & Reasoning</button>
+      <button type="button" class="tab-button" data-tab-target="review" aria-pressed="false">Human Review & Audit</button>
       <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
-      <button type="button" class="tab-button" data-tab-target="inspect" aria-pressed="false">Inspect</button>
     </nav>
 
     <section class="sample-board" id="capture" aria-label="Sample workflow cards">
@@ -198,13 +198,13 @@
       <section class="panel results-panel" id="decide" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Decision Board</p>
-            <h2>Current run</h2>
+            <p class="eyebrow">Case Summary</p>
+            <h2>Decision-first case view</h2>
           </div>
           <span class="status-pill neutral" id="result-kind">No result</span>
         </div>
         <p class="panel-intro">
-          Start with the operator action, then inspect the fields, evidence, trace, and raw payload only when needed.
+          Start with the recommended operator action, then open evidence, review, audit, or debug details only when needed.
         </p>
         <article class="decision-summary-card">
           <div class="decision-main">
@@ -261,12 +261,12 @@
       <section class="panel detail-panel" id="inspect" data-tab-panel="inspect" hidden>
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Inspection Console</p>
-            <h2>Fields, evidence, trace, and audit</h2>
+            <p class="eyebrow">Evidence & Reasoning</p>
+            <h2>Fields, anomalies, policy evidence, and tool trace</h2>
           </div>
         </div>
         <p class="panel-intro">
-          Use this area after the decision summary when you need to inspect what the workflow extracted, which checks fired, what evidence was used, and how the run was audited.
+          Use this area after the case summary to inspect what was extracted, which checks fired, what evidence was used, and how the workflow reached its result.
         </p>
         <div class="flow-map" aria-label="Workflow trace">
           <article class="flow-step">
@@ -341,7 +341,7 @@
     <section class="panel queue-panel" id="review" data-tab-panel="review" hidden aria-label="Human review queue">
       <div class="panel-header">
         <div>
-          <p class="eyebrow">Human Review Queue</p>
+          <p class="eyebrow">Human Review & Audit</p>
           <h2>Cases awaiting operator attention</h2>
         </div>
         <div class="queue-header-actions">
