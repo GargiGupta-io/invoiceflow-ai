@@ -76,6 +76,7 @@ const visibleDemoCases = {
   ap_003_threshold_review: "High-Value Approval Required",
   ar_003_payment_claim_no_proof: "AR Overdue Follow-Up"
 };
+let loadingCueTimer = null;
 
 activateTab("workflow");
 bootstrap();
@@ -138,7 +139,7 @@ uploadForm.addEventListener("submit", async (event) => {
   formData.append("workflow_hint", workflowHint);
 
   setStatus(uploadStatus, "Uploading", "running");
-  showLoadingCue(`Reading ${workflowHint.toUpperCase()} file`);
+  showLoadingCue(buildLoadingStages(`Uploading ${workflowHint.toUpperCase()} file`));
   try {
     const response = await fetch("/workflow/upload", {
       method: "POST",
@@ -188,17 +189,45 @@ function setWorkspaceReady() {
   activateTab("workflow");
 }
 
-function showLoadingCue(message) {
+function buildLoadingStages(firstStage) {
+  return [
+    firstStage,
+    "Extracting key facts",
+    "Retrieving policy evidence",
+    "Checking risk signals",
+    "Preparing recommendation"
+  ];
+}
+
+function showLoadingCue(stages) {
   if (!loadingCue) {
     return;
   }
-  if (loadingCueText && message) {
-    loadingCueText.textContent = message;
+  const stageList = Array.isArray(stages) ? stages : [stages].filter(Boolean);
+  if (loadingCueTimer) {
+    clearInterval(loadingCueTimer);
+    loadingCueTimer = null;
+  }
+  if (loadingCueText && stageList.length) {
+    let stageIndex = 0;
+    loadingCueText.textContent = stageList[stageIndex];
+    loadingCueTimer = setInterval(() => {
+      stageIndex = Math.min(stageIndex + 1, stageList.length - 1);
+      loadingCueText.textContent = stageList[stageIndex];
+      if (stageIndex === stageList.length - 1 && loadingCueTimer) {
+        clearInterval(loadingCueTimer);
+        loadingCueTimer = null;
+      }
+    }, 850);
   }
   loadingCue.hidden = false;
 }
 
 function hideLoadingCue() {
+  if (loadingCueTimer) {
+    clearInterval(loadingCueTimer);
+    loadingCueTimer = null;
+  }
   if (loadingCue) {
     loadingCue.hidden = true;
   }
@@ -473,7 +502,7 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
   setSampleRunState(sampleId, true);
   const sampleFamily = sampleId.startsWith("ar_") ? "AR" : "AP";
   const sampleName = visibleDemoCases[sampleId] || sampleId;
-  showLoadingCue(`Reading ${sampleFamily} sample`);
+  showLoadingCue(buildLoadingStages(`Reading ${sampleFamily} sample`));
   entryWorkflowState.textContent = "Running sample";
   entryWorkflowDetail.textContent = `Processing ${sampleName} through extraction, retrieval, validation, and decisioning.`;
   entryAuditState.textContent = "In progress";
