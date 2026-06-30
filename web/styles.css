@@ -313,6 +313,14 @@ body.workflow-running .workflow-node:nth-child(5) {
   font-size: 0.92rem;
 }
 
+.loading-cue[hidden] {
+  display: none;
+}
+
+.workflow-running .loading-cue {
+  box-shadow: 0 12px 28px rgba(79, 127, 109, 0.12);
+}
+
 .loading-dots {
   display: inline-flex;
   gap: 4px;
@@ -813,6 +821,15 @@ body:not(.workspace-ready) .eval-panel {
   box-shadow: inset 0 1px 0 rgba(208, 162, 101, 0.18);
 }
 
+.sample-card.is-selected {
+  border-top-color: rgba(79, 127, 109, 0.52);
+  background: linear-gradient(180deg, rgba(219, 237, 226, 0.34), rgba(255, 248, 237, 0));
+}
+
+.sample-card.is-selected h3 {
+  color: var(--green);
+}
+
 .sample-card-top {
   display: flex;
   align-items: center;
@@ -1044,6 +1061,15 @@ button:hover {
   transform: translateY(-1px);
 }
 
+button:focus-visible,
+select:focus-visible,
+input[type="file"]:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid rgba(79, 127, 109, 0.58);
+  outline-offset: 3px;
+}
+
 button:disabled {
   opacity: 0.58;
   cursor: wait;
@@ -1062,6 +1088,10 @@ button:disabled {
   background: linear-gradient(135deg, #6c9a87, #567f6f);
   color: #f9f7f1;
   box-shadow: 0 12px 24px rgba(79, 127, 109, 0.2);
+}
+
+button.is-selected {
+  box-shadow: 0 0 0 2px rgba(79, 127, 109, 0.24), 0 12px 24px rgba(79, 127, 109, 0.14);
 }
 
 .secondary-button {
