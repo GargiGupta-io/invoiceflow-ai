@@ -273,7 +273,7 @@ body.workflow-running .workflow-node:nth-child(5) {
 
 .hero-upload {
   display: grid;
-  grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(230px, 0.55fr) minmax(280px, 1fr) auto;
   gap: 12px;
   align-items: end;
   width: min(100%, 820px);
@@ -1698,7 +1698,7 @@ button.is-selected {
 
 .hero-upload {
   display: grid;
-  grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(230px, 0.55fr) minmax(280px, 1fr) auto;
   gap: 12px;
   align-items: end;
   width: min(100%, 820px);
