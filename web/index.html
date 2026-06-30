@@ -17,10 +17,10 @@
         <div class="header-tabs" aria-label="Page sections">
           <a class="header-tab" href="#top">Overview</a>
           <a class="header-tab" href="#capture">Cases</a>
-          <button type="button" class="header-tab" data-tab-target="workflow" aria-pressed="true">Decision</button>
+          <button type="button" class="header-tab" data-tab-target="workflow" aria-pressed="true">Summary</button>
           <button type="button" class="header-tab" data-tab-target="inspect" aria-pressed="false">Evidence</button>
           <button type="button" class="header-tab" data-tab-target="review" aria-pressed="false">Review</button>
-          <button type="button" class="header-tab" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
+          <button type="button" class="header-tab" data-tab-target="evaluation" aria-pressed="false">Eval</button>
         </div>
         <div class="system-status">
           <span>AP/AR Agent</span>
@@ -126,29 +126,36 @@
       </div>
     </header>
 
-    <section class="manifesto-band" aria-label="Product statement">
+    <section class="manifesto-band" aria-label="Product workflow views">
       <div class="manifesto-copy">
         <p class="eyebrow">Product path</p>
         <h2>One readable route from case intake to audit.</h2>
       </div>
-      <div class="workflow-orbit" aria-label="InvoiceFlow workflow path" data-active-stage="0">
-        <span class="workflow-node" data-stage-index="0"><small>01</small>Invoice</span>
-        <span class="workflow-node" data-stage-index="1"><small>02</small>Extract</span>
-        <span class="workflow-node" data-stage-index="2"><small>03</small>Policy</span>
-        <span class="workflow-node" data-stage-index="3"><small>04</small>Risk</span>
-        <span class="workflow-node" data-stage-index="4"><small>05</small>Decision</span>
-        <span class="workflow-node" data-stage-index="5"><small>06</small>Audit</span>
-      </div>
+      <nav class="workflow-view-rail" aria-label="Workspace sections">
+        <button type="button" class="workflow-view-card is-active" data-tab-target="workflow" aria-pressed="true">
+          <span class="workflow-view-index">01</span>
+          <strong>Case Summary</strong>
+          <small>Invoice + Extract</small>
+        </button>
+        <button type="button" class="workflow-view-card" data-tab-target="inspect" aria-pressed="false">
+          <span class="workflow-view-index">02</span>
+          <strong>Evidence</strong>
+          <small>Policy + Risk</small>
+        </button>
+        <button type="button" class="workflow-view-card" data-tab-target="review" aria-pressed="false">
+          <span class="workflow-view-index">03</span>
+          <strong>Review</strong>
+          <small>Decision + Audit</small>
+        </button>
+        <button type="button" class="workflow-view-card" data-tab-target="evaluation" aria-pressed="false">
+          <span class="workflow-view-index">04</span>
+          <strong>Evaluation</strong>
+          <small>Quality checks</small>
+        </button>
+      </nav>
     </section>
 
-    <nav class="tab-nav" aria-label="Workspace sections">
-      <button type="button" class="tab-button is-active" data-tab-target="workflow" aria-pressed="true">Case Summary</button>
-      <button type="button" class="tab-button" data-tab-target="inspect" aria-pressed="false">Evidence & Reasoning</button>
-      <button type="button" class="tab-button" data-tab-target="review" aria-pressed="false">Human Review & Audit</button>
-      <button type="button" class="tab-button" data-tab-target="evaluation" aria-pressed="false">Evaluation</button>
-    </nav>
-
-    <main class="workspace">
+    <main class="workspace" id="workspace">
       <section class="panel results-panel" id="decide" data-tab-panel="workflow">
         <div class="panel-header">
           <div>
