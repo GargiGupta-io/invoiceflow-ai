@@ -1,5 +1,6 @@
 const uploadForm = document.getElementById("upload-form");
 const uploadWorkflowHint = document.getElementById("upload-workflow-hint");
+const uploadGuidance = document.getElementById("upload-guidance");
 const loadingCue = document.getElementById("loading-cue");
 const loadingCueText = document.getElementById("loading-cue-text");
 const sampleStatus = document.getElementById("sample-status");
@@ -131,15 +132,26 @@ uploadForm.addEventListener("submit", async (event) => {
 
   if (!fileInput.files || fileInput.files.length === 0) {
     setStatus(uploadStatus, "Choose a file first", "error");
+    setUploadGuidance("Choose a PDF, .txt, or .md file, or run a sample case instead.", true);
+    entryWorkflowState.textContent = "No file selected";
+    entryWorkflowDetail.textContent = "Upload a supported finance document or start with one of the sample cases.";
+    return;
+  }
+
+  const selectedFile = fileInput.files[0];
+  if (!isSupportedUploadFile(selectedFile)) {
+    setStatus(uploadStatus, "Unsupported file", "error");
+    setUploadGuidance("Unsupported file type. Use a text-based PDF, .txt, or .md file. If the source is an image or scan, paste text into a .txt file first.", true);
     return;
   }
 
   const formData = new FormData();
-  formData.append("file", fileInput.files[0]);
+  formData.append("file", selectedFile);
   formData.append("extractor_mode", extractorMode);
   formData.append("workflow_hint", workflowHint);
 
   setStatus(uploadStatus, "Uploading", "running");
+  setUploadGuidance("Uploading and parsing the document. If OCR is needed, use the text fallback because OCR is not configured in this preview.", false);
   showLoadingCue(buildLoadingStages(`Uploading ${workflowHint.toUpperCase()} file`));
   try {
     const response = await fetch("/workflow/upload", {
@@ -152,11 +164,18 @@ uploadForm.addEventListener("submit", async (event) => {
     }
     renderResult(payload);
     setStatus(uploadStatus, "Completed", "success");
+    setUploadGuidance("Upload complete. Review the recommendation, evidence, and human review status below.", false);
     setWorkspaceReady();
     loadReviewQueue();
   } catch (error) {
+    const friendlyError = buildUploadErrorMessage(error);
     setStatus(uploadStatus, "Run failed", "error");
-    rawJson.textContent = formatError(error);
+    setUploadGuidance(friendlyError, true);
+    entryWorkflowState.textContent = "Upload needs attention";
+    entryWorkflowDetail.textContent = friendlyError;
+    entryAuditState.textContent = "No result generated";
+    entryAuditDetail.textContent = "Try a text-based PDF, .txt file, .md file, or one of the sample cases.";
+    rawJson.textContent = friendlyError;
     setWorkspaceReady();
   } finally {
     hideLoadingCue();
@@ -234,6 +253,40 @@ function hideLoadingCue() {
     loadingCue.hidden = true;
   }
   document.body.classList.remove("workflow-running");
+}
+
+function isSupportedUploadFile(file) {
+  if (!file || !file.name) {
+    return false;
+  }
+  return /\.(pdf|txt|md)$/i.test(file.name);
+}
+
+function setUploadGuidance(message, isError = false) {
+  if (!uploadGuidance) {
+    return;
+  }
+  uploadGuidance.textContent = message;
+  uploadGuidance.classList.toggle("is-error", isError);
+}
+
+function buildUploadErrorMessage(error) {
+  const message = formatError(error);
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("empty")) {
+    return "The uploaded file appears to be empty. Try another file or run a sample case.";
+  }
+  if (normalized.includes("unsupported")) {
+    return "This file type is not supported here. Use a text-based PDF, .txt, or .md file.";
+  }
+  if (normalized.includes("ocr") || normalized.includes("extractable text") || normalized.includes("pdf_text_extraction_empty")) {
+    return "OCR is not configured in this environment. Text-based PDFs and pasted text files still work.";
+  }
+  if (normalized.includes("parse") || normalized.includes("extraction") || normalized.includes("schema")) {
+    return "The document could not be parsed into the expected finance fields. Try a cleaner text-based file or run a sample case.";
+  }
+  return `${message} Try a text-based PDF, .txt, .md, or one of the sample cases.`;
 }
 
 async function loadReviewQueue() {

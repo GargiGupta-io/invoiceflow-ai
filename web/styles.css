@@ -288,6 +288,19 @@ body.workflow-running .workflow-node:nth-child(5) {
   gap: 7px;
 }
 
+.upload-guidance {
+  width: min(100%, 820px);
+  margin: 10px 0 0;
+  color: var(--info);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.upload-guidance.is-error {
+  color: var(--danger);
+}
+
 .loading-cue {
   display: inline-flex;
   align-items: center;
@@ -1386,6 +1399,7 @@ button:disabled {
 
 .empty-state {
   color: var(--muted);
+  line-height: 1.55;
 }
 
 .debug-disclosure {
