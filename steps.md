@@ -321,3 +321,21 @@ The badges now feel calmer and more consistent. Green still means safe, amber st
 ~ modified: web/styles.css
 
 ---
+
+## Step 21 - Add Empty And Error States
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - adds upload guidance that explains supported files and OCR limitations.
+- `web/app.js` - adds client-side file type checks and clearer upload failure messages for empty files, unsupported files, OCR limitations, and parsing failures.
+- `web/styles.css` - styles upload guidance and improves empty-state readability.
+
+**In plain English**
+The upload flow now tells the user what went wrong and what to try next. If a file is missing, unsupported, scanned, empty, or hard to parse, the page gives a direct fallback instead of only showing a generic failure.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+
+---
