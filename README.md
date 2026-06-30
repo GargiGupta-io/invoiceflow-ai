@@ -387,12 +387,15 @@ Workflow responses include:
 
 ### Sample Run
 
-Good sample cases to show:
+The UI focuses on these five demo cases:
 
-- `ap_002_missing_po`
-- `ap_004_duplicate_invoice`
-- `ar_001_first_followup`
-- `ar_003_payment_claim_no_proof`
+| UI case | Sample ID | Expected result |
+| --- | --- | --- |
+| Clean Invoice | `ap_001_clean_invoice` | `approve` |
+| Missing PO Invoice | `ap_002_missing_po` | `missing_info` |
+| Duplicate Invoice Risk | `ap_004_duplicate_invoice` | `review` |
+| High-Value Approval Required | `ap_003_threshold_review` | `review` |
+| AR Overdue Follow-Up | `ar_003_payment_claim_no_proof` | `draft_follow_up` |
 
 ## Evaluation Proof
 
