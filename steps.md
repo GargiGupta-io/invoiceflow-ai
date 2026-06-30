@@ -2,6 +2,21 @@
 
 ---
 
+## Step 36 - Polish Surfaces And Motion
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/styles.css` - adds a cohesive glass surface layer, softer pastel status colors, smoother hover motion, and gentler section separation.
+
+**In plain English**
+The page now feels more unified. Cards, badges, tables, buttons, and workflow elements share the same soft glass style, so the interface reads more like one polished product instead of separate pieces.
+
+**Files changed**
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 35 - Add Unified Workflow Visual
 *Completed: 2026-07-01*
 
