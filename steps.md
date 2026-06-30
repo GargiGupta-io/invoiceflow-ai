@@ -2,6 +2,25 @@
 
 ---
 
+## Step 33 - Add Floating Glass Header
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - turns the top nav into a structured product header with brand, centered section tabs, and system status.
+- `web/app.js` - tracks scroll position so the header can switch into its compact scrolled state.
+- `web/styles.css` - adds the fixed centered header, translucent glass styling, smooth shrink transition, responsive behavior, and ReactBits-style tab hover states.
+
+**In plain English**
+The page now has a real product-style top bar instead of a static header. At the top it feels clean and open, and when someone scrolls it tightens into a translucent floating pill with quick links for the main parts of the product.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/app.js
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 1 - Rewrite README Opening
 *Completed: 2026-06-30*
 
