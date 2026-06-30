@@ -291,3 +291,19 @@ The top of the page now shows the product flow visually before the user reaches 
 ~ modified: web/styles.css
 
 ---
+
+## Step 19 - Add Subtle Motion
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/app.js` - toggles a workflow-running page state while a sample or upload is processing.
+- `web/styles.css` - adds subtle workflow-node motion, running status pulses, active sample highlighting, and reduced-motion safeguards.
+
+**In plain English**
+The page now feels more alive while a workflow is running. The motion is tied to real processing states, so it helps the user understand that extraction, policy retrieval, risk checking, and recommendation work are in progress.
+
+**Files changed**
+~ modified: web/app.js
+~ modified: web/styles.css
+
+---
