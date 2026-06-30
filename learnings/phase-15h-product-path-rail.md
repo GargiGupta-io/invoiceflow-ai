@@ -112,3 +112,51 @@ Plain English: a beginner should now understand that the page has one route thro
 5. Open Evaluation to see quality proof.
 
 The main improvement is that the UI no longer asks the viewer to interpret two competing navigation rows.
+
+### 2026-07-01 - Hero Aurora And Guide Cards
+
+Plain English: the top of the page needed more personality, but it still had to feel like a finance product. A full React migration just to use one visual component would have added build complexity without improving the core workflow, so the page keeps the static frontend and recreates a restrained Soft Aurora-style layer in CSS.
+
+The aurora is intentionally subtle:
+
+- pastel green and warm amber only
+- low opacity
+- slow movement
+- behind the hero content only
+- no heavy 3D or distracting canvas layer
+
+This gives the page more creative identity while preserving the calm operator-console feel.
+
+### Side Cards Became User Guidance
+
+Plain English: the left and right cards previously looked like empty decorative panels. They showed a visual area, but the visual did not teach anything. A first-time viewer could reasonably ask, "What is this supposed to tell me?"
+
+The cards now teach the product flow before any case runs:
+
+- `Current Case` explains: choose, extract, check, decide.
+- `Run Sample` still launches the five curated cases.
+- `Latest Decision` explains: evidence-backed recommendation, review gate, audit trail.
+
+After a workflow runs, those guide cards become live summaries:
+
+- desk: AP or AR
+- party: vendor or customer
+- amount
+- recommendation
+- evidence count
+- review gate
+- mini audit state
+
+This means the same space is useful in both states: empty-state education first, live operational summary second.
+
+### Upload Helper Note
+
+Plain English: the upload note was too visually loud and wrapped into multiple lines on desktop, which made it feel like a major paragraph instead of a small technical caveat.
+
+It now stays on one centered line on desktop and only wraps on narrow screens. The note still explains that OCR is not configured, but it no longer competes with the upload action.
+
+### Files Updated
+
+- `web/index.html` - rewrote the left and right operator cards into guide/live-summary cards.
+- `web/styles.css` - added the aurora layer, guide card styles, mini timeline styles, and one-line upload helper styling.
+- `web/app.js` - writes real case and decision data into the guide cards after a run.
