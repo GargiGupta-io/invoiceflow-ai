@@ -38,6 +38,7 @@ const flowValidationStatus = document.getElementById("flow-validation-status");
 const flowValidationDetail = document.getElementById("flow-validation-detail");
 const flowDecisionStatus = document.getElementById("flow-decision-status");
 const flowDecisionDetail = document.getElementById("flow-decision-detail");
+const guardrailPanel = document.getElementById("guardrail-panel");
 const rawJson = document.getElementById("raw-json");
 const sampleRunButtons = document.querySelectorAll("[data-run-sample]");
 const resultsPanel = document.querySelector(".results-panel");
@@ -663,6 +664,7 @@ function renderResult(payload) {
   renderAgentTrace(agentTraceList, agentTrace);
   renderKeyFields(keyFieldList, extraction, finalDecision.missing_fields || []);
   renderAuditDetails(auditDetailList, audit, finalDecision, evidence);
+  renderGuardrailPanel(guardrailPanel, audit, extraction);
   updateFlowMap(extraction, evidence, audit, finalDecision, workflow.workflow_type);
   renderWhyDecision(whyDecisionList, extraction, policy, finalDecision, evidence, audit, workflow.workflow_type);
 
@@ -1236,6 +1238,116 @@ function renderAuditDetails(container, audit, finalDecision, evidence) {
     card.appendChild(body);
     container.appendChild(card);
   }
+}
+
+function renderGuardrailPanel(container, audit, extraction) {
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const gatewayCalls = Array.isArray(audit.llm_gateway) ? audit.llm_gateway : [];
+  const latestGateway = gatewayCalls[gatewayCalls.length - 1] || {};
+  const stageLatencies = audit.stage_latencies_ms || {};
+  const repair = audit.retrieval_repair || {};
+  const extractionWarnings = extraction.extraction_warnings || [];
+  const missingFields = extraction.missing_fields || [];
+  const tokenTotal = gatewayCalls.reduce((sum, call) => sum + Number(call.total_tokens || 0), 0);
+  const redactionCounts = gatewayCalls.reduce(
+    (counts, call) => {
+      const redactions = call.redaction_counts || {};
+      counts.emails += Number(redactions.emails || 0);
+      counts.phones += Number(redactions.phones || 0);
+      return counts;
+    },
+    { emails: 0, phones: 0 }
+  );
+
+  const cards = [
+    {
+      label: "Prompt version",
+      value: audit.prompt_version || "Not reported",
+      detail: audit.repair_prompt_version
+        ? `Repair prompt: ${audit.repair_prompt_version}`
+        : "Extractor prompt version appears here when reported."
+    },
+    {
+      label: "Extractor mode",
+      value: audit.effective_extractor_mode || "Unknown",
+      detail: audit.requested_extractor_mode && audit.requested_extractor_mode !== audit.effective_extractor_mode
+        ? `Requested ${audit.requested_extractor_mode}, then used ${audit.effective_extractor_mode}.`
+        : `Prompt applied: ${audit.prompt_applied ? "yes" : "no; deterministic fallback or heuristic mode."}`
+    },
+    {
+      label: "Schema validation",
+      value: missingFields.length ? "Passed with missing fields" : "Passed",
+      detail: extractionWarnings.length
+        ? `${extractionWarnings.length} extraction warnings: ${extractionWarnings.slice(0, 2).join(", ")}`
+        : "The backend returned a structured extraction object for this case."
+    },
+    {
+      label: "Repair attempted",
+      value: repair.attempted ? (repair.success ? "Succeeded" : "Failed") : "Not needed",
+      detail: repair.reason || "Retrieval repair only runs when supporting evidence is weak or missing."
+    },
+    {
+      label: "PII redaction",
+      value: gatewayCalls.length ? `${redactionCounts.emails + redactionCounts.phones} items` : "No live call",
+      detail: gatewayCalls.length
+        ? `${redactionCounts.emails} emails and ${redactionCounts.phones} phones redacted before gateway calls.`
+        : "No gateway metadata was recorded for this deterministic/demo run."
+    },
+    {
+      label: "LLM gateway calls",
+      value: String(gatewayCalls.length),
+      detail: latestGateway.model
+        ? `${latestGateway.model} | ${latestGateway.response_format || "response format unknown"}`
+        : "Live LLM mode records model and response-format metadata here."
+    },
+    {
+      label: "Latency by stage",
+      value: audit.total_latency_ms == null ? "Not reported" : `${audit.total_latency_ms} ms total`,
+      detail: formatStageLatencyDetail(stageLatencies)
+    },
+    {
+      label: "Token / cost metadata",
+      value: tokenTotal ? `${tokenTotal} tokens` : "Not available",
+      detail: tokenTotal
+        ? "Token counts are recorded when the configured gateway provider returns usage data."
+        : "Demo mode avoids paid gateway usage, so cost metadata is intentionally absent."
+    }
+  ];
+
+  for (const cardData of cards) {
+    const card = document.createElement("article");
+    card.className = "guardrail-item";
+
+    const label = document.createElement("span");
+    label.textContent = cardData.label;
+
+    const value = document.createElement("strong");
+    value.textContent = cardData.value;
+
+    const detail = document.createElement("p");
+    detail.textContent = cardData.detail;
+
+    card.appendChild(label);
+    card.appendChild(value);
+    card.appendChild(detail);
+    container.appendChild(card);
+  }
+}
+
+function formatStageLatencyDetail(stageLatencies) {
+  const entries = Object.entries(stageLatencies || {}).filter(([, value]) => value != null);
+  if (entries.length === 0) {
+    return "Stage-level latency was not reported for this run.";
+  }
+
+  return entries
+    .map(([label, value]) => `${label.replaceAll("_", " ")}: ${value} ms`)
+    .join(" | ");
 }
 
 function setStatus(node, text, kind) {
