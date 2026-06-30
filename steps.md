@@ -2,6 +2,23 @@
 
 ---
 
+## Step 39 - Move Sample Launch Into Compact Card
+*Completed: 2026-07-01*
+
+**What was built**
+- `web/index.html` - removes the separate sample-card grid and uses the compact sample card as the Cases anchor.
+- `web/styles.css` - makes the compact sample chips read as clickable launch controls with hover, focus, running, and selected states.
+
+**In plain English**
+The extra “Run a focused demo case” section is gone. The five sample names inside the compact card are now the demo launcher, so clicking a case immediately runs that sample without needing a second big card grid below it.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+~ modified: steps.md
+
+---
+
 ## Step 38 - Redesign Operator Snapshot Cards
 *Completed: 2026-07-01*
 
