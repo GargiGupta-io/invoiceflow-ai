@@ -581,18 +581,23 @@ function renderResult(payload) {
 
   if (apDecision) {
     decisionValue.textContent = formatRecommendation(apDecision.recommendation);
-    decisionSummary.textContent = apDecision.reviewer_summary || "No reviewer summary available.";
+    decisionSummary.textContent = apDecision.reviewer_summary
+      ? `Reason: ${apDecision.reviewer_summary}`
+      : "Reason: no reviewer summary was returned.";
     decisionExplainer.textContent = buildDecisionExplanation(apDecision.recommendation, workflow.workflow_type);
     renderTags(anomalyList, (apDecision.anomalies || []).map(mapAnomalyTag), "No anomalies.");
   } else if (arDecision) {
     const arAction = ["medium", "high"].includes(arDecision.escalation_level) ? "escalate" : "draft_follow_up";
+    const arSubject = arDecision.subject || arDecision.followup_subject;
     decisionValue.textContent = formatRecommendation(arAction);
-    decisionSummary.textContent = arDecision.subject || arDecision.followup_subject || "No subject generated.";
+    decisionSummary.textContent = arSubject
+      ? `Draft subject: ${arSubject}`
+      : "Draft subject: no subject generated.";
     decisionExplainer.textContent = buildDecisionExplanation(arDecision.escalation_level, workflow.workflow_type);
     renderTags(anomalyList, (policy.trigger_codes || []).map(mapTriggerTag), "No escalation triggers.");
   } else {
     decisionValue.textContent = "-";
-    decisionSummary.textContent = "No final decision payload returned.";
+    decisionSummary.textContent = "Run a case to see the recommended action and reason.";
     decisionExplainer.textContent = "The main workflow outcome will be explained here after a run.";
     renderTags(anomalyList, [], "No anomalies.");
   }
