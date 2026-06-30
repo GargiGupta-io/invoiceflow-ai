@@ -73,6 +73,10 @@ const evalMentionRate = document.getElementById("eval-mention-rate");
 const evalLatency = document.getElementById("eval-latency");
 const evalGeneratedAt = document.getElementById("eval-generated-at");
 const siteHeader = document.querySelector(".site-header");
+const headerTabs = document.querySelectorAll(".site-header .header-tab");
+const captureSection = document.getElementById("capture");
+const productPathSection = document.querySelector(".manifesto-band");
+const workspace = document.getElementById("workspace");
 const tabButtons = document.querySelectorAll("[data-tab-target]");
 const tabPanels = document.querySelectorAll("[data-tab-panel]");
 const visibleDemoCases = {
@@ -111,6 +115,7 @@ for (const button of tabButtons) {
     const target = button.dataset.tabTarget;
     if (target) {
       activateTab(target);
+      scrollWorkspaceIntoView();
     }
   });
 }
@@ -210,6 +215,14 @@ function activateTab(targetTab) {
   for (const panel of tabPanels) {
     panel.hidden = panel.dataset.tabPanel !== targetTab;
   }
+  syncHeaderState();
+}
+
+function scrollWorkspaceIntoView() {
+  if (!workspace) {
+    return;
+  }
+  workspace.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function syncHeaderState() {
@@ -217,6 +230,36 @@ function syncHeaderState() {
     return;
   }
   siteHeader.classList.toggle("is-scrolled", window.scrollY > 28);
+  syncActiveHeaderTab();
+}
+
+function syncActiveHeaderTab() {
+  if (headerTabs.length === 0) {
+    return;
+  }
+
+  const scrollPosition = window.scrollY + 150;
+  const captureTop = captureSection ? window.scrollY + captureSection.getBoundingClientRect().top : Number.POSITIVE_INFINITY;
+  const productPathTop = productPathSection ? window.scrollY + productPathSection.getBoundingClientRect().top : Number.POSITIVE_INFINITY;
+  const activePanel = document.querySelector("[data-tab-panel]:not([hidden])");
+  const activePanelName = activePanel ? activePanel.dataset.tabPanel : "workflow";
+
+  let activeHeader = "top";
+  if (scrollPosition >= productPathTop) {
+    activeHeader = activePanelName;
+  } else if (scrollPosition >= captureTop) {
+    activeHeader = "capture";
+  }
+
+  for (const tab of headerTabs) {
+    const tabTarget = tab.dataset.tabTarget || "";
+    const anchorTarget = tab.getAttribute("href") ? tab.getAttribute("href").replace("#", "") : "";
+    const isActive = tabTarget === activeHeader || anchorTarget === activeHeader;
+    tab.classList.toggle("is-active", isActive);
+    if (tab.hasAttribute("aria-pressed")) {
+      tab.setAttribute("aria-pressed", String(isActive));
+    }
+  }
 }
 
 function setWorkspaceReady() {
