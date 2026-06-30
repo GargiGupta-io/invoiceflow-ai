@@ -24,6 +24,41 @@ Select or upload an invoice/AR case
 
 Review faster. Decide with evidence. Escalate safely.
 
+## The Problem
+
+Finance teams spend time manually checking invoices, matching policy rules,
+identifying missing purchase orders, reviewing payment terms, and writing
+follow-up emails for overdue invoices.
+
+Generic AI chat tools are not enough because finance workflows need structure,
+evidence, repeatability, and human approval. A finance operator needs to know
+what action to take, why that action is supported, and when a person should
+review the case before anything moves forward.
+
+## What InvoiceFlow Does
+
+InvoiceFlow turns invoice and receivables work into a reviewable workflow:
+
+```text
+Input
+  -> extracted facts
+  -> AP/AR route
+  -> policy evidence
+  -> risk checks
+  -> recommendation or draft
+  -> human review gate
+  -> audit trail
+```
+
+| Input | Output |
+| --- | --- |
+| Invoice PDF | Extracted vendor, invoice number, amount, due date, PO status, payment terms, and line items. |
+| Invoice text | AP workflow route, missing-field checks, anomaly list, policy evidence, and recommendation. |
+| Overdue invoice case | AR route, escalation level, safe follow-up subject, and follow-up draft. |
+| Customer finance email | Payment-claim checks, missing-proof flags, reminder guidance, and review status. |
+| Finance policy documents | Retrieved policy evidence with source names, citation IDs, and decision influence. |
+| Workflow result | Confidence/risk summary, human review decision, tool trace, audit metadata, and raw JSON for debugging. |
+
 ## Product Snapshot
 
 ```text
