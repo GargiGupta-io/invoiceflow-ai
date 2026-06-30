@@ -16,6 +16,20 @@ The project now explains itself immediately. A reader sees that InvoiceFlow AI i
 
 ---
 
+## Step 4 - Add Trust And Client Framing
+*Completed: 2026-06-30*
+
+**What was built**
+- `README.md` - adds safety and privacy language, demo mode versus live AI mode, client adaptation ideas, and a clear skills-demonstrated section.
+
+**In plain English**
+The README now explains why the project feels safer and more commercially useful. A viewer can see that the demo works without paid API keys, risky cases go to human review, and the same product shape could be customized for real client finance workflows.
+
+**Files changed**
+~ modified: README.md
+
+---
+
 ## Step 3 - Add Best Demo Path
 *Completed: 2026-06-30*
 
