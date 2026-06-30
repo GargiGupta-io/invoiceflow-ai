@@ -2619,11 +2619,39 @@ body {
   padding: 9px 12px;
   background: rgba(255, 251, 241, 0.58);
   color: var(--ink);
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease, color 180ms ease;
 }
 
 .sample-preview .sample-chips button:nth-child(2),
 .sample-preview .sample-chips button:nth-child(5) {
   transform: translateY(10px);
+}
+
+.sample-preview .sample-chips button:hover,
+.sample-preview .sample-chips button:focus-visible {
+  background: rgba(236, 249, 241, 0.82);
+  color: #477564;
+  box-shadow: 0 14px 30px rgba(95, 146, 127, 0.14);
+}
+
+.sample-preview .sample-chips button:nth-child(2):hover,
+.sample-preview .sample-chips button:nth-child(2):focus-visible,
+.sample-preview .sample-chips button:nth-child(5):hover,
+.sample-preview .sample-chips button:nth-child(5):focus-visible {
+  transform: translateY(8px) scale(1.02);
+}
+
+.sample-preview .sample-chips button:not(:nth-child(2)):not(:nth-child(5)):hover,
+.sample-preview .sample-chips button:not(:nth-child(2)):not(:nth-child(5)):focus-visible {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.sample-preview .sample-chips button.is-running,
+.sample-preview .sample-chips button.is-selected {
+  background: rgba(236, 249, 241, 0.9);
+  color: #477564;
+  box-shadow: 0 16px 34px rgba(95, 146, 127, 0.16);
 }
 
 .audit-preview {
