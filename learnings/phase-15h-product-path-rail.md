@@ -1,191 +1,158 @@
-# Phase 15H: Product Path Rail
+# Phase 15H: Current Hero, Guide Cards, And Product Path
 
-> The six-step workflow rail now lives inside the Product Path section, directly under the “One readable route” heading.
+> The top of InvoiceFlow now uses a full-width product hero, a guided sample section, and a four-stage Product Path that controls the main workflow views.
 
 ---
 
 ## In Plain English
 
-The page had two product-path explanations: the visual workflow rail near the top and the Product Path section lower down with chips and a paragraph. That repeated the same idea in two different styles.
+This document describes the current InvoiceFlow interface, not the older visual experiments that have been replaced.
 
-This update moves the visual rail into the Product Path section and removes the extra chips and paragraph. Now the section is simpler: heading first, workflow rail second.
+The page now starts like a real product page: the hero spans the full browser width, the aurora background is a visible ribbon rather than a boxed poster, and the main content is still kept readable inside controlled inner widths.
+
+The page is meant to guide a first-time viewer in this order:
+
+1. Understand the product promise.
+2. Understand AP and AR.
+3. Start a review by uploading a file or running a sample.
+4. Read the “What's inside?” cards.
+5. Use the Product Path to open Summary, Evidence, Review, or Evaluation.
 
 ## What Changed
 
-### Moved Workflow Rail
+### Full-Width Hero
 
-Plain English: the visual path now appears where the Product Path heading is.
+Plain English: the hero no longer looks like a card with hard side borders.
 
-The `workflow-orbit` block moved from the hero area into the `manifesto-band` section.
+The page shell was widened so the hero can span the full viewport. The content inside the hero is still constrained so the text and form do not stretch too wide.
 
-### Removed Extra Copy
+This makes the top of the page feel more like a polished product site instead of a student project section.
 
-Plain English: the section no longer explains the path twice.
+### Soft Aurora Background
 
-The old path chips and paragraph were removed:
+Plain English: the background now has a visible glow ribbon inspired by the React Bits Soft Aurora component.
 
-- Select or upload
-- Extract facts
-- Check policy
-- Detect risk
-- Recommend action
-- Save audit trail
+The project does not have a React frontend layer, so the aurora was recreated in CSS rather than adding a full React/Vite setup just for one visual effect.
 
-The rail now carries that job visually.
+The aurora uses InvoiceFlow colors:
+
+- soft green
+- warm amber
+- cream highlight
+
+It should feel creative, but still calm enough for a finance workflow product.
+
+### Start The Review
+
+Plain English: this section tells the user where to begin.
+
+`Start the review` is now a real heading, not a tiny label. On desktop it aligns with the upload form so the section reads like one connected block.
+
+The upload row keeps:
+
+- AP/AR workflow selector
+- file picker
+- upload button
+- small OCR/text fallback note
+
+### What's Inside
+
+Plain English: this section explains the three cards below it.
+
+The heading separates the guide cards from the upload form. Without it, the cards looked like random boxes attached to the form.
+
+The three cards are:
+
+- `Current Case`
+- `Sample Cases`
+- `Latest Decision`
+
+Before a workflow runs, they teach the user what the product does. After a workflow runs, they become live summaries.
+
+### Current Case Card
+
+Plain English: this card explains the path from choosing a case to getting a recommendation.
+
+Before a run it shows:
+
+- Choose AP invoice or AR follow-up
+- Extract vendor/customer/amount
+- Check policy and risk signals
+- Decide approve/review/follow-up
+
+After a run it updates with:
+
+- AP or AR desk
+- vendor or customer
+- amount
+- recommendation
+
+### Sample Cases Card
+
+Plain English: this is the fastest way to demo the product.
+
+It shows five curated cases:
+
+- Clean Invoice
+- Missing PO
+- Duplicate Risk
+- High-Value
+- AR Overdue
+
+The `Run sample` label is plain text now, not a pill. The sample buttons have enough vertical room, and the fade overlay no longer blocks the AR Overdue button.
+
+### Latest Decision Card
+
+Plain English: this card shows whether the output is evidence-backed and review-safe.
+
+Before a run it explains:
+
+- recommendation is evidence-first
+- policy evidence matters
+- human review gate matters
+- extraction, policy, and decision form a mini audit trail
+
+After a run it updates with:
+
+- recommendation
+- evidence count
+- review gate status
+- mini audit timeline
+
+### Product Path Navigation
+
+Plain English: the old separate Product Path and tab row have been merged.
+
+There is now one four-stage navigation:
+
+- `Case Summary` - Invoice + Extract
+- `Evidence` - Policy + Risk
+- `Review` - Decision + Audit
+- `Evaluation` - Quality checks
+
+Clicking these stages changes the main workspace panel. This avoids showing two competing navigation rows that seemed to mean the same thing.
+
+## Current Files
+
+- `web/index.html` - contains the hero, upload form, guide cards, and Product Path buttons.
+- `web/styles.css` - controls the aurora, full-width hero layout, card spacing, sample buttons, and Product Path styling.
+- `web/app.js` - fills guide cards with live case data after a sample or upload run.
 
 ## Verification
 
-- `node --check web/app.js` passed.
-- Local `/ui` served successfully.
-- There is one `workflow-orbit` in `web/index.html`.
-- Backend and workflow behavior were not changed.
+- `node --check web/app.js` passed after the latest UI changes.
+- The backend health endpoint returned OK during these checks.
+- Obsolete docs for the removed workflow-orbit visual and older card experiments were deleted.
 
-## Updates
+## Beginner Test
 
-### 2026-07-01 - Product Path Became The Workspace Navigation
+A beginner should understand the page like this:
 
-Plain English: the page used to have a visual product path and then a separate tab row below it. That made the viewer ask, "Are these two different things?" The answer was no: both were trying to control the same mental model. The Product Path is the route through the workflow, and the workspace tabs are the places where the user inspects that route.
+1. InvoiceFlow reviews invoice and receivables workflows.
+2. AP means vendor invoice review.
+3. AR means overdue customer payment follow-up.
+4. They can upload a file or click a sample case.
+5. The cards explain what the system checks.
+6. The Product Path opens the evidence, review, and evaluation details.
 
-The fix was to merge them. The Product Path section now has four clickable stages:
-
-- `Case Summary` - covers invoice intake and extracted facts.
-- `Evidence` - covers policy retrieval and risk/anomaly reasoning.
-- `Review` - covers the recommendation, human gate, and audit trail.
-- `Evaluation` - covers quality checks and reliability proof.
-
-This keeps the original six-step story, but groups it into four readable screens. A user does not need to decide whether to use the path or the tabs. The path is the navigation.
-
-### Why Four Stages Instead Of Six
-
-Plain English: six small labels looked like a timeline, but four larger choices work better as clickable destinations.
-
-The six-step route still exists conceptually:
-
-1. Invoice
-2. Extract
-3. Policy
-4. Risk
-5. Decision
-6. Audit
-
-The UI now groups those into the actual views:
-
-1. `Invoice + Extract` becomes `Case Summary`.
-2. `Policy + Risk` becomes `Evidence`.
-3. `Decision + Audit` becomes `Review`.
-4. Quality checks become `Evaluation`.
-
-This is easier because the user sees both the product path and the screen purpose in one place.
-
-### Header Highlight Behavior
-
-Plain English: the top header should not glow on a workspace tab while the user is still looking at the hero. That made the page feel like it was already inside the decision section before the user had chosen anything.
-
-The header now tracks page position:
-
-- Near the hero, `Overview` is active.
-- Near the sample launcher, `Cases` is active.
-- Near the workflow area, the selected workspace view is active.
-
-This makes the header behave like a site map, while the Product Path rail behaves like the workflow switcher.
-
-### Upload Helper Text
-
-Plain English: the upload support sentence was visually too loud for something that is only a small note.
-
-The line now uses a smaller font and lighter treatment. It still tells users what files work and why scanned PDFs may need a text fallback, but it no longer competes with the upload controls.
-
-### Files Updated
-
-- `web/index.html` - removed the separate lower tab row and added the merged Product Path navigation cards.
-- `web/styles.css` - added the Product Path card styling, active state, responsive layout, and smaller helper note style.
-- `web/app.js` - added header state synchronization and workspace scrolling when a workflow view is selected.
-
-### Beginner Test
-
-Plain English: a beginner should now understand that the page has one route through the workflow:
-
-1. Choose or upload a case.
-2. Open Case Summary to see what was extracted.
-3. Open Evidence to see why the decision is grounded.
-4. Open Review to see the human action and audit trail.
-5. Open Evaluation to see quality proof.
-
-The main improvement is that the UI no longer asks the viewer to interpret two competing navigation rows.
-
-### 2026-07-01 - Hero Aurora And Guide Cards
-
-Plain English: the top of the page needed more personality, but it still had to feel like a finance product. A full React migration just to use one visual component would have added build complexity without improving the core workflow, so the page keeps the static frontend and recreates a restrained Soft Aurora-style layer in CSS.
-
-The aurora is intentionally subtle:
-
-- pastel green and warm amber only
-- low opacity
-- slow movement
-- behind the hero content only
-- no heavy 3D or distracting canvas layer
-
-This gives the page more creative identity while preserving the calm operator-console feel.
-
-### Side Cards Became User Guidance
-
-Plain English: the left and right cards previously looked like empty decorative panels. They showed a visual area, but the visual did not teach anything. A first-time viewer could reasonably ask, "What is this supposed to tell me?"
-
-The cards now teach the product flow before any case runs:
-
-- `Current Case` explains: choose, extract, check, decide.
-- `Run Sample` still launches the five curated cases.
-- `Latest Decision` explains: evidence-backed recommendation, review gate, audit trail.
-
-After a workflow runs, those guide cards become live summaries:
-
-- desk: AP or AR
-- party: vendor or customer
-- amount
-- recommendation
-- evidence count
-- review gate
-- mini audit state
-
-This means the same space is useful in both states: empty-state education first, live operational summary second.
-
-### Upload Helper Note
-
-Plain English: the upload note was too visually loud and wrapped into multiple lines on desktop, which made it feel like a major paragraph instead of a small technical caveat.
-
-It now stays on one centered line on desktop and only wraps on narrow screens. The note still explains that OCR is not configured, but it no longer competes with the upload action.
-
-### Files Updated
-
-- `web/index.html` - rewrote the left and right operator cards into guide/live-summary cards.
-- `web/styles.css` - added the aurora layer, guide card styles, mini timeline styles, and one-line upload helper styling.
-- `web/app.js` - writes real case and decision data into the guide cards after a run.
-
-### 2026-07-01 - Aurora Needed A Clear Ribbon
-
-Plain English: the first aurora pass was too subtle. It added atmosphere, but it did not look like the React Bits Soft Aurora reference because there was no obvious glowing ribbon across the hero.
-
-The correction makes the aurora visible by adding:
-
-- a horizontal wave band across the hero
-- stronger green and amber glow pockets
-- a bright cream center ribbon
-- slow drift animation
-- final CSS overrides so the ribbon wins over older hero background rules
-
-The goal is still not to copy the neon React Bits palette. The project keeps InvoiceFlow's calmer finance palette, but the effect now reads as an actual aurora instead of a flat background wash.
-
-### 2026-07-01 - Section Spacing And Sample Clickability
-
-Plain English: the page needed clearer separation between the upload action and the three explanatory cards. Without a heading, the cards felt like they were part of the upload form instead of their own “what this product contains” section.
-
-The fix adds a `What's inside?` heading above the three cards, similar to the reference layout where a section title introduces a card grid. The upload area also now uses a larger `Start the review` heading instead of a tiny eyebrow label.
-
-The sample launcher was also corrected:
-
-- `Run sample` is plain label text, not a pill.
-- The card’s fade overlay no longer catches pointer events.
-- The sample list has enough vertical room for all five buttons.
-- `AR Overdue` should now be clickable like the other sample cases.
-
-This improves both clarity and basic usability.
+This is the current source of truth for the top-page UI.
