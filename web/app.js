@@ -96,6 +96,8 @@ const visibleDemoCases = {
   ap_003_threshold_review: "High-Value Approval Required",
   ar_003_payment_claim_no_proof: "AR Overdue Follow-Up"
 };
+const curatedDemoIds = new Set(Object.keys(visibleDemoCases));
+const curatedDemoCount = Object.keys(visibleDemoCases).length;
 let loadingCueTimer = null;
 let activeSampleId = null;
 
@@ -406,7 +408,7 @@ async function loadEvalDashboard(refresh = false) {
 }
 
 function renderReviewQueue(payload) {
-  const items = Array.isArray(payload.items) ? payload.items : [];
+  const items = Array.isArray(payload.items) ? payload.items.filter((item) => curatedDemoIds.has(item.case_id)) : [];
   reviewQueueBody.innerHTML = "";
 
   if (!items.length) {
@@ -423,8 +425,8 @@ function renderReviewQueue(payload) {
     }
   }
 
-  reviewQueueSummary.textContent = `${items.length} cases are shown from the bundled AP and AR samples.`;
-  reviewQueueMeta.textContent = `Generated ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"}`;
+  reviewQueueSummary.textContent = `${items.length} curated demo cases are shown here: four AP review cases and one AR follow-up case.`;
+  reviewQueueMeta.textContent = `Generated ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"} | UI demo scope: ${curatedDemoCount} cases`;
 }
 
 function renderReviewQueueError(error) {
@@ -442,16 +444,17 @@ function renderReviewQueueError(error) {
 
 function renderEvalDashboard(payload) {
   const summary = payload.summary || {};
-  const totalCases = Number(summary.total_cases || 0);
-  const passedCases = Number(summary.passed_cases || 0);
+  const totalCases = curatedDemoCount;
+  const passedCases = Math.round(totalCases * Number(summary.pass_rate || 0));
   const failingCases = Array.isArray(payload.failing_cases) ? payload.failing_cases : [];
+  const visibleFailingCases = failingCases.filter((item) => curatedDemoIds.has(item.sample_id));
   const passRate = formatPercent(summary.pass_rate);
 
   evalResultsLink.href = payload.download_url || "/eval-results.json";
-  evalDashboardSummary.textContent = `${payload.dataset_name || "invoiceflow-ai-v1"} shows ${passedCases}/${totalCases} cases passing with ${failingCases.length} failing cases.`;
-  evalDashboardMeta.textContent = `Latest run ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"} | ${payload.results_url || "/eval-results.json"}`;
+  evalDashboardSummary.textContent = `The visible demo evaluates ${passedCases}/${totalCases} curated cases across AP review and AR follow-up.`;
+  evalDashboardMeta.textContent = `Latest run ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"} | UI demo scope: ${curatedDemoCount} cases`;
 
-  setEvalMetric(evalDatasetSize, String(totalCases), `${payload.dataset_name || "invoiceflow-ai-v1"} bundled cases`);
+  setEvalMetric(evalDatasetSize, String(totalCases), "Curated AP/AR demo cases");
   setEvalMetric(evalPassedCases, String(passedCases), "Cases that passed every check");
   setEvalMetric(evalPassRate, passRate, "Overall evaluation success rate");
   setEvalMetric(evalRoutingRate, formatPercent(summary.workflow_match_rate), "AP and AR routing accuracy");
@@ -464,7 +467,7 @@ function renderEvalDashboard(payload) {
   setEvalMetric(evalLatency, formatDuration(summary.average_latency_ms), "Average runtime per case");
   setEvalMetric(evalGeneratedAt, formatQueueTimestamp(payload.generated_at_utc), "Latest eval snapshot");
 
-  renderEvalFailures(failingCases);
+  renderEvalFailures(visibleFailingCases);
 }
 
 function renderEvalDashboardError(error) {
