@@ -408,3 +408,18 @@ The repo now has fresh screenshots that match the current product UI. A reviewer
 ~ modified: steps.md
 
 ---
+
+## Step 26 - Update Demo Walkthrough
+*Completed: 2026-06-30*
+
+**What was built**
+- `docs/showcase.md` - adds a best demo path and rewrites the 75-second script around the current operator entry, AP Missing PO, Evidence & Reasoning, Human Review & Audit, AR Overdue Follow-Up, and Evaluation views.
+
+**In plain English**
+The demo now has a clear script for what to click and what to say. Someone showing the project can walk through the product in order instead of jumping between random technical pieces.
+
+**Files changed**
+~ modified: docs/showcase.md
+~ modified: steps.md
+
+---
