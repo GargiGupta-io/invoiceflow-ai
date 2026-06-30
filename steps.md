@@ -353,3 +353,17 @@ The page now behaves better on smaller screens. Controls stack cleanly, buttons 
 ~ modified: web/styles.css
 
 ---
+
+## Step 23 - Add Compact Evaluation Table
+*Completed: 2026-06-30*
+
+**What was built**
+- `README.md` - adds a compact five-case evaluation proof table under Evaluation Proof.
+
+**In plain English**
+The README now shows the expected result, actual result, and pass status for the five main demo cases before the technical eval commands. A reviewer can see that the core workflows are checked without reading the full eval implementation first.
+
+**Files changed**
+~ modified: README.md
+
+---
