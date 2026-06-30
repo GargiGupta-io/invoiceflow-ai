@@ -193,3 +193,19 @@ The result now starts by answering what the operator should do, why, how risky i
 ~ modified: web/styles.css
 
 ---
+
+## Step 13 - Hide Debug And Raw JSON
+*Completed: 2026-06-30*
+
+**What was built**
+- `web/index.html` - turns the raw backend response into a compact Advanced Debug disclosure instead of a visible debug panel.
+- `web/styles.css` - gives the debug disclosure quieter spacing and secondary styling so it stays available without dominating the Evidence & Reasoning tab.
+
+**In plain English**
+The page now keeps technical JSON available for engineers, but normal users do not have to look at it first. The result flow stays focused on the recommendation, evidence, and review path.
+
+**Files changed**
+~ modified: web/index.html
+~ modified: web/styles.css
+
+---
