@@ -2323,6 +2323,8 @@ html {
   .site-header-inner,
   .site-header.is-scrolled .site-header-inner {
     width: 100%;
+    gap: 8px;
+    padding: 8px 10px;
   }
 
   .site-header .brand-name,
@@ -2330,10 +2332,23 @@ html {
     display: none;
   }
 
+  .header-tabs {
+    justify-content: flex-start;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .header-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
   .header-tab {
-    min-height: 32px;
-    padding: 8px 10px;
-    font-size: 0.78rem;
+    flex: 0 0 auto;
+    min-height: 30px;
+    padding: 7px 9px;
+    font-size: 0.74rem;
   }
 }
 
