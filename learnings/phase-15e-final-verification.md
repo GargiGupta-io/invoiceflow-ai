@@ -54,11 +54,20 @@ Result:
 - Pass rate: `100%`
 - Failing cases: `0`
 
-## Browser Check Limitation
+## Browser And Packaging Update
 
-The in-app browser control surface was unavailable. The available browser list returned empty, so no browser screenshot or click-through verification was performed.
+On July 1, Playwright browser capture was enabled by downloading the matching Chromium build and running `scripts/capture_screenshots.mjs`. The screenshots in `docs/screenshots/` were refreshed for the overview, AP Missing PO result, evidence panel, review queue, evaluation dashboard, AR follow-up, and mobile review queue.
+
+The mobile review queue was also checked visually. The old table collapse was replaced with stacked mobile cards so each case shows case ID, workflow, recommendation, risk, reason, time, and status in a readable order.
+
+Deployment readiness was added with:
+
+- `runtime.txt` pinned to Python 3.11.
+- `render.yaml` using `uvicorn api.main:app --host 0.0.0.0 --port $PORT`.
+- README deployment notes for Render and deterministic demo mode.
+
+Local Python 3.11 verification is still blocked on this machine because `python3.11`, `pyenv`, and `brew` are not installed. CI remains configured for Python 3.11.
 
 ## What This Means
 
-The product still works at the code and API level after the creative UI phase. A manual browser review is still useful for judging aesthetics, spacing, and exact scroll behavior, but the core app checks passed.
-
+The product still works at the code and API level after the creative UI phase. The updated screenshot set now reflects the current product surface, and the remaining deployment step is connecting the repo to a hosting provider account.
