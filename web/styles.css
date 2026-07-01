@@ -3761,22 +3761,27 @@ body.case-selected .queue-table td:nth-child(4) {
 
 body.case-selected .queue-table th:nth-child(5),
 body.case-selected .queue-table td:nth-child(5) {
-  width: 24%;
+  width: 22%;
 }
 
 body.case-selected .queue-table th:nth-child(6),
 body.case-selected .queue-table td:nth-child(6) {
-  width: 11%;
+  width: 8%;
 }
 
 body.case-selected .queue-table th:nth-child(7),
 body.case-selected .queue-table td:nth-child(7) {
-  width: 13%;
+  width: 17%;
+}
+
+body.case-selected .queue-time {
+  white-space: pre-line;
+  line-height: 1.25;
 }
 
 body.case-selected .queue-status {
-  padding: 5px 9px;
-  font-size: 0.68rem;
+  padding: 6px 10px;
+  font-size: 0.7rem;
   white-space: nowrap;
 }
 

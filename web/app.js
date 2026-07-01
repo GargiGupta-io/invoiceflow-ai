@@ -675,12 +675,15 @@ function formatQueueTableTimestamp(timestamp) {
   if (Number.isNaN(date.getTime())) {
     return timestamp;
   }
-  return new Intl.DateTimeFormat("en-US", {
+  const datePart = new Intl.DateTimeFormat("en-US", {
     month: "short",
-    day: "2-digit",
+    day: "2-digit"
+  }).format(date);
+  const timePart = new Intl.DateTimeFormat("en-US", {
     hour: "numeric",
     minute: "2-digit"
   }).format(date);
+  return `${datePart}\n${timePart}`;
 }
 
 function formatPercent(value) {
