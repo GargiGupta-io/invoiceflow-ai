@@ -59,3 +59,6 @@ This phase supports the creative direction without adding heavy 3D or random eff
 - Changes were limited to `web/styles.css`.
 - Backend, JavaScript behavior, samples, README, and eval logic were not touched.
 
+## Updates
+
+- 2026-07-01 - Added a lightweight Grid Scan backdrop to the active result area. The effect lives in `web/styles.css` on `body.case-selected .results-panel` and uses CSS pseudo-elements instead of adding React or a new dependency. The intent is to make the recommendation area feel like an active review surface while keeping evidence, review, and evaluation screens readable.
