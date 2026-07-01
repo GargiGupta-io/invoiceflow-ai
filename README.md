@@ -2,7 +2,11 @@
 
 AI-assisted invoice review and receivables follow-up for finance teams.
 
+[![InvoiceFlow CI](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml/badge.svg)](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/GargiGupta-io/invoiceflow-ai)
+
+Live demo: `https://invoiceflow-ai-a9yq.onrender.com/ui`  
+Health check: `https://invoiceflow-ai-a9yq.onrender.com/health`
 
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
 risky information, retrieve policy evidence, draft AR follow-ups, and route
@@ -216,7 +220,7 @@ Implemented:
 
 Still worth improving:
 - production-grade OCR/runtime setup
-- hosted deployment and final demo recording
+- final demo walkthrough recording
 - LLM-based AP/AR decision drafting behind the existing schemas
 - cost and token tracking for LLM mode
 
@@ -366,6 +370,9 @@ Deploy from GitHub:
 Hosted demo: `https://invoiceflow-ai-a9yq.onrender.com/ui`
 Health check: `https://invoiceflow-ai-a9yq.onrender.com/health`
 Demo video: pending final recording.
+
+Note: Render free-tier deployments may take up to a minute to wake on first
+load.
 
 ## Technical UI And API Reference
 
@@ -525,8 +532,7 @@ Default CI thresholds require:
 - The guardrails gateway currently covers LLM extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- Local demo mode is available now through `/ui`; hosted demo and video links are
-  pending until deployment is finalized.
+- Demo video is pending final recording.
 
 ## Next Improvements
 
@@ -538,4 +544,4 @@ Default CI thresholds require:
 - add multi-tenant organization support
 - add cost tracking for LLM calls and per-case runtime metadata
 - add real tool-calling agent behavior after the current deterministic baseline
-- publish the hosted demo URL and short walkthrough video for portfolio sharing
+- record a short walkthrough video for portfolio sharing
