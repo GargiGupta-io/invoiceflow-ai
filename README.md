@@ -214,7 +214,7 @@ Implemented:
 
 Still worth improving:
 - production-grade OCR/runtime setup
-- live deployment and final demo recording
+- hosted deployment and final demo recording
 - LLM-based AP/AR decision drafting behind the existing schemas
 - cost and token tracking for LLM mode
 
@@ -325,9 +325,9 @@ invoiceflow-ai/
 From the project root:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 uvicorn api.main:app --reload
 ```
 
@@ -494,7 +494,8 @@ Default CI thresholds require:
 - The guardrails gateway currently covers LLM extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- The UI is a local operator console, not a deployed production dashboard.
+- Local demo mode is available now through `/ui`; hosted demo and video links are
+  pending until deployment is finalized.
 
 ## Next Improvements
 
@@ -506,4 +507,4 @@ Default CI thresholds require:
 - add multi-tenant organization support
 - add cost tracking for LLM calls and per-case runtime metadata
 - add real tool-calling agent behavior after the current deterministic baseline
-- record a short demo video and a hosted demo URL for portfolio sharing
+- publish the hosted demo URL and short walkthrough video for portfolio sharing
