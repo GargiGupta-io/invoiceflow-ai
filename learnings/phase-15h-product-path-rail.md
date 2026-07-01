@@ -244,5 +244,6 @@ A beginner should understand the page like this:
 - 2026-07-01 - Evidence and evaluation details now use collapsed sections so the default read stays decision-first.
 - 2026-07-01 - The selected-case Summary view was tested as a cleaner case-sheet layout with fewer boxed sections and shorter visible result copy.
 - 2026-07-01 - Evidence, Review, and Evaluation were restyled to match the case-sheet approach with shorter labels, row-based proof sections, and compact quality metrics.
+- 2026-07-01 - Review queue labels were tightened so AR cases show `Draft Follow-Up` instead of raw escalation level, status pills avoid awkward wrapping, and demo sample buttons now show distinct trigger subtitles.
 
 This is the current source of truth for the top-page UI.
