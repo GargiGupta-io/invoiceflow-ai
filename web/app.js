@@ -838,9 +838,7 @@ function renderResult(payload) {
 
   if (apDecision) {
     decisionValue.textContent = formatRecommendation(apDecision.recommendation);
-    decisionSummary.textContent = apDecision.reviewer_summary
-      ? shortDecisionSummary(apDecision.reviewer_summary)
-      : "No reviewer summary was returned.";
+    decisionSummary.textContent = buildApDecisionSummary(apDecision);
     decisionExplainer.textContent = buildDecisionExplanation(apDecision.recommendation, workflow.workflow_type);
     renderTags(anomalyList, (apDecision.anomalies || []).map(mapAnomalyTag), "No anomalies.");
   } else if (arDecision) {
@@ -1188,6 +1186,22 @@ function buildRiskText(risk) {
 function shortDecisionSummary(summary) {
   const firstSentence = String(summary || "").split(".")[0].trim();
   return firstSentence ? `${firstSentence}.` : "Review the extracted fields and evidence.";
+}
+
+function buildApDecisionSummary(apDecision) {
+  const summary = apDecision.reviewer_summary
+    ? shortDecisionSummary(apDecision.reviewer_summary)
+    : "No reviewer summary was returned.";
+  const anomalyCodes = (apDecision.anomalies || [])
+    .map((anomaly) => String(anomaly.code || "").toLowerCase());
+
+  if (anomalyCodes.some((code) => code.includes("duplicate"))) {
+    return `Duplicate invoice detected. ${summary}`;
+  }
+  if (anomalyCodes.some((code) => code.includes("threshold") || code.includes("approval"))) {
+    return `Approval threshold exceeded. ${summary}`;
+  }
+  return summary;
 }
 
 function updateEntryRunSummary(workflow, finalDecision, evidence, audit, extraction = {}) {
