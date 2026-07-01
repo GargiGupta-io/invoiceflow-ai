@@ -2,6 +2,8 @@
 
 AI-assisted invoice review and receivables follow-up for finance teams.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/GargiGupta-io/invoiceflow-ai)
+
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
 risky information, retrieve policy evidence, draft AR follow-ups, and route
 uncertain cases to human review with a full audit trail.
@@ -354,7 +356,15 @@ The repo includes:
 - `runtime.txt` for Python 3.11 pinning
 - `render.yaml` for Render blueprint deployment
 
-Hosted demo URL: pending final deployment.
+Deploy from GitHub:
+
+1. Open the Render deploy link at the top of this README.
+2. Connect the public repo: `GargiGupta-io/invoiceflow-ai`.
+3. Keep the blueprint defaults from `render.yaml`.
+4. After the deploy finishes, open `/health` and `/ui`.
+
+Hosted demo: `https://invoiceflow-ai-a9yq.onrender.com/ui`
+Health check: `https://invoiceflow-ai-a9yq.onrender.com/health`
 Demo video: pending final recording.
 
 ## Technical UI And API Reference
