@@ -115,11 +115,26 @@
             <div class="entry-visual sample-preview">
               <span class="sample-preview-label">Run sample</span>
               <div class="sample-chips" aria-label="Highlighted samples">
-                <button type="button" data-run-sample="ap_001_clean_invoice">Clean Invoice</button>
-                <button type="button" data-run-sample="ap_002_missing_po">Missing PO</button>
-                <button type="button" data-run-sample="ap_004_duplicate_invoice">Duplicate Risk</button>
-                <button type="button" data-run-sample="ap_003_threshold_review">High-Value</button>
-                <button type="button" data-run-sample="ar_003_payment_claim_no_proof">AR Overdue</button>
+                <button type="button" data-run-sample="ap_001_clean_invoice">
+                  <span>Clean Invoice</span>
+                  <small>No blocking issue</small>
+                </button>
+                <button type="button" data-run-sample="ap_002_missing_po">
+                  <span>Missing PO</span>
+                  <small>PO required</small>
+                </button>
+                <button type="button" data-run-sample="ap_004_duplicate_invoice">
+                  <span>Duplicate Risk</span>
+                  <small>Duplicate invoice detected</small>
+                </button>
+                <button type="button" data-run-sample="ap_003_threshold_review">
+                  <span>High-Value</span>
+                  <small>Approval threshold exceeded</small>
+                </button>
+                <button type="button" data-run-sample="ar_003_payment_claim_no_proof">
+                  <span>AR Overdue</span>
+                  <small>Draft follow-up</small>
+                </button>
               </div>
             </div>
             <div class="entry-copy">

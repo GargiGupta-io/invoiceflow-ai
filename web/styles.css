@@ -2770,7 +2770,7 @@ body {
 
 .manifesto-band .workflow-orbit {
   width: min(100%, 1120px);
-  margin: 6px 0 0;
+  margin: 12px 0 0;
 }
 
 .manifesto-band .workflow-node {
@@ -2788,7 +2788,7 @@ body {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   width: min(100%, 1120px);
-  margin: 6px 0 0;
+  margin: 12px 0 0;
 }
 
 .workflow-view-rail::before {
@@ -3157,8 +3157,22 @@ body {
 .sample-preview .sample-chips button {
   position: relative;
   z-index: 2;
-  min-height: 38px;
+  display: grid;
+  gap: 3px;
+  min-height: 48px;
   pointer-events: auto;
+}
+
+.sample-preview .sample-chips button span,
+.sample-preview .sample-chips button small {
+  display: block;
+}
+
+.sample-preview .sample-chips button small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 @media (max-width: 760px) {
@@ -3286,8 +3300,8 @@ body.case-selected .entry-section {
 
 body.case-selected .manifesto-band {
   margin-top: 0;
-  margin-bottom: 12px;
-  padding: 14px 0 18px;
+  margin-bottom: 22px;
+  padding: 18px 0 24px;
 }
 
 body.case-selected .manifesto-copy {
@@ -3747,23 +3761,23 @@ body.case-selected .queue-table td:nth-child(4) {
 
 body.case-selected .queue-table th:nth-child(5),
 body.case-selected .queue-table td:nth-child(5) {
-  width: 25%;
+  width: 23%;
 }
 
 body.case-selected .queue-table th:nth-child(6),
 body.case-selected .queue-table td:nth-child(6) {
-  width: 14%;
+  width: 13%;
 }
 
 body.case-selected .queue-table th:nth-child(7),
 body.case-selected .queue-table td:nth-child(7) {
-  width: 8%;
+  width: 11%;
 }
 
 body.case-selected .queue-status {
   padding: 5px 8px;
-  font-size: 0.75rem;
-  white-space: normal;
+  font-size: 0.7rem;
+  white-space: nowrap;
 }
 
 body.case-selected .queue-meta {
