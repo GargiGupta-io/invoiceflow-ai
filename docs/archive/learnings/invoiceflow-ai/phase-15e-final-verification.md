@@ -68,6 +68,16 @@ Deployment readiness was added with:
 
 Local Python 3.11 verification is still blocked on this machine because `python3.11`, `pyenv`, and `brew` are not installed. CI remains configured for Python 3.11.
 
+## Launch Metadata Update
+
+On July 1, the public repository was polished for launch:
+
+- GitHub homepage was set to the hosted Render demo.
+- GitHub topics were added for FastAPI, AI workflow, invoice automation, RAG, finance automation, human-in-the-loop review, evals, and Python.
+- README now shows the live demo, health check, CI badge, and Render deploy button near the top.
+- README includes a Render free-tier cold-start note.
+- Root planning and learning notes were moved into `docs/archive/` so the public root reads more like a product repository.
+
 ## What This Means
 
 The product still works at the code and API level after the creative UI phase. The updated screenshot set now reflects the current product surface, and the remaining deployment step is connecting the repo to a hosting provider account.
