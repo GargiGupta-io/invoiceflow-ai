@@ -705,13 +705,16 @@ function formatQueueTableTimestamp(timestamp) {
   }
   const datePart = new Intl.DateTimeFormat("en-US", {
     month: "short",
-    day: "2-digit"
+    day: "2-digit",
+    timeZone: "UTC"
   }).format(date);
-  const timePart = new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
+  const timePart = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "UTC"
   }).format(date);
-  return `${datePart}\n${timePart}`;
+  return `${datePart}\n${timePart} GMT`;
 }
 
 function formatPercent(value) {
