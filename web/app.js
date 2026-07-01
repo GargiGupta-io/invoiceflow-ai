@@ -85,6 +85,7 @@ const evalGeneratedAt = document.getElementById("eval-generated-at");
 const siteHeader = document.querySelector(".site-header");
 const headerTabs = document.querySelectorAll(".site-header .header-tab");
 const overviewLinks = document.querySelectorAll('.site-header .header-tab[href="#top"]');
+const caseLinks = document.querySelectorAll('.site-header .header-tab[href="#capture"]');
 const captureSection = document.getElementById("capture");
 const productPathSection = document.querySelector(".manifesto-band");
 const workspace = document.getElementById("workspace");
@@ -101,6 +102,7 @@ const curatedDemoIds = new Set(Object.keys(visibleDemoCases));
 const curatedDemoCount = Object.keys(visibleDemoCases).length;
 let loadingCueTimer = null;
 let activeSampleId = null;
+let loadedSamples = [];
 
 activateTab("workflow");
 syncHeaderState();
@@ -117,6 +119,13 @@ for (const link of overviewLinks) {
   link.addEventListener("click", (event) => {
     event.preventDefault();
     resetToOverview();
+  });
+}
+
+for (const link of caseLinks) {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+    resetToCases();
   });
 }
 
@@ -146,6 +155,7 @@ async function bootstrap() {
     const response = await fetch("/samples");
     const payload = await response.json();
     const samples = payload.samples || [];
+    loadedSamples = samples;
     updateEntrySampleCount(samples);
     await loadReviewQueue();
     await loadEvalDashboard();
@@ -289,7 +299,7 @@ function setWorkspaceReady() {
   activateTab("workflow");
 }
 
-function resetToOverview() {
+function resetHomeState() {
   document.body.classList.remove("workspace-ready", "case-selected");
   setActiveSample(null);
   hideLoadingCue();
@@ -297,7 +307,11 @@ function resetToOverview() {
   setStatus(uploadStatus, "Idle", "neutral");
 
   entryWorkflowState.textContent = "Ready for AP or AR";
-  entryWorkflowDetail.textContent = "Run a sample or upload a finance document to start a reviewed workflow.";
+  if (loadedSamples.length > 0) {
+    updateEntrySampleCount(loadedSamples);
+  } else {
+    entryWorkflowDetail.textContent = "Run a sample or upload a finance document to start a reviewed workflow.";
+  }
   entryAuditState.textContent = "No run yet";
   entryAuditDetail.textContent = "The last recommendation, review gate, evidence count, and latency appear here.";
 
@@ -313,7 +327,21 @@ function resetToOverview() {
   markTimelineStep(entryTimelineDecision, false, false);
 
   activateTab("workflow");
+}
+
+function resetToOverview() {
+  resetHomeState();
   window.scrollTo({ top: 0, behavior: "smooth" });
+  window.setTimeout(syncHeaderState, 250);
+}
+
+function resetToCases() {
+  resetHomeState();
+  if (captureSection) {
+    captureSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   window.setTimeout(syncHeaderState, 250);
 }
 
