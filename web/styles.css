@@ -3869,3 +3869,108 @@ body.case-selected .debug-disclosure pre {
     grid-column: 1;
   }
 }
+
+@media (max-width: 760px) {
+  body.case-selected .queue-table-wrap {
+    overflow: visible;
+    border: 0;
+  }
+
+  body.case-selected .queue-table,
+  body.case-selected .queue-table tbody,
+  body.case-selected .queue-table tr,
+  body.case-selected .queue-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body.case-selected .queue-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  body.case-selected .queue-table thead {
+    display: none;
+  }
+
+  body.case-selected .queue-table tr {
+    margin: 0 0 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(31, 39, 33, 0.09);
+    border-radius: 18px;
+    background: rgba(255, 251, 241, 0.58);
+    box-shadow: 0 12px 30px rgba(58, 41, 23, 0.055);
+  }
+
+  body.case-selected .queue-table th:nth-child(1),
+  body.case-selected .queue-table td:nth-child(1),
+  body.case-selected .queue-table th:nth-child(2),
+  body.case-selected .queue-table td:nth-child(2),
+  body.case-selected .queue-table th:nth-child(3),
+  body.case-selected .queue-table td:nth-child(3),
+  body.case-selected .queue-table th:nth-child(4),
+  body.case-selected .queue-table td:nth-child(4),
+  body.case-selected .queue-table th:nth-child(5),
+  body.case-selected .queue-table td:nth-child(5),
+  body.case-selected .queue-table th:nth-child(6),
+  body.case-selected .queue-table td:nth-child(6),
+  body.case-selected .queue-table th:nth-child(7),
+  body.case-selected .queue-table td:nth-child(7) {
+    width: 100%;
+  }
+
+  body.case-selected .queue-table td {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(31, 39, 33, 0.07);
+    overflow-wrap: anywhere;
+  }
+
+  body.case-selected .queue-table td:last-child {
+    border-bottom: 0;
+  }
+
+  body.case-selected .queue-table td::before {
+    color: var(--warm);
+    font-size: 0.72rem;
+    font-weight: 900;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  body.case-selected .queue-table td:nth-child(1)::before {
+    content: "Case";
+  }
+
+  body.case-selected .queue-table td:nth-child(2)::before {
+    content: "Workflow";
+  }
+
+  body.case-selected .queue-table td:nth-child(3)::before {
+    content: "Recommendation";
+  }
+
+  body.case-selected .queue-table td:nth-child(4)::before {
+    content: "Risk";
+  }
+
+  body.case-selected .queue-table td:nth-child(5)::before {
+    content: "Reason";
+  }
+
+  body.case-selected .queue-table td:nth-child(6)::before {
+    content: "Time";
+  }
+
+  body.case-selected .queue-table td:nth-child(7)::before {
+    content: "Status";
+  }
+
+  body.case-selected .queue-time {
+    white-space: pre-line;
+  }
+}
