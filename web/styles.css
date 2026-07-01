@@ -34,12 +34,11 @@ body {
   font-family: var(--font-sans);
   color: var(--ink);
   background:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle, rgba(31, 39, 33, 0.105) 1px, transparent 1.35px),
     radial-gradient(circle at top left, rgba(215, 199, 164, 0.48), transparent 32%),
     radial-gradient(circle at top right, rgba(109, 145, 119, 0.18), transparent 28%),
     linear-gradient(180deg, #f7f2e7 0%, #efe9db 100%);
-  background-size: 86px 86px, 86px 86px, auto, auto, auto;
+  background-size: 42px 42px, auto, auto, auto;
 }
 
 .page-shell {
@@ -2358,11 +2357,11 @@ html {
 
 body {
   background:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle, rgba(31, 39, 33, 0.08) 1px, transparent 1.35px),
     radial-gradient(circle at top left, rgba(215, 199, 164, 0.38), transparent 32%),
     radial-gradient(circle at top right, rgba(109, 145, 119, 0.16), transparent 28%),
     linear-gradient(180deg, #f7f2e7 0%, #efe9db 100%);
+  background-size: 42px 42px, auto, auto, auto;
 }
 
 .hero-context article,
@@ -3356,52 +3355,8 @@ body.case-selected .workspace {
 
 /* Case result experiment: read like an operator case sheet, not a stacked card wall. */
 body.case-selected .results-panel {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   padding-top: 0;
   border-top: 0;
-}
-
-body.case-selected .results-panel::before,
-body.case-selected .results-panel::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-body.case-selected .results-panel::before {
-  height: min(52vh, 470px);
-  opacity: 0.48;
-  background:
-    linear-gradient(rgba(90, 132, 111, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(90, 132, 111, 0.08) 1px, transparent 1px),
-    radial-gradient(circle at 18% 10%, rgba(121, 174, 147, 0.18), transparent 34%),
-    radial-gradient(circle at 82% 16%, rgba(214, 164, 89, 0.15), transparent 34%);
-  background-size: 54px 54px, 54px 54px, 100% 100%, 100% 100%;
-  mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 100%);
-}
-
-body.case-selected .results-panel::after {
-  top: 116px;
-  height: 76px;
-  opacity: 0.78;
-  background:
-    linear-gradient(90deg, transparent, rgba(99, 151, 125, 0.42), rgba(255, 255, 246, 0.92), rgba(210, 158, 82, 0.3), transparent),
-    linear-gradient(90deg, transparent, rgba(99, 151, 125, 0.16), transparent);
-  filter: blur(0.2px);
-  transform: translateX(-34%);
-  animation: result-grid-scan 7.5s ease-in-out infinite;
-  mask-image: linear-gradient(to bottom, transparent, #000 42%, #000 56%, transparent);
-}
-
-body.case-selected .results-panel > * {
-  position: relative;
-  z-index: 1;
 }
 
 body.case-selected .results-panel .panel-header,
@@ -3579,16 +3534,6 @@ body.case-selected .why-panel:hover {
   border-color: rgba(31, 39, 33, 0.08);
   background: transparent;
   box-shadow: none;
-}
-
-@keyframes result-grid-scan {
-  0%,
-  100% {
-    transform: translateX(-38%) translateY(-8px);
-  }
-  50% {
-    transform: translateX(34%) translateY(10px);
-  }
 }
 
 @media (max-width: 900px) {
