@@ -5,8 +5,8 @@ AI-assisted invoice review and receivables follow-up for finance teams.
 [![InvoiceFlow CI](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml/badge.svg)](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/GargiGupta-io/invoiceflow-ai)
 
-Live demo: `https://invoiceflow-ai-a9yq.onrender.com/ui`  
-Health check: `https://invoiceflow-ai-a9yq.onrender.com/health`
+Live demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)  
+Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
 risky information, retrieve policy evidence, draft AR follow-ups, and route
@@ -367,8 +367,8 @@ Deploy from GitHub:
 3. Keep the blueprint defaults from `render.yaml`.
 4. After the deploy finishes, open `/health` and `/ui`.
 
-Hosted demo: `https://invoiceflow-ai-a9yq.onrender.com/ui`
-Health check: `https://invoiceflow-ai-a9yq.onrender.com/health`
+Hosted demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)
+Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 Demo video: pending final recording.
 
 Note: Render free-tier deployments may take up to a minute to wake on first
