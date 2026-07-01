@@ -336,6 +336,27 @@ Then open:
 - API root: `http://127.0.0.1:8000/`
 - Operator UI: `http://127.0.0.1:8000/ui`
 
+## Deployment
+
+InvoiceFlow is prepared for a hosted demo with deterministic sample data. The
+basic portfolio demo does not require a paid LLM or OCR key.
+
+Render setup:
+
+- Runtime: Python 3.11
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn api.main:app --host 0.0.0.0 --port $PORT`
+- Health check: `/health`
+- Demo endpoint: `/ui`
+
+The repo includes:
+
+- `runtime.txt` for Python 3.11 pinning
+- `render.yaml` for Render blueprint deployment
+
+Hosted demo URL: pending final deployment.
+Demo video: pending final recording.
+
 ## Technical UI And API Reference
 
 ### UI
