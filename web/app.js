@@ -489,7 +489,7 @@ function renderEvalDashboard(payload) {
   const passRate = formatPercent(summary.pass_rate);
 
   evalResultsLink.href = payload.download_url || "/eval-results.json";
-  evalDashboardSummary.textContent = `The visible demo evaluates ${passedCases}/${totalCases} curated cases across AP review and AR follow-up.`;
+  evalDashboardSummary.textContent = `Deterministic 5-case demo eval: ${passedCases}/${totalCases} curated cases pass across AP review and AR follow-up.`;
   evalDashboardMeta.textContent = `Latest run ${formatQueueTimestamp(payload.generated_at_utc)} | extractor mode ${payload.extractor_mode || "heuristic"} | UI demo scope: ${curatedDemoCount} cases`;
 
   setEvalMetric(evalDatasetSize, String(totalCases), "Curated AP/AR demo cases");
@@ -584,7 +584,7 @@ function buildQueueRow(item) {
   const row = document.createElement("tr");
   row.appendChild(buildQueueCell(item.case_id, "queue-case"));
   row.appendChild(buildQueueCell(prettifyWorkflow(item.workflow_type), "queue-workflow"));
-  row.appendChild(buildQueueCell(prettifyQueueValue(item.recommendation), "queue-recommendation"));
+  row.appendChild(buildQueueCell(formatQueueRecommendation(item), "queue-recommendation"));
   row.appendChild(buildQueueCell(item.risk_level || "-", `queue-risk ${mapQueueRiskKind(item.risk_level)}`));
   row.appendChild(buildQueueCell(item.reason_for_review || "-", "queue-reason"));
   row.appendChild(buildQueueCell(formatQueueTimestamp(item.timestamp_utc), "queue-time"));
@@ -597,6 +597,13 @@ function buildQueueCell(value, className) {
   cell.className = className;
   cell.textContent = value || "-";
   return cell;
+}
+
+function formatQueueRecommendation(item) {
+  if (item.workflow_type === "accounts_receivable") {
+    return "Draft Follow-Up";
+  }
+  return prettifyQueueValue(item.recommendation);
 }
 
 function buildQueueStatusCell(value, kind) {
