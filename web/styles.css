@@ -3744,7 +3744,7 @@ body.case-selected .queue-table th {
 
 body.case-selected .queue-table th:nth-child(1),
 body.case-selected .queue-table td:nth-child(1) {
-  width: 18%;
+  width: 17%;
 }
 
 body.case-selected .queue-table th:nth-child(2),
@@ -3761,22 +3761,22 @@ body.case-selected .queue-table td:nth-child(4) {
 
 body.case-selected .queue-table th:nth-child(5),
 body.case-selected .queue-table td:nth-child(5) {
-  width: 23%;
+  width: 24%;
 }
 
 body.case-selected .queue-table th:nth-child(6),
 body.case-selected .queue-table td:nth-child(6) {
-  width: 13%;
+  width: 11%;
 }
 
 body.case-selected .queue-table th:nth-child(7),
 body.case-selected .queue-table td:nth-child(7) {
-  width: 11%;
+  width: 13%;
 }
 
 body.case-selected .queue-status {
-  padding: 5px 8px;
-  font-size: 0.7rem;
+  padding: 5px 9px;
+  font-size: 0.68rem;
   white-space: nowrap;
 }
 

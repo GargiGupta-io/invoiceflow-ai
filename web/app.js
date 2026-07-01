@@ -587,7 +587,7 @@ function buildQueueRow(item) {
   row.appendChild(buildQueueCell(formatQueueRecommendation(item), "queue-recommendation"));
   row.appendChild(buildQueueCell(item.risk_level || "-", `queue-risk ${mapQueueRiskKind(item.risk_level)}`));
   row.appendChild(buildQueueCell(item.reason_for_review || "-", "queue-reason"));
-  row.appendChild(buildQueueCell(formatQueueTimestamp(item.timestamp_utc), "queue-time"));
+  row.appendChild(buildQueueCell(formatQueueTableTimestamp(item.timestamp_utc), "queue-time"));
   row.appendChild(buildQueueStatusCell(item.status || "Needs Review", mapQueueStatusKind(item.status)));
   return row;
 }
@@ -664,6 +664,22 @@ function formatQueueTimestamp(timestamp) {
     hour: "2-digit",
     minute: "2-digit",
     timeZoneName: "short"
+  }).format(date);
+}
+
+function formatQueueTableTimestamp(timestamp) {
+  if (!timestamp) {
+    return "-";
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return timestamp;
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "2-digit"
   }).format(date);
 }
 
