@@ -78,6 +78,43 @@ On July 1, the public repository was polished for launch:
 - README includes a Render free-tier cold-start note.
 - Root planning and learning notes were moved into `docs/archive/` so the public root reads more like a product repository.
 
+## Controller Demo Pack Update
+
+On July 8, the project was refined around an outside reviewer suggestion:
+InvoiceFlow needed one controller-readable proof artifact, not more agent
+features. The new `docs/demo-pack.md` walks through the Missing PO case from
+input invoice to extracted fields, policy evidence, human-review reason, audit
+trail, and operator next step.
+
+Plain English: this turns the app from "look at this AI workflow" into "here is
+one finance case, here is what happened, here is why the result is trustworthy,
+and here is what the operator should do next."
+
+The README now links to that demo pack near the top and clarifies the scope:
+
+- 5 guided UI demo cases.
+- 7 backend/evaluation cases.
+- synthetic deterministic demo proof, not production finance accuracy.
+
+The review queue now translates internal reason codes into business labels.
+For example:
+
+- `po_required_missing` displays as `Missing purchase order`.
+- `manual_threshold_review` displays as `Manual threshold review`.
+- `payment_claim_without_proof` displays as `Payment claimed without proof`.
+
+The raw reason code is still preserved in the table cell title for technical
+inspection. This keeps the operator view readable without hiding the underlying
+debug signal.
+
+Verification:
+
+```bash
+node --check web/app.js
+```
+
+Result: passed.
+
 ## What This Means
 
 The product still works at the code and API level after the creative UI phase. The updated screenshot set now reflects the current product surface, and the remaining deployment step is connecting the repo to a hosting provider account.
