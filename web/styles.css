@@ -2372,11 +2372,25 @@ html {
 
 body {
   background:
-    radial-gradient(circle, rgba(31, 39, 33, 0.13) 1.15px, transparent 1.55px),
     radial-gradient(circle at top left, rgba(215, 199, 164, 0.38), transparent 32%),
     radial-gradient(circle at top right, rgba(109, 145, 119, 0.16), transparent 28%),
     linear-gradient(180deg, #f7f2e7 0%, #efe9db 100%);
-  background-size: 42px 42px, auto, auto, auto;
+  background-size: auto, auto, auto;
+}
+
+.dot-field-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.page-shell {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-context article,
