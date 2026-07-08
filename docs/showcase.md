@@ -158,11 +158,11 @@ python -m app.eval.run_eval
 
 - Built a FastAPI-based finance workflow agent that extracts invoice and finance-email data, routes cases into AP or AR flows, and returns grounded approval recommendations or follow-up drafts.
 - Implemented structured LLM extraction, a guardrails gateway, OCR fallback, schema validation, anomaly detection, self-healing route-aware RAG, tool-call tracing, and confidence-based human review.
-- Added a CI/CD evaluation gate across seven synthetic finance workflow cases to measure extraction match quality, routing accuracy, citation coverage, grounding support, retrieval repair, anomaly checks, review gates, and latency.
+- Added a CI/CD evaluation gate across seven synthetic finance workflow cases, while keeping the visible UI demo focused on five curated cases, to measure extraction match quality, routing accuracy, citation coverage, grounding support, retrieval repair, anomaly checks, review gates, and latency.
 
 ### Metric-Forward Version
 
-- Built a FastAPI-based finance operations agent that achieved `100%` pass rate, workflow-routing accuracy, extraction-field match, citation coverage, and grounding support on the bundled seven-case evaluation set.
+- Built a FastAPI-based finance operations agent that achieved `100%` pass rate, workflow-routing accuracy, extraction-field match, citation coverage, and grounding support on the bundled seven-case synthetic evaluation set.
 - Implemented retrieval over `25` citeable finance-policy chunks plus self-healing RAG repair, schema validation, OCR fallback, tool-call tracing, and anomaly detection for AP and AR workflows.
 - Shipped a polished operator UI and CI eval gate so recommendations, evidence, retrieval repair, guardrail metadata, and latency can be inspected end-to-end instead of treated as a black-box model output.
 
@@ -187,6 +187,6 @@ I built this project to simulate a finance operations console, not a generic cha
 
 ## Honest Caveats
 
-- The dataset is synthetic and intentionally small.
+- The dataset is synthetic and intentionally small; it proves reproducible demo behavior, not production finance accuracy.
 - OCR support is a fallback path and depends on local Tesseract availability.
 - AP/AR decision generation is still deterministic; the LLM-heavy path currently focuses on extraction, repair, guardrails metadata, RAG, auditability, and evals.

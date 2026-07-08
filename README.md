@@ -8,6 +8,8 @@ AI-assisted invoice review and receivables follow-up for finance teams.
 Live demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)  
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 
+Controller-readable demo pack: [docs/demo-pack.md](docs/demo-pack.md)
+
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
 risky information, retrieve policy evidence, draft AR follow-ups, and route
 uncertain cases to human review with a full audit trail.
@@ -80,6 +82,11 @@ reviewer:
 8. Open the compact audit trail.
 9. Run the `AR Overdue Follow-Up` sample.
 10. Show the drafted follow-up email and escalation reasoning.
+
+For a finance-operator proof artifact, use the
+[controller-readable demo pack](docs/demo-pack.md). It walks through the Missing
+PO case from input invoice to expected decision, extracted fields, policy
+evidence, human-review reason, audit trail, and operator next step.
 
 ## Safety And Privacy
 
@@ -437,8 +444,14 @@ The UI focuses on these five demo cases:
 
 ## Evaluation Proof
 
-InvoiceFlow includes evaluation cases for routing, extraction, policy citation,
-anomaly detection, human review behavior, and AR follow-up safety.
+InvoiceFlow uses 5 guided UI demo cases and 7 backend/evaluation cases. The
+guided UI keeps the portfolio demo focused, while the broader synthetic eval set
+checks routing, extraction, policy citation, anomaly detection, human review
+behavior, and AR follow-up safety.
+
+The evaluation is a deterministic synthetic demo proof, not a production finance
+accuracy claim. The next validation step would be plugging in one company's AP
+rules and 20-30 historical AP/AR cases.
 
 | Eval case | Expected | Actual | Status |
 | --- | --- | --- | --- |
@@ -491,9 +504,9 @@ It is not part of the main operator workflow. The product demo should stay focus
 </details>
 
 The current heuristic baseline already shows:
-- `100%` workflow-routing accuracy on the bundled eval set
-- `100%` extraction-field match on the bundled eval set
-- `100%` citation coverage and grounding support on the bundled eval set
+- `100%` workflow-routing accuracy on the bundled synthetic eval set
+- `100%` extraction-field match on the bundled synthetic eval set
+- `100%` citation coverage and grounding support on the bundled synthetic eval set
 - review-gate and tool-trace metrics for agent observability
 
 ## CI/CD Eval Gate
