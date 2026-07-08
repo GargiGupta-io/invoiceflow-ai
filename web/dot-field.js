@@ -68,7 +68,7 @@ if (dotFieldCanvas) {
     }
 
     const influenceRadius = Math.min(width, height) < 760 ? 110 : 150;
-    const baseAlpha = 0.22;
+    const baseAlpha = 0.28;
     const idlePulse = reduceMotion ? 0 : Math.sin(time * 0.001) * 0.12;
 
     for (const dot of dots) {
@@ -88,7 +88,7 @@ if (dotFieldCanvas) {
       ctx.beginPath();
       ctx.fillStyle = influence > 0.03
         ? `rgba(95, 146, 127, ${Math.min(0.78, alpha)})`
-        : `rgba(31, 39, 33, ${Math.min(0.34, alpha)})`;
+        : `rgba(31, 39, 33, ${Math.min(0.42, alpha)})`;
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
     }
