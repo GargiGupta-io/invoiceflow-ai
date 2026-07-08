@@ -614,7 +614,7 @@ function buildQueueRow(item) {
   row.appendChild(buildQueueCell(prettifyWorkflow(item.workflow_type), "queue-workflow"));
   row.appendChild(buildQueueCell(formatQueueRecommendation(item), "queue-recommendation"));
   row.appendChild(buildQueueCell(item.risk_level || "-", `queue-risk ${mapQueueRiskKind(item.risk_level)}`));
-  row.appendChild(buildQueueCell(item.reason_for_review || "-", "queue-reason"));
+  row.appendChild(buildQueueReasonCell(item.reason_for_review));
   row.appendChild(buildQueueCell(formatQueueTableTimestamp(item.timestamp_utc), "queue-time"));
   row.appendChild(buildQueueStatusCell(item.status || "Needs Review", mapQueueStatusKind(item.status)));
   return row;
@@ -627,12 +627,53 @@ function buildQueueCell(value, className) {
   return cell;
 }
 
+function buildQueueReasonCell(value) {
+  const cell = buildQueueCell(formatQueueReason(value), "queue-reason");
+  if (value) {
+    cell.title = value;
+  }
+  return cell;
+}
+
 function formatQueueRecommendation(item) {
   if (item.workflow_type === "accounts_receivable") {
     return "Draft Follow-Up";
   }
   return prettifyQueueValue(item.recommendation);
 }
+
+function formatQueueReason(value) {
+  if (!value) {
+    return "-";
+  }
+  const labels = String(value)
+    .split(",")
+    .map((reason) => reason.trim())
+    .filter(Boolean)
+    .map((reason) => queueReasonLabels[reason] || prettifyQueueCode(reason));
+
+  return labels.length ? labels.join("; ") : "-";
+}
+
+function prettifyQueueCode(value) {
+  return String(value)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+const queueReasonLabels = {
+  ap_missing_info: "Missing invoice information",
+  po_required_missing: "Missing purchase order",
+  manual_threshold_review: "Manual threshold review",
+  ap_review: "AP review required",
+  duplicate_invoice_detected: "Duplicate invoice detected",
+  payment_claim_without_proof: "Payment claimed without proof",
+  low_overdue_days: "Low overdue age",
+  repeated_reminders_low: "Low reminder count",
+  customer_tone_collaborative: "Collaborative customer tone",
+  dispute_language_detected: "Dispute language detected",
+  escalation_low: "Low escalation level"
+};
 
 function buildQueueStatusCell(value, kind) {
   const cell = document.createElement("td");
