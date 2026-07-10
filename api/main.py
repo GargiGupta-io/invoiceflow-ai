@@ -22,8 +22,8 @@ app = FastAPI(
     title="InvoiceFlow AI",
     version="0.1.0",
     description=(
-        "A finance workflow agent that ingests documents, extracts structured fields, "
-        "retrieves grounded policy evidence, routes AP/AR cases, and returns a final decision."
+        "An AI-assisted finance workflow for policy-grounded invoice review, "
+        "human review, and deterministic evaluations."
     ),
 )
 
