@@ -1,6 +1,7 @@
 # InvoiceFlow AI
 
-AI-assisted invoice review and receivables follow-up for finance teams.
+AI-assisted finance workflow for policy-grounded invoice review, human review,
+and deterministic evaluations.
 
 [![InvoiceFlow CI](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml/badge.svg)](https://github.com/GargiGupta-io/invoiceflow-ai/actions/workflows/eval.yml)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/GargiGupta-io/invoiceflow-ai)
@@ -109,7 +110,7 @@ The project is built so the main demo does not break without paid API keys.
 | Mode | What it does | When to use |
 | --- | --- | --- |
 | Demo mode | Uses deterministic sample fixtures, local policy retrieval, AP/AR logic, evidence, review gates, and evals. | Portfolio demos, recruiter walkthroughs, local testing, and deployment without secrets. |
-| Live AI mode | Uses the configured LLM path for schema-shaped extraction and repair metadata when credentials are available. | Technical review of LLM extraction, guardrails, prompt versions, and runtime metadata. |
+| Live AI mode | Uses the configured LLM path for schema-shaped extraction and repair metadata when credentials are available. | Technical review of optional LLM extraction, request-gateway behavior, prompt versions, and runtime metadata. |
 
 ## How This Can Be Adapted For A Client
 
@@ -129,7 +130,7 @@ InvoiceFlow can be customized for:
 
 - AI workflow orchestration
 - document ingestion and structured extraction
-- retrieval-augmented policy evidence
+- grounded policy retrieval with citeable evidence
 - schema validation and repair-aware extraction
 - AP invoice review logic
 - AR follow-up drafting logic
@@ -206,11 +207,11 @@ Implemented:
 - PDF parsing with OCR fallback hooks
 - strict extraction schema
 - deterministic development extractor
-- LLM extraction path with schema-shaped JSON responses and validation repair
-- LLM guardrails gateway for schema-mode fallback, PII-aware request redaction, latency metadata, and token metadata when available
-- retrieval-ready finance knowledge base
-- policy retrieval with citations
-- explicit tool-call style agent trace for extraction, routing, policy search, validation, and action generation
+- optional LLM extraction path with schema-shaped JSON responses and validation repair
+- optional LLM request gateway for schema-mode fallback, PII-aware request redaction, latency metadata, and token metadata when available
+- deterministic lexical index over the finance knowledge base
+- lexical policy retrieval with citations
+- explicit tool-like workflow trace for extraction, routing, policy search, validation, and action generation
 - AP vs AR routing
 - AP decision flow
 - AR drafting flow
@@ -319,7 +320,7 @@ invoiceflow-ai/
 |  |- ingest/
 |  |- orchestrator/
 |  |- prompts/
-|  |- rag/
+|  |- rag/             # internal package name for lexical policy retrieval
 |  `- schemas/
 |- kb/
 |- samples/
@@ -376,8 +377,6 @@ Deploy from GitHub:
 
 Hosted demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
-Demo video: pending final recording.
-
 Note: Render free-tier deployments may take up to a minute to wake on first
 load.
 
@@ -391,7 +390,7 @@ Use `/ui` to:
 - run built-in sample workflows from the hero buttons, quick sample chips, or sample selector
 - upload a local invoice or finance document
 - inspect the workflow path, key document fields, final action, anomalies/triggers, and evidence
-- inspect latency, prompt-version metadata, self-healing RAG repair status, and LLM gateway call count
+- inspect latency, prompt-version metadata, policy-retrieval repair status, and optional LLM gateway call count
 - inspect the tool-call trace without opening raw JSON
 - open the full backend response only when needed through the collapsible debug panel
 
@@ -406,6 +405,9 @@ For screenshots or quick demos, the UI also supports:
 - `GET /ui`
 - `GET /health`
 - `GET /samples`
+- `GET /review-queue`
+- `GET /eval/summary`
+- `GET /eval-results.json`
 - `POST /workflow/sample`
 - `POST /workflow/upload`
 
@@ -507,7 +509,7 @@ The current heuristic baseline already shows:
 - `100%` workflow-routing accuracy on the bundled synthetic eval set
 - `100%` extraction-field match on the bundled synthetic eval set
 - `100%` citation coverage and grounding support on the bundled synthetic eval set
-- review-gate and tool-trace metrics for agent observability
+- review-gate and tool-like trace metrics for workflow observability
 
 ## CI/CD Eval Gate
 
@@ -532,20 +534,23 @@ Default CI thresholds require:
 - `rag_repair_success_rate >= 1.0`
 - `average_latency_ms <= 1000`
 
+`rag_repair_success_rate` is retained as an internal compatibility key. It
+measures repair of missing lexical policy evidence; it does not imply an
+embedding or vector retrieval pipeline.
+
 </details>
 
 ## Known Limitations
 
-- The local environment still needs dependencies installed to run the full stack
-  normally.
+- The hosted demo defaults to deterministic extraction and lexical token-overlap
+  policy retrieval; it does not use embedding or vector retrieval.
 - OCR fallback depends on Tesseract being installed on the host machine.
 - The `heuristic` extractor path is intentionally tuned for the sample fixtures.
 - The `llm` extractor/repair path requires an OpenAI-compatible API key and
   runtime configuration.
-- The guardrails gateway currently covers LLM extraction and repair calls; AP/AR
+- The optional LLM gateway currently covers extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- Demo video is pending final recording.
 
 ## Next Improvements
 
