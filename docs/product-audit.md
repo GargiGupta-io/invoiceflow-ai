@@ -46,7 +46,7 @@ flags human-review cases, and proves reliability with eval results.
 | Schemas | `app/schemas/invoice.py` | Core | Defines strict structured extraction output. |
 | Schemas | `app/schemas/decision.py` | Core | Defines evidence, AP decisions, AR decisions, and workflow output shape. |
 | Routing | `app/orchestrator/router.py` | Core | Separates AP invoice review from AR receivables follow-up. |
-| Orchestration | `app/orchestrator/engine.py` | Core | Runs ingestion, extraction, routing, RAG, decisioning, review, and audit flow. |
+| Orchestration | `app/orchestrator/engine.py` | Core | Runs ingestion, extraction, routing, grounded policy retrieval, decisioning, review, and audit flow. |
 | Audit | `app/orchestrator/audit.py` | Core | Produces audit trail metadata for trust and traceability. |
 | Agent Trace | `app/orchestrator/agent_trace.py` | Core | Shows tool-like workflow steps and human-review reasons. |
 | Retrieval | `app/rag/chunker.py` | Core | Converts finance policy docs into citeable sections. |
@@ -80,7 +80,7 @@ flags human-review cases, and proves reliability with eval results.
 | Prompts | `app/prompts/extractor_repair_v1.md` | Support | Supports LLM repair path. |
 | Docs | `README.md` | Support | Main recruiter-facing explanation and setup guide. |
 | Docs | `docs/showcase.md` | Support | Demo script, resume bullets, and interview framing. |
-| Docs | `docs/llm-agent-upgrade.md` | Support | Deep technical explanation of LLM/RAG/eval upgrades. |
+| Docs | `docs/llm-agent-upgrade.md` | Support | Deep technical explanation of optional LLM extraction, lexical policy retrieval, workflow traces, and evals. |
 | Docs | `docs/learning-guide.md` | Support | Learning reference, useful but secondary to the product story. |
 | Docs | `docs/screenshots/*` | Support | Visual proof for README and portfolio. |
 | Project Metadata | `requirements.txt` | Support | Environment setup. |
