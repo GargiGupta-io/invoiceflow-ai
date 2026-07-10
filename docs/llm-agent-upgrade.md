@@ -1,6 +1,8 @@
-# LLM Agent Upgrade Deep Dive
+# Optional LLM Extraction And Policy Retrieval Deep Dive
 
-> How InvoiceFlow AI was upgraded from workflow automation into a more explicit LLM-agent system with schema extraction, RAG evidence, tool traces, human review, and evals.
+> How InvoiceFlow AI combines a deterministic finance workflow with optional
+> schema-shaped LLM extraction, lexical policy retrieval, workflow traces,
+> human review, and deterministic evaluations.
 
 ---
 
@@ -8,9 +10,16 @@
 
 This project already worked like a finance operations assistant. It could read a sample invoice or customer email, pull out important details, decide whether the case belonged to Accounts Payable or Accounts Receivable, retrieve finance-policy context, and return a decision or follow-up draft.
 
-The upgrade made the system more clearly agentic. That means the backend now exposes the steps it took, almost like a receipt. Instead of only saying "missing info" or "send this follow-up email," it records the tool-like actions behind that result: extraction, routing, policy search, duplicate checking, math validation, escalation assessment, email drafting, and audit summary generation.
+The upgrade made the workflow more inspectable. The backend now exposes the
+steps it took, almost like a receipt. Instead of only saying "missing info" or
+"send this follow-up email," it records the stages behind that result:
+extraction, routing, policy search, duplicate checking, math validation,
+escalation assessment, email drafting, and audit summary generation.
 
-This matters because strong LLM projects are not just chat interfaces. A real LLM-heavy workflow needs structured outputs, evidence, tool use, review gates, and evaluation. The changes make those ideas visible in the API, UI, documentation, and eval runner.
+This matters because a useful AI-assisted workflow needs structured outputs,
+evidence, inspectable stages, review gates, and evaluation. The deployed default
+uses deterministic extraction and lexical policy retrieval. An optional LLM
+path is available for schema-shaped extraction when configured.
 
 ## What Changed
 
@@ -18,7 +27,7 @@ At a high level, the upgrade added five things:
 
 1. A tool-call style trace for every workflow run.
 2. A human-review gate that explains when a case needs manual review.
-3. Schema-shaped LLM extraction metadata.
+3. Schema-shaped metadata for the optional LLM extraction path.
 4. More reliable policy evidence selection.
 5. Stronger eval metrics for grounding and agent behavior.
 
@@ -26,7 +35,9 @@ The core workflow still stays stable. The existing deterministic baseline remain
 
 ## Why This Upgrade Matters
 
-Plain English: before this upgrade, the project could produce good finance workflow outputs, but it did not fully show the "agent" part of the work. Now it shows the chain of reasoning-like operations in a structured, auditable way.
+Plain English: before this upgrade, the project could produce good finance
+workflow outputs, but it did not fully show how each result was produced. Now
+it shows the workflow stages in a structured, auditable way.
 
 For a resume or interview, this is the difference between saying:
 
@@ -37,12 +48,12 @@ Built a finance automation demo.
 and saying:
 
 ```text
-Built an LLM-powered finance workflow agent with structured extraction, RAG,
-tool-call tracing, human-review gates, and evals for citation coverage,
-grounding support, routing, extraction accuracy, latency, and decision quality.
+Built an AI-assisted finance workflow for policy-grounded invoice review,
+human review, and deterministic evaluations, with optional schema-shaped LLM
+extraction and an inspectable workflow trace.
 ```
 
-The second version is stronger because it names the actual LLM systems concerns:
+The second version is accurate because it names the implemented system boundaries:
 
 - strict schemas
 - grounded retrieval
@@ -68,7 +79,7 @@ Plain English: a document enters the system, gets turned into structured data, g
 [AP/AR Router]
           |
           v
-[Policy RAG]
+[Lexical Policy Retrieval]
           |
           v
 [AP Decision or AR Drafting]
@@ -308,7 +319,7 @@ Each gateway metadata record includes:
 
 This is still a lightweight gateway. It is not a full content-safety platform yet, but it is now a real central control point for LLM calls.
 
-## RAG Retrieval Changes
+## Policy Retrieval Changes
 
 Plain English: the system now retrieves more policy chunks, then chooses citations more intelligently.
 
@@ -469,7 +480,7 @@ eval-results.json
 
 The default thresholds require all quality rates to stay at `1.0` on the bundled deterministic eval set, including `rag_repair_success_rate`, plus average latency under `1000` milliseconds.
 
-## Self-Healing RAG
+## Retrieval Repair
 
 Plain English: retrieval now gets a second chance when the first policy search misses required evidence. The workflow checks which policy sections should be present, compares that list against the first retrieval result, then retries with a query that directly names missing policy IDs.
 
@@ -538,7 +549,7 @@ The run metadata card also shows:
 - tool-call count
 - review gate status
 - blocking review status when applicable
-- self-healing RAG repair status when a repair run happens
+- policy-retrieval repair status when a repair run happens
 - LLM gateway call count when LLM extraction is used
 
 The visual polish intentionally keeps the existing warm finance color scheme. The change is mostly layout, hierarchy, and information architecture rather than a rebrand.
@@ -551,7 +562,8 @@ The latest layout refinement tightened that even more: the header is now centere
 
 ## Documentation Upgrade
 
-Plain English: the project now describes itself as an LLM workflow agent instead of just a finance automation demo.
+Plain English: the project now describes itself as an AI-assisted finance
+workflow with a deterministic default and an optional LLM extraction path.
 
 Files changed:
 
@@ -563,14 +575,15 @@ docs/showcase.md
 The docs now mention:
 
 - structured LLM extraction
-- policy RAG
+- lexical policy retrieval with citeable evidence
 - tool-call tracing
 - human-review gates
 - grounding support evals
 - prompt-applied metrics
 - average agent tool calls
 
-The resume bullets were strengthened to better communicate LLM systems work.
+The resume bullets were updated to communicate the workflow accurately without
+implying embedding retrieval or model-driven decisions.
 
 ## Final Eval Result
 
@@ -651,9 +664,9 @@ Use this framing:
 
 ```text
 I started with a deterministic finance workflow so the baseline was reliable.
-Then I added the LLM-agent pieces around it: schema-shaped extraction, RAG
-evidence, tool-call tracing, human-review gates, and eval metrics. The result
-is not just a chatbot; it is an auditable finance workflow agent.
+Then I added optional schema-shaped LLM extraction, lexical policy retrieval,
+an inspectable workflow trace, human-review gates, and eval metrics. The result
+is an auditable AI-assisted finance workflow rather than a generic chatbot.
 ```
 
 If asked why the heuristic path still exists:
@@ -693,14 +706,15 @@ The strongest next steps are:
 | Tool trace | Receipt of what the agent did | `audit_trail.agent_tool_trace` |
 | Human review gate | Whether a person should approve the result | `audit_trail.human_review` |
 | Grounding support | Cited evidence came from retrieved chunks | `grounding_support_pass_rate` |
-| Structured extraction | LLM output shaped like a strict form | `InvoiceExtraction.model_json_schema()` |
+| Structured extraction | Deterministic parsing by default, with optional LLM output shaped like a strict form | `InvoiceExtraction.model_json_schema()` |
 | Purpose-aware evidence | Citations chosen for the actual decision | `_required_ap_source_ids`, `_required_ar_source_ids` |
 | Deterministic baseline | Local reproducible workflow path | `extractor_mode=heuristic` |
 | Prompt-applied rate | How often the LLM prompt path ran | `prompt_applied_rate` |
 
 ## Updates
 
-- 2026-05-25 - Updated the UI section after the operator-console polish phase. The repo now documents the brand bar, grid-backed hero, reliability callouts, visible self-healing RAG repair status, LLM gateway call count, and the fresh local verification run on port `8010`.
+- 2026-05-25 - Updated the UI section after the operator-console polish phase. The repo now documents the brand bar, grid-backed hero, reliability callouts, visible retrieval-repair status, optional LLM gateway call count, and the fresh local verification run on port `8010`.
+- 2026-07-10 - Corrected the product framing to distinguish the deterministic deployed default, lexical policy retrieval, and optional LLM extraction path. Replaced embedding/vector-style RAG claims with implementation-accurate retrieval language.
 - 2026-05-28 - Added the evaluation dashboard layer that surfaces dataset size, pass rate, workflow routing accuracy, extraction match, citation coverage, grounding support, AR subject/draft checks, review gate rate, average latency, the latest eval timestamp, and downloadable `eval-results.json` output from the FastAPI app.
 - 2026-05-29 - Refined the future-upgrade roadmap so the repo now separates immediate portfolio work from later OCR, persistence, reviewer access, notification, and multi-tenant ideas.
 - 2026-05-29 - Added the tabbed workspace shell, AP/AR explainer copy, and pastel accent tuning so the finance console stays input-first while moving review queue, evaluation, and debug content into clearer sections.
