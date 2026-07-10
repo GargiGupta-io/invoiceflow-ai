@@ -1491,7 +1491,7 @@ function renderAuditDetails(container, audit, finalDecision, evidence) {
     ["Tool calls", Array.isArray(audit.agent_tool_trace) ? String(audit.agent_tool_trace.length) : null],
     ["Latency", audit.total_latency_ms == null ? null : `${audit.total_latency_ms} ms`],
     [
-      "RAG repair",
+      "Retrieval repair",
       audit.retrieval_repair && audit.retrieval_repair.attempted
         ? audit.retrieval_repair.success ? "Succeeded" : "Failed"
         : "Not needed"
@@ -1731,7 +1731,7 @@ function buildAuditMeta(confidence, audit) {
     bodyParts.push(`${audit.agent_tool_trace.length} tool calls`);
   }
   if (audit.retrieval_repair && audit.retrieval_repair.attempted) {
-    bodyParts.push(audit.retrieval_repair.success ? "RAG repaired" : "RAG repair failed");
+    bodyParts.push(audit.retrieval_repair.success ? "Retrieval repaired" : "Retrieval repair failed");
   }
   if (Array.isArray(audit.llm_gateway) && audit.llm_gateway.length) {
     bodyParts.push(`${audit.llm_gateway.length} gateway calls`);
