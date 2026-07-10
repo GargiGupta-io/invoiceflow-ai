@@ -1,6 +1,6 @@
-# InvoiceFlow AI Demo Pack
+# InvoiceFlow AI Finance Reviewer Demo Pack
 
-This demo pack is a controller-readable proof artifact for the hosted
+This demo pack is a finance-reviewer proof artifact for the hosted
 InvoiceFlow AI demo. It explains one AP case and one AR case in business terms
 so a finance reviewer can understand what the system checked, why it routed the
 case, and what a human should do next.

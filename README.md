@@ -9,7 +9,7 @@ and deterministic evaluations.
 Live demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)  
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 
-Controller-readable demo pack: [docs/demo-pack.md](docs/demo-pack.md)
+Finance Reviewer Demo Pack: [docs/demo-pack.md](docs/demo-pack.md)
 
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
 risky information, retrieve policy evidence, draft AR follow-ups, and route
@@ -85,7 +85,7 @@ reviewer:
 10. Show the drafted follow-up email and escalation reasoning.
 
 For a finance-operator proof artifact, use the
-[controller-readable demo pack](docs/demo-pack.md). It walks through the Missing
+[Finance Reviewer Demo Pack](docs/demo-pack.md). It walks through the Missing
 PO case from input invoice to expected decision, extracted fields, policy
 evidence, human-review reason, audit trail, and operator next step.
 
