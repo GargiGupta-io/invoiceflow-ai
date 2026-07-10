@@ -995,7 +995,7 @@ That is a much stronger story than just saying:
 
 ## How This Connects To Bigger Concepts
 
-- **RAG**: your retrieval layer is a compact, workflow-focused version of retrieval-augmented generation
+- **Lexical policy retrieval**: the project ranks citeable policy chunks through token overlap; it is grounded retrieval, not embedding or vector search
 - **Agentic systems**: your project has multiple stages with specialized roles, even if they are not branded as autonomous agents
 - **Backend engineering**: FastAPI, data flow, serialization, and pipeline orchestration are all backend work
 - **Workflow automation**: this is the real theme of the repo
@@ -1010,7 +1010,7 @@ If you continue this project later, these are the best next upgrades:
 1. strengthen citation selection so the expected policy IDs show up more reliably
 2. tighten AR subject/body phrasing to improve eval pass rate
 3. connect OCR to a fully validated local Tesseract setup and test scanned-PDF cases end to end
-4. add live deployment
+4. validate the hosted deployment against the documented demo path
 5. widen the eval set beyond the seven current synthetic cases
 6. possibly store audit trails for later inspection instead of only returning them in responses
 
