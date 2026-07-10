@@ -72,7 +72,7 @@ Plain English: this stage says whether the system found policy evidence.
 
 The UI reads the evidence list from the final AP or AR decision. It displays the number of evidence sources and names the top matched policy source.
 
-It also includes RAG repair state from `audit.retrieval_repair`, which matters because weak or failed retrieval should not look as strong as a direct policy match.
+It also includes retrieval-repair state from `audit.retrieval_repair`, which matters because weak or failed retrieval should not look as strong as a direct policy match.
 
 ### Stage 3: Validation
 
@@ -249,18 +249,20 @@ The trace helpers default to readable fallbacks such as `policy source`, `confid
 
 ## How It Connects To Other Concepts
 
-- **RAG transparency**: the retrieval stage turns policy matching into something visible.
+- **Policy-retrieval transparency**: the retrieval stage turns policy matching into something visible.
 - **Human review gates**: the validation stage makes review reasons clear before the user reads audit metadata.
 - **Structured extraction**: the extraction stage shows whether the schema has enough data to trust the workflow.
 - **Evaluation mindset**: a trace is useful for debugging failed cases because it shows which stage produced weak output.
 
 ## Going Deeper
 
-### Self-Healing RAG
+### Retrieval Repair
 
 Plain English: if the first retrieval attempt is weak, the system can try to repair the search.
 
-The trace already exposes `retrieval_repair`, which can later become a stronger self-healing RAG story with retry strategy, query rewrite details, and confidence scoring.
+The trace already exposes `retrieval_repair`, which can later become a stronger
+retrieval retry path with query rewrite details and confidence scoring. The
+current search is lexical, not embedding or vector based.
 
 ### Guardrail Gateway
 
@@ -284,7 +286,7 @@ The trace gives a UI shape that matches what evals should measure: extraction, r
 | Retrieval | What policy/context the system found | `finalDecision.evidence` |
 | Validation | What checks or review gates fired | `audit.human_review` |
 | Decision | What the operator should do | `ap_decision.recommendation` or `ar_decision.escalation_level` |
-| RAG repair | A retry when retrieval is weak | `audit.retrieval_repair` |
+| Retrieval repair | A retry when lexical policy retrieval is weak | `audit.retrieval_repair` |
 
 ### Essential Flow
 
