@@ -3889,6 +3889,17 @@ body.case-selected .debug-disclosure pre {
   gap: 24px;
 }
 
+.footer-profile,
+.footer-contact {
+  display: grid;
+  gap: 5px;
+}
+
+.footer-contact {
+  justify-items: end;
+  text-align: right;
+}
+
 .site-credit {
   display: flex;
   margin: 0;
@@ -3908,6 +3919,16 @@ body.case-selected .debug-disclosure pre {
   color: var(--ink);
   font-size: 0.9rem;
   font-weight: 850;
+}
+
+.footer-credential,
+.footer-contact-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
 }
 
 .footer-email {
@@ -3979,7 +4000,13 @@ body.case-selected .debug-disclosure pre {
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    gap: 8px;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .footer-profile,
+  .footer-contact {
+    justify-items: center;
     text-align: center;
   }
 
