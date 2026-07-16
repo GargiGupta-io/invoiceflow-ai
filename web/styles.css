@@ -3870,61 +3870,75 @@ body.case-selected .debug-disclosure pre {
 
 .site-footer {
   position: relative;
-  z-index: 1;
-  border-top: 1px solid var(--line);
-  background: rgba(247, 242, 231, 0.72);
-  backdrop-filter: blur(18px);
+  z-index: 2;
+  width: 100%;
+  margin: 0;
+  border-top: 1px solid rgba(31, 39, 33, 0.12);
+  background: rgba(247, 242, 231, 0.82);
+  backdrop-filter: blur(20px) saturate(1.05);
 }
 
 .site-footer-inner {
   display: flex;
-  width: min(100%, 1080px);
+  width: min(calc(100% - 44px), 1120px);
+  min-height: 84px;
   margin: 0 auto;
-  padding: 28px 20px 30px;
+  padding: 22px 0;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 24px;
 }
 
 .site-credit {
   display: flex;
   margin: 0;
-  align-items: baseline;
-  gap: 9px;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .site-credit span {
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 850;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .site-credit strong {
   color: var(--ink);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 850;
 }
 
 .footer-email {
-  color: var(--warm-deep);
-  font-size: 0.88rem;
-  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 800;
   letter-spacing: 0;
   text-decoration: none;
-  border-bottom: 1px solid rgba(111, 55, 19, 0.24);
-  transition: color 160ms ease, border-color 160ms ease;
+  transition: color 160ms ease;
+}
+
+.footer-email::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(95, 146, 127, 0.12);
+  content: "";
 }
 
 .footer-email:hover {
-  color: var(--warm);
-  border-color: currentColor;
+  color: var(--green);
 }
 
 .footer-email:focus-visible {
   outline: 2px solid var(--green);
-  outline-offset: 5px;
-  border-color: transparent;
+  outline-offset: 6px;
+  border-radius: 2px;
 }
 
 @media (max-width: 900px) {
@@ -3960,10 +3974,13 @@ body.case-selected .debug-disclosure pre {
 
 @media (max-width: 760px) {
   .site-footer-inner {
-    padding: 22px 20px 24px;
-    align-items: flex-start;
+    min-height: 0;
+    padding: 24px 0 26px;
+    align-items: center;
     flex-direction: column;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
   }
 
   body.case-selected .workspace {
