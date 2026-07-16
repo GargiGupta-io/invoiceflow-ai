@@ -3868,6 +3868,65 @@ body.case-selected .debug-disclosure pre {
   margin-top: 10px;
 }
 
+.site-footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--line);
+  background: rgba(247, 242, 231, 0.72);
+  backdrop-filter: blur(18px);
+}
+
+.site-footer-inner {
+  display: flex;
+  width: min(100%, 1080px);
+  margin: 0 auto;
+  padding: 28px 20px 30px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.site-credit {
+  display: flex;
+  margin: 0;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.site-credit span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.site-credit strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.footer-email {
+  color: var(--warm-deep);
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(111, 55, 19, 0.24);
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.footer-email:hover {
+  color: var(--warm);
+  border-color: currentColor;
+}
+
+.footer-email:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 5px;
+  border-color: transparent;
+}
+
 @media (max-width: 900px) {
   body.case-selected .detail-panel .panel-header,
   body.case-selected .queue-panel .panel-header,
@@ -3900,6 +3959,13 @@ body.case-selected .debug-disclosure pre {
 }
 
 @media (max-width: 760px) {
+  .site-footer-inner {
+    padding: 22px 20px 24px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   body.case-selected .workspace {
     scroll-margin-top: 148px;
   }
