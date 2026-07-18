@@ -59,6 +59,8 @@ class Settings(BaseSettings):
     upload_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
     upload_max_pdf_pages: int = Field(default=25, ge=1, le=500)
     upload_max_filename_length: int = Field(default=255, ge=32, le=255)
+    document_retention_days: int = Field(default=90, ge=1, le=3650)
+    retention_delete_batch_size: int = Field(default=100, ge=1, le=1000)
 
     openai_api_key: SecretStr | None = None
 
