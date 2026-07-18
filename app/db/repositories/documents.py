@@ -18,6 +18,7 @@ class DocumentRepository(TenantRepository):
     def create(
         self,
         *,
+        document_id: uuid.UUID | None = None,
         original_filename: str,
         storage_key: str,
         content_type: str,
@@ -27,6 +28,7 @@ class DocumentRepository(TenantRepository):
         retention_until: datetime | None = None,
     ) -> Document:
         document = Document(
+            id=document_id or uuid.uuid4(),
             organization_id=self.tenant.organization_id,
             uploaded_by_user_id=self.tenant.actor_id,
             original_filename=original_filename,
