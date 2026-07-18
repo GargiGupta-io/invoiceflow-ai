@@ -82,6 +82,20 @@ class DocumentRepository(TenantRepository):
         self.session.flush()
         return document
 
+    def mark_queued_for_retry(
+        self,
+        document_id: uuid.UUID,
+        *,
+        storage_key: str | None = None,
+    ) -> Document:
+        document = self.require(document_id)
+        if storage_key is not None:
+            document.storage_key = storage_key
+        if document.status != DocumentStatus.COMPLETED:
+            document.status = DocumentStatus.QUEUED
+        self.session.flush()
+        return document
+
     def mark_failed(
         self,
         document_id: uuid.UUID,
