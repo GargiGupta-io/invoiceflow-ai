@@ -84,6 +84,8 @@ class ReceivedQueueMessage:
 
 
 class ProcessingQueue(Protocol):
+    def check_health(self) -> None: ...
+
     def send(self, message: ProcessingMessage) -> QueueDispatchReceipt: ...
 
     def receive_one(
