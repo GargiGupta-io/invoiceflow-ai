@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     s3_validated_prefix: str = "validated"
     s3_sse_algorithm: Literal["AES256", "aws:kms"] = "AES256"
     s3_kms_key_id: str | None = None
+    s3_presigned_url_ttl_seconds: int = Field(default=300, ge=60, le=300)
 
     upload_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
     upload_max_pdf_pages: int = Field(default=25, ge=1, le=500)
