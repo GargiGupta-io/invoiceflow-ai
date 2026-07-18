@@ -94,3 +94,10 @@ class ProcessingQueue(Protocol):
     ) -> ReceivedQueueMessage | None: ...
 
     def delete(self, *, receipt_handle: str) -> None: ...
+
+    def change_visibility(
+        self,
+        *,
+        receipt_handle: str,
+        visibility_timeout_seconds: int,
+    ) -> None: ...
