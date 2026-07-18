@@ -11,6 +11,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.db.models import JobStatus
 from app.db.repositories import (
     AuditEventRepository,
+    DocumentPageInput,
+    DocumentPageRepository,
     DocumentRepository,
     JobClaim,
     JobClaimState,
@@ -399,6 +401,21 @@ class DocumentWorker:
                 job_id=message.job_id,
                 document_id=message.document_id,
             )
+            page_records = [
+                DocumentPageInput(
+                    page_number=int(page.get("page_number", 0)),
+                    text=str(page.get("text") or ""),
+                    extraction_method=str(page.get("extraction_method") or ""),
+                    warnings=tuple(
+                        str(warning) for warning in (page.get("warnings") or [])
+                    ),
+                )
+                for page in processed.pages
+            ]
+            DocumentPageRepository(session, tenant).replace_for_document(
+                message.document_id,
+                page_records,
+            )
             job = ProcessingJobRepository(session, tenant).complete(
                 job_id=message.job_id,
                 document_id=message.document_id,
@@ -418,6 +435,10 @@ class DocumentWorker:
                 safe_metadata={
                     "attempt_count": job.attempt_count,
                     "evidence_count": len(processed.evidence),
+                    "ocr_page_count": sum(
+                        page.extraction_method == "ocr" for page in page_records
+                    ),
+                    "page_count": len(page_records),
                     "job_id": str(message.job_id),
                     "queue_receive_count": received.receive_count,
                     "storage_state": "validated",
