@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     s3_kms_key_id: str | None = None
     s3_presigned_url_ttl_seconds: int = Field(default=300, ge=60, le=300)
     sqs_queue_url: str = ""
+    sqs_wait_time_seconds: int = Field(default=20, ge=0, le=20)
+    sqs_visibility_timeout_seconds: int = Field(default=120, ge=30, le=43200)
+    worker_extractor_mode: Literal["heuristic", "auto", "llm"] = "heuristic"
 
     upload_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
     upload_max_pdf_pages: int = Field(default=25, ge=1, le=500)
