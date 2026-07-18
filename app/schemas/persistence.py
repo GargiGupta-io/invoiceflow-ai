@@ -102,6 +102,39 @@ class DocumentAccessResponse(BaseModel):
     expires_at: datetime
 
 
+class DocumentPageResponse(BaseModel):
+    page_number: int = Field(ge=1)
+    text: str
+    extraction_method: str
+    warnings: list[str]
+
+
+class DocumentPageListResponse(BaseModel):
+    document_id: uuid.UUID
+    items: list[DocumentPageResponse]
+    count: int = Field(ge=0)
+
+
+class DocumentSearchHitResponse(BaseModel):
+    document_id: uuid.UUID
+    page_number: int = Field(ge=1)
+    excerpt: str
+    extraction_method: str
+    score: float = Field(ge=0)
+    access_path: str
+    page_fragment: str
+
+
+class DocumentSearchRequest(BaseModel):
+    query: str = Field(min_length=2, max_length=200)
+    limit: int = Field(default=20, ge=1, le=50)
+
+
+class DocumentSearchResponse(BaseModel):
+    items: list[DocumentSearchHitResponse]
+    count: int = Field(ge=0)
+
+
 class ProcessingDispatchResponse(BaseModel):
     processing_job: ProcessingJobResponse
     request_id: uuid.UUID
