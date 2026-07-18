@@ -8,13 +8,19 @@ from unittest.mock import patch
 from botocore.exceptions import ClientError
 
 from app.config import Settings
-from app.queue import ProcessingMessage, QueueOperationError, SQSProcessingQueue
+from app.queue import (
+    ProcessingMessage,
+    QueueMessageValidationError,
+    QueueOperationError,
+    SQSProcessingQueue,
+)
 
 
 class FakeSQSClient:
     def __init__(self) -> None:
         self.requests: list[dict[str, str]] = []
         self.response: dict[str, str] = {"MessageId": "sqs-message-123"}
+        self.receive_response: dict = {"Messages": []}
         self.error: Exception | None = None
 
     def send_message(self, **request):
@@ -22,6 +28,18 @@ class FakeSQSClient:
         if self.error is not None:
             raise self.error
         return self.response
+
+    def receive_message(self, **request):
+        self.requests.append(request)
+        if self.error is not None:
+            raise self.error
+        return self.receive_response
+
+    def delete_message(self, **request):
+        self.requests.append(request)
+        if self.error is not None:
+            raise self.error
+        return {}
 
 
 class SQSProcessingQueueTests(unittest.TestCase):
@@ -103,6 +121,69 @@ class SQSProcessingQueueTests(unittest.TestCase):
         self.assertEqual(call.args, ("sqs",))
         self.assertEqual(call.kwargs["region_name"], "eu-west-1")
         self.assertEqual(call.kwargs["endpoint_url"], "http://localhost:4566")
+
+    def test_processing_message_round_trips_through_strict_schema(self) -> None:
+        parsed = ProcessingMessage.from_body(self.message.to_body())
+
+        self.assertEqual(parsed, self.message)
+        payload = json.loads(self.message.to_body())
+        payload["unexpected"] = "field"
+        with self.assertRaises(QueueMessageValidationError):
+            ProcessingMessage.from_body(json.dumps(payload))
+        payload.pop("unexpected")
+        payload["schema_version"] = 2
+        with self.assertRaises(QueueMessageValidationError):
+            ProcessingMessage.from_body(json.dumps(payload))
+
+    def test_receive_uses_long_polling_and_returns_receipt_handle(self) -> None:
+        self.client.receive_response = {
+            "Messages": [
+                {
+                    "MessageId": "received-123",
+                    "ReceiptHandle": "receipt-secret-123",
+                    "Body": self.message.to_body(),
+                    "Attributes": {"ApproximateReceiveCount": "3"},
+                }
+            ]
+        }
+
+        received = self.queue.receive_one(
+            wait_time_seconds=20,
+            visibility_timeout_seconds=120,
+        )
+
+        self.assertIsNotNone(received)
+        assert received is not None
+        self.assertEqual(received.message_id, "received-123")
+        self.assertEqual(received.receipt_handle, "receipt-secret-123")
+        self.assertEqual(received.receive_count, 3)
+        request = self.client.requests[0]
+        self.assertEqual(request["MaxNumberOfMessages"], 1)
+        self.assertEqual(request["WaitTimeSeconds"], 20)
+        self.assertEqual(request["VisibilityTimeout"], 120)
+
+    def test_empty_receive_returns_none(self) -> None:
+        self.assertIsNone(
+            self.queue.receive_one(
+                wait_time_seconds=20,
+                visibility_timeout_seconds=120,
+            )
+        )
+
+    def test_delete_uses_receipt_handle_and_redacts_provider_failure(self) -> None:
+        self.queue.delete(receipt_handle="receipt-secret-123")
+        self.assertEqual(
+            self.client.requests[0],
+            {"QueueUrl": self.queue_url, "ReceiptHandle": "receipt-secret-123"},
+        )
+
+        self.client.error = ClientError(
+            {"Error": {"Code": "AccessDenied", "Message": "private receipt detail"}},
+            "DeleteMessage",
+        )
+        with self.assertRaisesRegex(QueueOperationError, "Queue operation failed") as raised:
+            self.queue.delete(receipt_handle="receipt-secret-123")
+        self.assertNotIn("private receipt", str(raised.exception))
 
 
 if __name__ == "__main__":
