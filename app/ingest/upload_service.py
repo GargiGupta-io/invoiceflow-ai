@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -33,7 +34,10 @@ def persist_quarantined_upload(
     upload: ValidatedUpload,
     quarantine_prefix: str,
     validated_prefix: str,
+    retention_days: int = 90,
 ) -> QuarantinedUploadReceipt:
+    if retention_days < 1:
+        raise ValueError("Document retention must be at least one day.")
     document_id = uuid.uuid4()
     request_id = uuid.uuid4()
     keys = build_document_keys(
@@ -64,6 +68,7 @@ def persist_quarantined_upload(
             content_type=upload.content_type,
             size_bytes=upload.size_bytes,
             page_count=upload.page_count,
+            retention_until=datetime.now(timezone.utc) + timedelta(days=retention_days),
         )
         AuditEventRepository(session, tenant).append(
             action="document.uploaded",
