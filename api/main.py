@@ -2,18 +2,24 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from api.v2 import router as v2_router
+from app.auth.dependencies import get_database
+from app.config import get_settings
 from app.eval.dashboard import EVAL_RESULTS_PATH, build_eval_dashboard
 from app.ingest import IngestionError, supported_extensions
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
 from app.orchestrator import build_review_queue
+from app.observability import ReadinessChecker
+from app.queue import get_processing_queue
+from app.storage import get_object_storage
 
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 ALLOWED_EXTRACTOR_MODES = {"auto", "heuristic", "llm"}
@@ -95,6 +101,18 @@ def _validate_upload_file(filename: str, content: bytes) -> None:
         )
 
 
+@lru_cache
+def get_readiness_checker() -> ReadinessChecker:
+    settings = get_settings()
+    storage_factory = get_object_storage if settings.s3_configured else None
+    queue_factory = get_processing_queue if settings.sqs_configured else None
+    return ReadinessChecker(
+        database=get_database(),
+        storage_factory=storage_factory,
+        queue_factory=queue_factory,
+    )
+
+
 @app.get("/")
 def root() -> dict:
     return {
@@ -103,6 +121,8 @@ def root() -> dict:
         "endpoints": [
             "/ui",
             "/health",
+            "/health/live",
+            "/health/ready",
             "/samples",
             "/review-queue",
             "/eval/summary",
@@ -126,6 +146,22 @@ def health() -> dict:
         "status": "ok",
         "sample_count": len(list_sample_documents()),
     }
+
+
+@app.get("/health/live")
+def health_live() -> dict[str, str]:
+    return {"status": "ok", "service": "invoiceflow-api"}
+
+
+@app.get("/health/ready")
+def health_ready(
+    checker: ReadinessChecker = Depends(get_readiness_checker),
+) -> JSONResponse:
+    report = checker.check()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK if report.ready else status.HTTP_503_SERVICE_UNAVAILABLE,
+        content=report.to_dict(),
+    )
 
 
 @app.get("/samples")
