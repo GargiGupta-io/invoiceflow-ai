@@ -54,6 +54,15 @@ class SettingsTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             Settings(_env_file=None, s3_presigned_url_ttl_seconds=301)
 
+    def test_sqs_configuration_requires_a_queue_url(self) -> None:
+        self.assertFalse(Settings(_env_file=None).sqs_configured)
+        self.assertTrue(
+            Settings(
+                _env_file=None,
+                sqs_queue_url="https://sqs.ap-south-1.amazonaws.com/123456789012/invoiceflow",
+            ).sqs_configured
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
