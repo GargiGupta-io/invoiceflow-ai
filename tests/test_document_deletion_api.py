@@ -13,6 +13,7 @@ from app.auth.claims import VerifiedIdentity
 from app.auth.dependencies import get_database, get_token_verifier
 from app.db import (
     Base,
+    DocumentPage,
     DocumentStatus,
     JobStatus,
     Organization,
@@ -23,6 +24,8 @@ from app.db import (
 )
 from app.db.repositories import (
     AuditEventRepository,
+    DocumentPageInput,
+    DocumentPageRepository,
     DocumentRepository,
     ProcessingJobRepository,
     ReviewDecisionRepository,
@@ -162,6 +165,10 @@ class DocumentDeletionApiTests(unittest.TestCase):
             job.status = JobStatus.COMPLETED
             job.extraction_result = {"invoice_number": f"INV-{suffix}"}
             job.evidence = [{"citation": "AP-001"}]
+            DocumentPageRepository(session, tenant).replace_for_document(
+                document.id,
+                [DocumentPageInput(1, "Sensitive extracted invoice text", "native")],
+            )
             ReviewDecisionRepository(session, tenant).create(
                 document_id=document.id,
                 processing_job_id=job.id,
@@ -234,11 +241,17 @@ class DocumentDeletionApiTests(unittest.TestCase):
                 .select_from(ReviewDecision)
                 .where(ReviewDecision.document_id == self.document_a.id)
             )
+            page_count = session.scalar(
+                select(func.count())
+                .select_from(DocumentPage)
+                .where(DocumentPage.document_id == self.document_a.id)
+            )
         self.assertEqual(tombstone.status, DocumentStatus.DELETED)
         self.assertEqual(tombstone.original_filename, "[deleted]")
         self.assertIsNotNone(tombstone.deleted_at)
         self.assertEqual(job_count, 0)
         self.assertEqual(review_count, 0)
+        self.assertEqual(page_count, 0)
 
     def test_repeated_deletion_returns_same_tombstone_without_more_storage_calls(
         self,
