@@ -6,7 +6,12 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from app.db import Base, DocumentStatus, JobStatus, Organization, User
-from app.db.repositories import AuditEventRepository, DocumentRepository, ProcessingJobRepository
+from app.db.repositories import (
+    AuditEventRepository,
+    DocumentPageRepository,
+    DocumentRepository,
+    ProcessingJobRepository,
+)
 from app.db.session import create_database
 from app.db.tenant import TenantContext
 from app.queue import (
@@ -116,6 +121,14 @@ class RecordingProcessor:
                 "route": {"workflow_type": "accounts_payable"},
             },
             evidence=[{"source_id": "AP-APPROVAL-001", "excerpt": "Policy evidence"}],
+            pages=[
+                {
+                    "page_number": 1,
+                    "text": "Invoice number INV-100",
+                    "extraction_method": "native",
+                    "warnings": [],
+                }
+            ],
         )
 
 
@@ -269,6 +282,9 @@ class DocumentWorkerTests(unittest.TestCase):
             audit = AuditEventRepository(session, self.tenant).list_for_resource(
                 "document", str(self.document_id)
             )
+            pages = DocumentPageRepository(session, self.tenant).list_for_document(
+                self.document_id
+            )
         assert job is not None
         self.assertEqual(job.status, JobStatus.COMPLETED)
         self.assertEqual(job.attempt_count, 1)
@@ -276,6 +292,7 @@ class DocumentWorkerTests(unittest.TestCase):
         self.assertEqual(job.evidence[0]["source_id"], "AP-APPROVAL-001")
         self.assertEqual(document.status, DocumentStatus.COMPLETED)
         self.assertEqual(document.storage_key, self.keys.validated_key)
+        self.assertEqual(pages[0].text_content, "Invoice number INV-100")
         self.assertEqual(
             {event.action for event in audit},
             {"document.processing_started", "document.processing_completed"},
