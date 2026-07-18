@@ -21,6 +21,7 @@ from app.auth.dependencies import (
 from app.config import get_settings
 from app.db.repositories import (
     AuditEventRepository,
+    DocumentPageRepository,
     DocumentRepository,
     ReviewDecisionRepository,
     TenantResourceNotFound,
@@ -46,6 +47,11 @@ from app.schemas.persistence import (
     DocumentDetailResponse,
     DocumentDeletionResponse,
     DocumentListResponse,
+    DocumentPageListResponse,
+    DocumentPageResponse,
+    DocumentSearchHitResponse,
+    DocumentSearchRequest,
+    DocumentSearchResponse,
     DocumentSummaryResponse,
     DocumentUploadResponse,
     ProcessingJobResponse,
@@ -200,6 +206,65 @@ def document_detail(
         processing_jobs=[ProcessingJobResponse.model_validate(job) for job in jobs],
         reviews=[ReviewDecisionResponse.model_validate(review) for review in reviews],
     )
+
+
+@router.get(
+    "/documents/{document_id}/pages",
+    response_model=DocumentPageListResponse,
+)
+def document_pages(
+    document_id: uuid.UUID,
+    response: Response,
+    tenant: TenantContext = Depends(require_read_tenant),
+    session: Session = Depends(get_db_session),
+) -> DocumentPageListResponse:
+    try:
+        pages = DocumentPageRepository(session, tenant).list_for_document(document_id)
+    except TenantResourceNotFound as error:
+        raise _not_found() from error
+
+    response.headers["Cache-Control"] = "no-store"
+    items = [
+        DocumentPageResponse(
+            page_number=page.page_number,
+            text=page.text_content,
+            extraction_method=page.extraction_method,
+            warnings=list(page.warnings),
+        )
+        for page in pages
+    ]
+    return DocumentPageListResponse(
+        document_id=document_id,
+        items=items,
+        count=len(items),
+    )
+
+
+@router.post("/search", response_model=DocumentSearchResponse)
+def search_documents(
+    request: DocumentSearchRequest,
+    response: Response,
+    tenant: TenantContext = Depends(require_read_tenant),
+    session: Session = Depends(get_db_session),
+) -> DocumentSearchResponse:
+    hits = DocumentPageRepository(session, tenant).search(
+        request.query,
+        limit=request.limit,
+    )
+    response.headers["Cache-Control"] = "no-store"
+    items = [
+        DocumentSearchHitResponse(
+            document_id=hit.document_id,
+            page_number=hit.page_number,
+            excerpt=hit.excerpt,
+            extraction_method=hit.extraction_method,
+            score=hit.score,
+            access_path=f"/v2/documents/{hit.document_id}/access",
+            page_fragment=f"#page={hit.page_number}",
+        )
+        for hit in hits
+    ]
+    return DocumentSearchResponse(items=items, count=len(items))
 
 
 @router.delete(
