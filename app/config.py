@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     s3_sse_algorithm: Literal["AES256", "aws:kms"] = "AES256"
     s3_kms_key_id: str | None = None
 
+    upload_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
+    upload_max_pdf_pages: int = Field(default=25, ge=1, le=500)
+    upload_max_filename_length: int = Field(default=255, ge=32, le=255)
+
     openai_api_key: SecretStr | None = None
 
     @model_validator(mode="after")
