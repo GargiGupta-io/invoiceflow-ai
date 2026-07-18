@@ -6,14 +6,25 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable
 
-from .ocr import ocr_pdf_page
+from .ocr import ocr_image, ocr_pdf_page
 
 PDF_EXTENSIONS = {".pdf"}
 TEXT_EXTENSIONS = {".txt", ".md"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg"}
 
 
 class IngestionError(Exception):
     """Raised when an input document cannot be read safely."""
+
+
+@dataclass(slots=True)
+class PageText:
+    """Text and extraction metadata for one source page."""
+
+    page_number: int
+    text: str
+    extraction_method: str
+    warnings: list[str] = field(default_factory=list)
 
 
 @dataclass(slots=True)
@@ -25,12 +36,13 @@ class DocumentText:
     text: str
     page_count: int | None = None
     warnings: list[str] = field(default_factory=list)
+    pages: list[PageText] = field(default_factory=list)
 
 
 def supported_extensions() -> tuple[str, ...]:
     """Return the file types the ingestion layer can currently read."""
 
-    return tuple(sorted(PDF_EXTENSIONS | TEXT_EXTENSIONS))
+    return tuple(sorted(PDF_EXTENSIONS | TEXT_EXTENSIONS | IMAGE_EXTENSIONS))
 
 
 def read_document_text(path: str | Path) -> DocumentText:
@@ -47,6 +59,8 @@ def read_document_text(path: str | Path) -> DocumentText:
         return _read_pdf(source_path)
     if suffix in TEXT_EXTENSIONS:
         return _read_text_file(source_path)
+    if suffix in IMAGE_EXTENSIONS:
+        return _read_image(source_path)
 
     supported = ", ".join(supported_extensions())
     raise IngestionError(
@@ -68,6 +82,14 @@ def _read_text_file(source_path: Path) -> DocumentText:
         text=text,
         page_count=1,
         warnings=warnings,
+        pages=[
+            PageText(
+                page_number=1,
+                text=text,
+                extraction_method="text",
+                warnings=list(warnings),
+            )
+        ],
     )
 
 
@@ -75,23 +97,35 @@ def _read_pdf(source_path: Path) -> DocumentText:
     reader_class = _resolve_pdf_reader()
     reader = reader_class(str(source_path))
 
-    page_texts: list[str] = []
+    pages: list[PageText] = []
     warnings: list[str] = []
 
     for page_index, page in enumerate(reader.pages, start=1):
         extracted_text = page.extract_text() or ""
         normalized_page_text = _normalize_text(extracted_text)
+        page_warnings: list[str] = []
+        extraction_method = "native"
         if not normalized_page_text:
-            warnings.append(f"page_{page_index}_no_extractable_text")
+            page_warnings.append(f"page_{page_index}_no_extractable_text")
             ocr_text, ocr_warnings = ocr_pdf_page(page, page_index)
-            warnings.extend(ocr_warnings)
+            page_warnings.extend(ocr_warnings)
             if ocr_text:
-                page_texts.append(ocr_text)
-                warnings.append(f"page_{page_index}_used_ocr_fallback")
-                continue
-        page_texts.append(normalized_page_text)
+                normalized_page_text = ocr_text
+                extraction_method = "ocr"
+                page_warnings.append(f"page_{page_index}_used_ocr_fallback")
+            else:
+                extraction_method = "none"
+        warnings.extend(page_warnings)
+        pages.append(
+            PageText(
+                page_number=page_index,
+                text=normalized_page_text,
+                extraction_method=extraction_method,
+                warnings=_dedupe_preserve_order(page_warnings),
+            )
+        )
 
-    text = "\n\n".join(part for part in page_texts if part).strip()
+    text = "\n\n".join(page.text for page in pages if page.text).strip()
     if not text:
         warnings.append("pdf_text_extraction_empty")
         warnings.append("pdf_requires_ocr_or_manual_review")
@@ -102,6 +136,33 @@ def _read_pdf(source_path: Path) -> DocumentText:
         text=text,
         page_count=len(reader.pages),
         warnings=_dedupe_preserve_order(warnings),
+        pages=pages,
+    )
+
+
+def _read_image(source_path: Path) -> DocumentText:
+    try:
+        text, warnings = ocr_image(source_path.read_bytes())
+    except Exception as error:
+        raise IngestionError("The image could not be read by the OCR processor.") from error
+
+    if not text and "image_ocr_no_text" not in warnings:
+        warnings.append("image_ocr_no_text")
+    normalized_text = _normalize_text(text)
+    return DocumentText(
+        source_path=source_path,
+        source_type="image",
+        text=normalized_text,
+        page_count=1,
+        warnings=_dedupe_preserve_order(warnings),
+        pages=[
+            PageText(
+                page_number=1,
+                text=normalized_text,
+                extraction_method="ocr",
+                warnings=_dedupe_preserve_order(warnings),
+            )
+        ],
     )
 
 
