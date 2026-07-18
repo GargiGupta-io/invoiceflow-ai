@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Iterator
+from typing import Callable, Iterator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -23,6 +23,13 @@ def _unauthorized() -> HTTPException:
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail={"code": "authentication_required", "message": "Valid authentication is required."},
         headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def _forbidden() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail={"code": "insufficient_scope", "message": "Permission is required for this action."},
     )
 
 
@@ -74,4 +81,18 @@ def require_tenant(
     return TenantContext(
         organization_id=identity.organization_id,
         actor_id=user.id,
+        scopes=identity.scopes,
     )
+
+
+def require_scope(required_scope: str) -> Callable[..., TenantContext]:
+    def scoped_tenant(tenant: TenantContext = Depends(require_tenant)) -> TenantContext:
+        if required_scope not in tenant.scopes:
+            raise _forbidden()
+        return tenant
+
+    return scoped_tenant
+
+
+require_read_tenant = require_scope("invoiceflow.read")
+require_review_tenant = require_scope("invoiceflow.review")
