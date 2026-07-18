@@ -49,6 +49,11 @@ class SettingsTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             Settings(_env_file=None, database_pool_size=0)
 
+    def test_presigned_url_lifetime_is_capped_at_five_minutes(self) -> None:
+        self.assertEqual(Settings(_env_file=None).s3_presigned_url_ttl_seconds, 300)
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, s3_presigned_url_ttl_seconds=301)
+
 
 if __name__ == "__main__":
     unittest.main()
