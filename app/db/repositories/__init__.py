@@ -3,6 +3,7 @@ from app.db.repositories.base import IdempotencyConflict, TenantRepository, Tena
 from app.db.repositories.documents import DocumentRepository
 from app.db.repositories.jobs import ProcessingJobRepository
 from app.db.repositories.reviews import ReviewDecisionRepository
+from app.db.repositories.users import UserRepository
 
 __all__ = [
     "AuditEventRepository",
@@ -12,4 +13,5 @@ __all__ = [
     "ReviewDecisionRepository",
     "TenantRepository",
     "TenantResourceNotFound",
+    "UserRepository",
 ]
