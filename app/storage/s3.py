@@ -106,6 +106,20 @@ class S3ObjectStorage:
             version_id=response.get("VersionId"),
         )
 
+    def create_download_url(self, *, key: str, expires_in_seconds: int) -> str:
+        self._require_prefix(key, self.validated_prefix)
+        if not 60 <= expires_in_seconds <= 300:
+            raise ValueError("Download URL lifetime must be between 60 and 300 seconds.")
+        try:
+            return self.client.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": self.bucket_name, "Key": key},
+                ExpiresIn=expires_in_seconds,
+                HttpMethod="GET",
+            )
+        except (BotoCoreError, ClientError):
+            raise StorageOperationError("Storage operation failed.") from None
+
     def delete(self, *, key: str) -> None:
         self._require_managed_key(key)
         try:
