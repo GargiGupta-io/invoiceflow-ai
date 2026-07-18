@@ -162,6 +162,7 @@ class SecureUploadApiTests(unittest.TestCase):
         self.assertEqual(document.organization_id, self.organization_a)
         self.assertEqual(document.uploaded_by_user_id, self.user_a)
         self.assertEqual(document.original_filename, "July invoice (final).pdf")
+        self.assertIsNotNone(document.retention_until)
         self.assertEqual(events[0].action, "document.uploaded")
         self.assertEqual(events[0].request_id, payload["request_id"])
         self.assertNotIn("storage_key", events[0].safe_metadata)
