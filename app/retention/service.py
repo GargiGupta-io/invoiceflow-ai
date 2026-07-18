@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from app.db.models import Document, DocumentStatus
 from app.db.repositories import (
     AuditEventRepository,
+    DocumentPageRepository,
     DocumentRepository,
     ProcessingJobRepository,
     ReviewDecisionRepository,
@@ -39,6 +40,7 @@ class DocumentDeletionResult:
     request_id: uuid.UUID
     processing_jobs_removed: int = 0
     review_decisions_removed: int = 0
+    document_pages_removed: int = 0
 
 
 @dataclass(frozen=True)
@@ -109,6 +111,9 @@ class DocumentDeletionService:
         reviews_removed = ReviewDecisionRepository(session, tenant).purge_for_document(
             document_id
         )
+        pages_removed = DocumentPageRepository(session, tenant).purge_for_document(
+            document_id
+        )
         jobs_removed = jobs.purge_for_document(document_id)
         documents.mark_deleted(document_id, deleted_at=deleted_at)
 
@@ -123,6 +128,7 @@ class DocumentDeletionService:
                 "deletion_reason": reason.value,
                 "processing_jobs_removed": jobs_removed,
                 "review_decisions_removed": reviews_removed,
+                "document_pages_removed": pages_removed,
             },
         )
         return DocumentDeletionResult(
@@ -132,6 +138,7 @@ class DocumentDeletionService:
             request_id=request_id,
             processing_jobs_removed=jobs_removed,
             review_decisions_removed=reviews_removed,
+            document_pages_removed=pages_removed,
         )
 
 
