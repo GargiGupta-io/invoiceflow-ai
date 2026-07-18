@@ -24,6 +24,11 @@ def build_worker(settings: Settings | None = None) -> DocumentWorker:
         max_document_bytes=resolved.upload_max_bytes,
         wait_time_seconds=resolved.sqs_wait_time_seconds,
         visibility_timeout_seconds=resolved.sqs_visibility_timeout_seconds,
+        visibility_heartbeat_seconds=resolved.sqs_visibility_heartbeat_seconds,
+        retry_base_delay_seconds=resolved.sqs_retry_base_delay_seconds,
+        retry_max_delay_seconds=resolved.sqs_retry_max_delay_seconds,
+        redrive_max_receive_count=resolved.sqs_redrive_max_receive_count,
+        stale_job_seconds=resolved.worker_stale_job_seconds,
     )
 
 
