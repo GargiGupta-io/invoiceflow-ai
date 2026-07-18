@@ -38,6 +38,15 @@ class SQSProcessingQueue:
         )
         return cls(client=client, queue_url=settings.sqs_queue_url)
 
+    def check_health(self) -> None:
+        try:
+            self.client.get_queue_attributes(
+                QueueUrl=self.queue_url,
+                AttributeNames=["QueueArn"],
+            )
+        except (BotoCoreError, ClientError):
+            raise QueueOperationError("Queue operation failed.") from None
+
     def send(self, message: ProcessingMessage) -> QueueDispatchReceipt:
         try:
             response = self.client.send_message(
