@@ -218,6 +218,8 @@ Implemented:
 - confidence-based human review gate for risky, low-evidence, or missing-information cases
 - TTS-safe AR follow-up variants for dates, amounts, and identifiers
 - workflow audit trail with prompt version, stage timings, retrieved chunks, and final action
+- redacted JSON worker events with request/job correlation and CloudWatch metric fields
+- separate liveness and PostgreSQL/S3/SQS readiness endpoints for Version 2 deployment checks
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -404,6 +406,8 @@ For screenshots or quick demos, the UI also supports:
 - `GET /`
 - `GET /ui`
 - `GET /health`
+- `GET /health/live` - process liveness without external dependency checks
+- `GET /health/ready` - PostgreSQL, private S3, and SQS readiness for Version 2
 - `GET /samples`
 - `GET /review-queue`
 - `GET /eval/summary`
