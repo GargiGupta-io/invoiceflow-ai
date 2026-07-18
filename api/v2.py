@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import (
@@ -31,6 +33,7 @@ from app.ingest import (
 )
 from app.schemas.persistence import (
     AuditEventResponse,
+    DocumentAccessResponse,
     DocumentDetailResponse,
     DocumentListResponse,
     DocumentSummaryResponse,
@@ -40,7 +43,12 @@ from app.schemas.persistence import (
     ReviewDecisionResponse,
     TenantIdentityResponse,
 )
-from app.storage import ObjectStorage, get_object_storage
+from app.storage import (
+    ObjectStorage,
+    StorageOperationError,
+    build_document_keys,
+    get_object_storage,
+)
 
 
 router = APIRouter(prefix="/v2", tags=["Version 2 persistence"])
@@ -50,6 +58,16 @@ def _not_found() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail={"code": "resource_not_found", "message": "Resource was not found."},
+    )
+
+
+def _document_not_ready() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "code": "document_not_ready",
+            "message": "The document is not ready for private access.",
+        },
     )
 
 
@@ -164,6 +182,80 @@ def document_detail(
         document=DocumentSummaryResponse.model_validate(document),
         processing_jobs=[ProcessingJobResponse.model_validate(job) for job in jobs],
         reviews=[ReviewDecisionResponse.model_validate(review) for review in reviews],
+    )
+
+
+@router.post(
+    "/documents/{document_id}/access",
+    response_model=DocumentAccessResponse,
+)
+def create_document_access(
+    document_id: uuid.UUID,
+    response: Response,
+    tenant: TenantContext = Depends(require_read_tenant),
+    session: Session = Depends(get_db_session),
+    storage: ObjectStorage = Depends(get_object_storage),
+) -> DocumentAccessResponse:
+    settings = get_settings()
+    try:
+        document = DocumentRepository(session, tenant).require(document_id)
+    except TenantResourceNotFound as error:
+        raise _not_found() from error
+
+    expected_key = build_document_keys(
+        organization_id=tenant.organization_id,
+        document_id=document.id,
+        quarantine_prefix=settings.s3_quarantine_prefix,
+        validated_prefix=settings.s3_validated_prefix,
+    ).validated_key
+    if document.storage_key != expected_key:
+        raise _document_not_ready()
+
+    request_id = uuid.uuid4()
+    issued_at = datetime.now(timezone.utc)
+    try:
+        url = storage.create_download_url(
+            key=expected_key,
+            expires_in_seconds=settings.s3_presigned_url_ttl_seconds,
+        )
+        AuditEventRepository(session, tenant).append(
+            action="document.access_url_issued",
+            resource_type="document",
+            resource_id=str(document.id),
+            request_id=str(request_id),
+            safe_metadata={
+                "content_type": document.content_type,
+                "expires_in_seconds": settings.s3_presigned_url_ttl_seconds,
+                "storage_state": "validated",
+            },
+        )
+        session.commit()
+    except StorageOperationError:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "storage_unavailable",
+                "message": "Private document access is temporarily unavailable.",
+            },
+        ) from None
+    except SQLAlchemyError:
+        session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "access_audit_unavailable",
+                "message": "Private document access could not be recorded safely.",
+            },
+        ) from None
+
+    response.headers["Cache-Control"] = "no-store"
+    return DocumentAccessResponse(
+        document_id=document.id,
+        request_id=request_id,
+        url=url,
+        expires_in_seconds=settings.s3_presigned_url_ttl_seconds,
+        expires_at=issued_at + timedelta(seconds=settings.s3_presigned_url_ttl_seconds),
     )
 
 
