@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 import uuid
+from io import BytesIO
 from typing import Any
 
 from botocore.exceptions import ClientError
@@ -18,6 +19,8 @@ class RecordingS3Client:
         self.fail_copy = False
         self.fail_put = False
         self.fail_presign = False
+        self.fail_get = False
+        self.object_content = b"document bytes"
 
     def put_object(self, **request: Any) -> dict[str, str]:
         self.calls.append(("put_object", request))
@@ -62,6 +65,18 @@ class RecordingS3Client:
                 "GetObject",
             )
         return "https://private.example.test/document?X-Amz-Signature=temporary"
+
+    def get_object(self, **request: Any) -> dict[str, Any]:
+        self.calls.append(("get_object", request))
+        if self.fail_get:
+            raise ClientError(
+                {"Error": {"Code": "AccessDenied", "Message": "private object detail"}},
+                "GetObject",
+            )
+        return {
+            "Body": BytesIO(self.object_content),
+            "ContentLength": len(self.object_content),
+        }
 
 
 class DocumentStorageKeyTests(unittest.TestCase):
@@ -188,6 +203,25 @@ class S3ObjectStorageTests(unittest.TestCase):
         self.assertEqual(request["ExpiresIn"], 300)
         self.assertEqual(request["HttpMethod"], "GET")
         self.assertIn("X-Amz-Signature", url)
+
+    def test_managed_object_read_is_bounded(self) -> None:
+        content = self.storage.read(key=self.keys.quarantine_key, max_bytes=100)
+
+        self.assertEqual(content, b"document bytes")
+        self.assertEqual(self.client.calls[0][0], "get_object")
+        self.assertEqual(self.client.calls[0][1]["Key"], self.keys.quarantine_key)
+
+        self.client.calls.clear()
+        with self.assertRaises(StorageOperationError):
+            self.storage.read(key=self.keys.quarantine_key, max_bytes=5)
+
+    def test_object_read_provider_failure_is_redacted(self) -> None:
+        self.client.fail_get = True
+
+        with self.assertRaisesRegex(StorageOperationError, "Storage operation failed") as raised:
+            self.storage.read(key=self.keys.quarantine_key, max_bytes=100)
+
+        self.assertNotIn("private object", str(raised.exception))
 
     def test_download_url_rejects_quarantine_keys_and_long_expiry(self) -> None:
         with self.assertRaises(ValueError):
