@@ -31,6 +31,7 @@ class RecordingWorkerQueue:
         self.deleted: list[str] = []
         self.visibility_changes: list[tuple[str, int]] = []
         self.fail_delete = False
+        self.fail_receive = False
         self.fail_visibility = False
 
     def send(self, message: ProcessingMessage) -> QueueDispatchReceipt:
@@ -38,6 +39,8 @@ class RecordingWorkerQueue:
 
     def receive_one(self, *, wait_time_seconds: int, visibility_timeout_seconds: int):
         self.events.append("queue.receive")
+        if self.fail_receive:
+            raise QueueOperationError("Queue operation failed.")
         received, self.received = self.received, None
         return received
 
@@ -116,6 +119,18 @@ class RecordingProcessor:
         )
 
 
+class RecordingEventLogger:
+    def __init__(self) -> None:
+        self.results: list[dict[str, Any]] = []
+        self.events: list[tuple[str, dict[str, Any]]] = []
+
+    def emit(self, event: str, **fields: Any) -> None:
+        self.events.append((event, fields))
+
+    def worker_result(self, **fields: Any) -> None:
+        self.results.append(fields)
+
+
 class DocumentWorkerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.database = create_database(database_url="sqlite://")
@@ -175,7 +190,7 @@ class DocumentWorkerTests(unittest.TestCase):
             receive_count=receive_count,
         )
 
-    def worker(self) -> DocumentWorker:
+    def worker(self, *, event_logger: RecordingEventLogger | None = None) -> DocumentWorker:
         return DocumentWorker(
             database=self.database,
             queue=self.queue,
@@ -191,7 +206,47 @@ class DocumentWorkerTests(unittest.TestCase):
             retry_max_delay_seconds=900,
             redrive_max_receive_count=4,
             stale_job_seconds=3600,
+            event_logger=event_logger,
         )
+
+    def test_worker_event_correlates_request_job_and_safe_outcome(self) -> None:
+        event_logger = RecordingEventLogger()
+
+        result = self.worker(event_logger=event_logger).run_once()
+
+        self.assertEqual(result.request_id, self.message.request_id)
+        self.assertEqual(len(event_logger.results), 1)
+        event = event_logger.results[0]
+        self.assertEqual(event["outcome"], "completed")
+        self.assertEqual(event["request_id"], self.message.request_id)
+        self.assertEqual(event["job_id"], self.job.id)
+        self.assertEqual(event["message_id"], "sqs-received-1")
+        self.assertEqual(event["receive_count"], 1)
+        self.assertGreaterEqual(event["duration_ms"], 0)
+
+    def test_retry_event_uses_safe_error_category_and_code(self) -> None:
+        event_logger = RecordingEventLogger()
+        self.storage.fail_read = True
+
+        self.worker(event_logger=event_logger).run_once()
+
+        event = event_logger.results[0]
+        self.assertEqual(event["outcome"], "retry_scheduled")
+        self.assertEqual(event["error_category"], "storage")
+        self.assertEqual(event["error_code"], "storage_processing_failed")
+
+    def test_worker_execution_error_emits_safe_runtime_category(self) -> None:
+        event_logger = RecordingEventLogger()
+        self.queue.fail_receive = True
+
+        with self.assertRaisesRegex(RuntimeError, "processing queue could not be read"):
+            self.worker(event_logger=event_logger).run_once()
+
+        event_name, event = event_logger.events[0]
+        self.assertEqual(event_name, "document_worker_error")
+        self.assertEqual(event["error_category"], "queue")
+        self.assertEqual(event["error_code"], "queue_receive_failed")
+        self.assertNotIn("receipt_handle", event)
 
     def test_success_persists_result_before_deleting_message(self) -> None:
         result = self.worker().run_once()
