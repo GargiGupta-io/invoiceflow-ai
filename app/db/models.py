@@ -117,6 +117,7 @@ class Document(UUIDPrimaryKeyMixin, CreatedAtMixin, UpdatedAtMixin, Base):
         CheckConstraint("page_count IS NULL OR page_count > 0", name="positive_page_count"),
         Index("ix_documents_organization_created", "organization_id", "created_at"),
         Index("ix_documents_organization_status", "organization_id", "status"),
+        Index("ix_documents_retention_deleted", "retention_until", "deleted_at"),
     )
 
     organization_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
