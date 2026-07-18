@@ -86,6 +86,14 @@ class DocumentUploadResponse(BaseModel):
     request_id: uuid.UUID
 
 
+class DocumentDeletionResponse(BaseModel):
+    document_id: uuid.UUID
+    status: Literal["deleted"] = "deleted"
+    deleted_at: datetime
+    already_deleted: bool
+    request_id: uuid.UUID
+
+
 class DocumentAccessResponse(BaseModel):
     document_id: uuid.UUID
     request_id: uuid.UUID
