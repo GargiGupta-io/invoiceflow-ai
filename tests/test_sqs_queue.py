@@ -47,6 +47,12 @@ class FakeSQSClient:
             raise self.error
         return {}
 
+    def get_queue_attributes(self, **request):
+        self.requests.append(request)
+        if self.error is not None:
+            raise self.error
+        return {"Attributes": {"QueueArn": "arn:aws:sqs:region:account:queue"}}
+
 
 class SQSProcessingQueueTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -59,6 +65,21 @@ class SQSProcessingQueueTests(unittest.TestCase):
             organization_id=uuid.uuid4(),
             request_id=uuid.uuid4(),
         )
+
+    def test_health_check_reads_queue_attributes_and_redacts_failure(self) -> None:
+        self.queue.check_health()
+        self.assertEqual(
+            self.client.requests[0],
+            {"QueueUrl": self.queue_url, "AttributeNames": ["QueueArn"]},
+        )
+
+        self.client.error = ClientError(
+            {"Error": {"Code": "AccessDenied", "Message": "private queue detail"}},
+            "GetQueueAttributes",
+        )
+        with self.assertRaisesRegex(QueueOperationError, "Queue operation failed") as raised:
+            self.queue.check_health()
+        self.assertNotIn("private queue", str(raised.exception))
 
     def test_send_uses_a_minimal_versioned_json_message(self) -> None:
         receipt = self.queue.send(self.message)
