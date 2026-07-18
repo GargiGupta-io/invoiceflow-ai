@@ -47,6 +47,11 @@ class Settings(BaseSettings):
     sqs_queue_url: str = ""
     sqs_wait_time_seconds: int = Field(default=20, ge=0, le=20)
     sqs_visibility_timeout_seconds: int = Field(default=120, ge=30, le=43200)
+    sqs_visibility_heartbeat_seconds: int = Field(default=30, ge=5, le=3600)
+    sqs_retry_base_delay_seconds: int = Field(default=30, ge=1, le=43200)
+    sqs_retry_max_delay_seconds: int = Field(default=900, ge=1, le=43200)
+    sqs_redrive_max_receive_count: int = Field(default=4, ge=2, le=1000)
+    worker_stale_job_seconds: int = Field(default=3600, ge=60, le=43200)
     worker_extractor_mode: Literal["heuristic", "auto", "llm"] = "heuristic"
 
     upload_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=100 * 1024 * 1024)
@@ -59,6 +64,19 @@ class Settings(BaseSettings):
     def validate_s3_encryption(self) -> Self:
         if self.s3_sse_algorithm == "aws:kms" and not (self.s3_kms_key_id or "").strip():
             raise ValueError("S3_KMS_KEY_ID is required when S3_SSE_ALGORITHM is aws:kms.")
+        if self.sqs_visibility_heartbeat_seconds >= self.sqs_visibility_timeout_seconds:
+            raise ValueError(
+                "SQS_VISIBILITY_HEARTBEAT_SECONDS must be less than "
+                "SQS_VISIBILITY_TIMEOUT_SECONDS."
+            )
+        if self.sqs_retry_base_delay_seconds > self.sqs_retry_max_delay_seconds:
+            raise ValueError(
+                "SQS_RETRY_BASE_DELAY_SECONDS cannot exceed SQS_RETRY_MAX_DELAY_SECONDS."
+            )
+        if self.worker_stale_job_seconds <= self.sqs_visibility_timeout_seconds:
+            raise ValueError(
+                "WORKER_STALE_JOB_SECONDS must exceed SQS_VISIBILITY_TIMEOUT_SECONDS."
+            )
         return self
 
     @property
