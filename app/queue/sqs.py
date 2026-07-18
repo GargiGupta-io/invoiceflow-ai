@@ -11,6 +11,7 @@ from app.queue.interface import (
     ProcessingMessage,
     QueueDispatchReceipt,
     QueueOperationError,
+    ReceivedQueueMessage,
 )
 
 
@@ -50,3 +51,57 @@ class SQSProcessingQueue:
         if not isinstance(message_id, str) or not message_id:
             raise QueueOperationError("Queue operation failed.")
         return QueueDispatchReceipt(message_id=message_id)
+
+    def receive_one(
+        self,
+        *,
+        wait_time_seconds: int,
+        visibility_timeout_seconds: int,
+    ) -> ReceivedQueueMessage | None:
+        if not 0 <= wait_time_seconds <= 20:
+            raise ValueError("SQS wait time must be between 0 and 20 seconds.")
+        if not 30 <= visibility_timeout_seconds <= 43200:
+            raise ValueError("SQS visibility timeout must be between 30 seconds and 12 hours.")
+        try:
+            response = self.client.receive_message(
+                QueueUrl=self.queue_url,
+                MaxNumberOfMessages=1,
+                WaitTimeSeconds=wait_time_seconds,
+                VisibilityTimeout=visibility_timeout_seconds,
+                AttributeNames=["ApproximateReceiveCount"],
+            )
+        except (BotoCoreError, ClientError):
+            raise QueueOperationError("Queue operation failed.") from None
+
+        messages = response.get("Messages") or []
+        if not messages:
+            return None
+        message = messages[0]
+        message_id = message.get("MessageId")
+        receipt_handle = message.get("ReceiptHandle")
+        body = message.get("Body")
+        if not all(isinstance(value, str) and value for value in (message_id, receipt_handle, body)):
+            raise QueueOperationError("Queue operation failed.")
+        try:
+            receive_count = int(message.get("Attributes", {}).get("ApproximateReceiveCount", "1"))
+        except (TypeError, ValueError):
+            raise QueueOperationError("Queue operation failed.") from None
+        if receive_count < 1:
+            raise QueueOperationError("Queue operation failed.")
+        return ReceivedQueueMessage(
+            message_id=message_id,
+            receipt_handle=receipt_handle,
+            body=body,
+            receive_count=receive_count,
+        )
+
+    def delete(self, *, receipt_handle: str) -> None:
+        if not receipt_handle:
+            raise ValueError("SQS receipt handle is required.")
+        try:
+            self.client.delete_message(
+                QueueUrl=self.queue_url,
+                ReceiptHandle=receipt_handle,
+            )
+        except (BotoCoreError, ClientError):
+            raise QueueOperationError("Queue operation failed.") from None
