@@ -220,6 +220,7 @@ Implemented:
 - workflow audit trail with prompt version, stage timings, retrieved chunks, and final action
 - redacted JSON worker events with request/job correlation and CloudWatch metric fields
 - separate liveness and PostgreSQL/S3/SQS readiness endpoints for Version 2 deployment checks
+- configurable document expiry, tenant-authorized deletion, and idempotent retention cleanup
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -414,6 +415,30 @@ For screenshots or quick demos, the UI also supports:
 - `GET /eval-results.json`
 - `POST /workflow/sample`
 - `POST /workflow/upload`
+
+Version 2 protected routes use verified tenant identity and scope checks:
+
+- `GET /v2/me`
+- `GET /v2/documents`
+- `POST /v2/documents` - requires `invoiceflow.upload`
+- `GET /v2/documents/{document_id}` - requires `invoiceflow.read`
+- `DELETE /v2/documents/{document_id}` - requires `invoiceflow.delete`
+- `POST /v2/documents/{document_id}/access` - requires `invoiceflow.read`
+- `POST /v2/documents/{document_id}/processing-jobs` - requires `invoiceflow.process`
+- `GET|POST /v2/documents/{document_id}/reviews`
+- `GET /v2/documents/{document_id}/audit`
+
+Uploads receive a configurable expiry date through `DOCUMENT_RETENTION_DAYS`.
+Run one bounded cleanup batch with:
+
+```bash
+python -m app.retention.main
+```
+
+The cleanup removes both possible private object locations, erases processing
+results and reviewer data, hides the document from normal history, and appends a
+safe deletion event. Repeated cleanup is a no-op. S3 Lifecycle configuration is
+kept as a second infrastructure-level cleanup layer for abandoned objects.
 
 <details>
 <summary>Workflow response metadata</summary>
