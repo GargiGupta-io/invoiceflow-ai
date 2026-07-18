@@ -81,6 +81,11 @@ class DocumentDetailResponse(BaseModel):
     reviews: list[ReviewDecisionResponse]
 
 
+class DocumentUploadResponse(BaseModel):
+    document: DocumentSummaryResponse
+    request_id: uuid.UUID
+
+
 class ReviewCreateRequest(BaseModel):
     processing_job_id: uuid.UUID
     action: ReviewAction
