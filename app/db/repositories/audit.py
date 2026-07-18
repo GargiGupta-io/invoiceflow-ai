@@ -36,6 +36,28 @@ class AuditEventRepository(TenantRepository):
         self.session.flush()
         return event
 
+    def append_system(
+        self,
+        *,
+        action: str,
+        resource_type: str,
+        resource_id: str,
+        request_id: str,
+        safe_metadata: dict[str, Any] | None = None,
+    ) -> AuditEvent:
+        event = AuditEvent(
+            organization_id=self.tenant.organization_id,
+            actor_id=None,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            request_id=request_id,
+            safe_metadata=dict(safe_metadata or {}),
+        )
+        self.session.add(event)
+        self.session.flush()
+        return event
+
     def list_for_resource(self, resource_type: str, resource_id: str) -> list[AuditEvent]:
         statement = (
             select(AuditEvent)
