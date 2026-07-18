@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from app.ingest import IngestionError
@@ -11,6 +11,7 @@ from app.orchestrator import run_workflow_from_upload
 class ProcessedDocument:
     result: dict[str, Any]
     evidence: list[dict[str, Any]]
+    pages: list[dict[str, Any]] = field(default_factory=list)
 
 
 class DocumentProcessor(Protocol):
@@ -43,18 +44,26 @@ class InvoiceFlowDocumentProcessor:
         content: bytes,
         content_type: str,
     ) -> ProcessedDocument:
-        if content_type not in {"application/pdf", "text/plain", "text/markdown"}:
-            raise PermanentDocumentProcessingError("document_ocr_required")
+        if content_type not in {
+            "application/pdf",
+            "image/png",
+            "image/jpeg",
+            "text/plain",
+            "text/markdown",
+        }:
+            raise PermanentDocumentProcessingError("document_type_unsupported")
         try:
             payload = run_workflow_from_upload(
                 filename=filename,
                 content=content,
                 extractor_mode=self.extractor_mode,
+                include_document_pages=True,
             )
         except IngestionError:
             raise PermanentDocumentProcessingError("document_ingestion_failed") from None
         audit = payload.get("audit_trail") or {}
         context = payload.get("grounded_context") or {}
+        pages = payload.pop("_document_pages", [])
         result = {
             "workflow_result": payload.get("workflow_result") or {},
             "route": payload.get("route") or {},
@@ -68,4 +77,5 @@ class InvoiceFlowDocumentProcessor:
         return ProcessedDocument(
             result=result,
             evidence=[dict(item) for item in evidence if isinstance(item, dict)],
+            pages=[dict(item) for item in pages if isinstance(item, dict)],
         )
