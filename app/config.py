@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal, Self
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,7 +36,21 @@ class Settings(BaseSettings):
     auth_jwks_timeout_seconds: float = Field(default=5, gt=0, le=30)
     auth_clock_skew_seconds: int = Field(default=30, ge=0, le=300)
 
+    aws_region: str = "ap-south-1"
+    aws_endpoint_url: str | None = None
+    s3_bucket_name: str = ""
+    s3_quarantine_prefix: str = "quarantine"
+    s3_validated_prefix: str = "validated"
+    s3_sse_algorithm: Literal["AES256", "aws:kms"] = "AES256"
+    s3_kms_key_id: str | None = None
+
     openai_api_key: SecretStr | None = None
+
+    @model_validator(mode="after")
+    def validate_s3_encryption(self) -> Self:
+        if self.s3_sse_algorithm == "aws:kms" and not (self.s3_kms_key_id or "").strip():
+            raise ValueError("S3_KMS_KEY_ID is required when S3_SSE_ALGORITHM is aws:kms.")
+        return self
 
     @property
     def sqlalchemy_database_url(self) -> str:
@@ -44,6 +59,10 @@ class Settings(BaseSettings):
     @property
     def auth_configured(self) -> bool:
         return bool(self.auth_issuer.strip() and self.auth_client_id.strip())
+
+    @property
+    def s3_configured(self) -> bool:
+        return bool(self.s3_bucket_name.strip())
 
 
 @lru_cache
