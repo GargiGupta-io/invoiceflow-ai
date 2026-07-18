@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    cloudwatch_metric_namespace: str = Field(default="InvoiceFlow", min_length=1, max_length=255)
 
     database_url: SecretStr = SecretStr(
         "postgresql+psycopg://invoiceflow:invoiceflow@localhost:5432/invoiceflow"
