@@ -67,11 +67,36 @@ class SettingsTests(unittest.TestCase):
         settings = Settings(_env_file=None)
         self.assertEqual(settings.sqs_wait_time_seconds, 20)
         self.assertEqual(settings.sqs_visibility_timeout_seconds, 120)
+        self.assertEqual(settings.sqs_visibility_heartbeat_seconds, 30)
+        self.assertEqual(settings.sqs_retry_base_delay_seconds, 30)
+        self.assertEqual(settings.sqs_retry_max_delay_seconds, 900)
+        self.assertEqual(settings.sqs_redrive_max_receive_count, 4)
+        self.assertEqual(settings.worker_stale_job_seconds, 3600)
         self.assertEqual(settings.worker_extractor_mode, "heuristic")
         with self.assertRaises(ValidationError):
             Settings(_env_file=None, sqs_wait_time_seconds=21)
         with self.assertRaises(ValidationError):
             Settings(_env_file=None, sqs_visibility_timeout_seconds=29)
+
+    def test_worker_retry_settings_reject_unsafe_relationships(self) -> None:
+        with self.assertRaises(ValidationError):
+            Settings(
+                _env_file=None,
+                sqs_visibility_timeout_seconds=120,
+                sqs_visibility_heartbeat_seconds=120,
+            )
+        with self.assertRaises(ValidationError):
+            Settings(
+                _env_file=None,
+                sqs_retry_base_delay_seconds=901,
+                sqs_retry_max_delay_seconds=900,
+            )
+        with self.assertRaises(ValidationError):
+            Settings(
+                _env_file=None,
+                sqs_visibility_timeout_seconds=120,
+                worker_stale_job_seconds=120,
+            )
 
 
 if __name__ == "__main__":
