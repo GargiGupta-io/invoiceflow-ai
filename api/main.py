@@ -9,6 +9,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from api.v2 import router as v2_router
 from app.eval.dashboard import EVAL_RESULTS_PATH, build_eval_dashboard
 from app.ingest import IngestionError, supported_extensions
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
@@ -28,6 +29,7 @@ app = FastAPI(
 )
 
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+app.include_router(v2_router)
 
 
 class SampleWorkflowRequest(BaseModel):
@@ -107,6 +109,8 @@ def root() -> dict:
             "/eval-results.json",
             "/workflow/sample",
             "/workflow/upload",
+            "/v2/me",
+            "/v2/documents",
         ],
     }
 
