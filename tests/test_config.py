@@ -98,6 +98,15 @@ class SettingsTests(unittest.TestCase):
                 worker_stale_job_seconds=120,
             )
 
+    def test_retention_settings_are_bounded(self) -> None:
+        settings = Settings(_env_file=None)
+        self.assertEqual(settings.document_retention_days, 90)
+        self.assertEqual(settings.retention_delete_batch_size, 100)
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, document_retention_days=0)
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, retention_delete_batch_size=1001)
+
 
 if __name__ == "__main__":
     unittest.main()
