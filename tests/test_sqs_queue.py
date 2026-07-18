@@ -41,6 +41,12 @@ class FakeSQSClient:
             raise self.error
         return {}
 
+    def change_message_visibility(self, **request):
+        self.requests.append(request)
+        if self.error is not None:
+            raise self.error
+        return {}
+
 
 class SQSProcessingQueueTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -184,6 +190,40 @@ class SQSProcessingQueueTests(unittest.TestCase):
         with self.assertRaisesRegex(QueueOperationError, "Queue operation failed") as raised:
             self.queue.delete(receipt_handle="receipt-secret-123")
         self.assertNotIn("private receipt", str(raised.exception))
+
+    def test_change_visibility_uses_receipt_handle_and_bounded_timeout(self) -> None:
+        self.queue.change_visibility(
+            receipt_handle="receipt-secret-123",
+            visibility_timeout_seconds=90,
+        )
+
+        self.assertEqual(
+            self.client.requests[0],
+            {
+                "QueueUrl": self.queue_url,
+                "ReceiptHandle": "receipt-secret-123",
+                "VisibilityTimeout": 90,
+            },
+        )
+        with self.assertRaises(ValueError):
+            self.queue.change_visibility(
+                receipt_handle="receipt-secret-123",
+                visibility_timeout_seconds=43201,
+            )
+
+    def test_change_visibility_redacts_provider_failure(self) -> None:
+        self.client.error = ClientError(
+            {"Error": {"Code": "AccessDenied", "Message": "private queue detail"}},
+            "ChangeMessageVisibility",
+        )
+
+        with self.assertRaisesRegex(QueueOperationError, "Queue operation failed") as raised:
+            self.queue.change_visibility(
+                receipt_handle="receipt-secret-123",
+                visibility_timeout_seconds=60,
+            )
+
+        self.assertNotIn("private queue", str(raised.exception))
 
 
 if __name__ == "__main__":
