@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db.models import ProcessingJob, ReviewAction, ReviewDecision
@@ -56,3 +56,13 @@ class ReviewDecisionRepository(TenantRepository):
             .order_by(ReviewDecision.created_at.desc())
         )
         return list(self.session.scalars(statement))
+
+    def purge_for_document(self, document_id: uuid.UUID) -> int:
+        result = self.session.execute(
+            delete(ReviewDecision).where(
+                ReviewDecision.organization_id == self.tenant.organization_id,
+                ReviewDecision.document_id == document_id,
+            )
+        )
+        self.session.flush()
+        return result.rowcount or 0
