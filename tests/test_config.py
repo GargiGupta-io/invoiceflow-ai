@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+import unittest
+from unittest.mock import patch
+
+from pydantic import ValidationError
+
+from app.config import Settings
+
+
+class SettingsTests(unittest.TestCase):
+    def test_defaults_describe_local_postgresql_runtime(self) -> None:
+        settings = Settings(_env_file=None)
+
+        self.assertEqual(settings.app_env, "development")
+        self.assertEqual(settings.database_pool_size, 5)
+        self.assertEqual(settings.database_max_overflow, 5)
+        self.assertTrue(settings.sqlalchemy_database_url.startswith("postgresql+psycopg://"))
+
+    def test_environment_values_override_defaults(self) -> None:
+        environment = {
+            "APP_ENV": "test",
+            "DATABASE_URL": "postgresql+psycopg://test_user:test_password@db:5432/test_db",
+            "DATABASE_POOL_SIZE": "8",
+            "DATABASE_ECHO": "true",
+        }
+
+        with patch.dict("os.environ", environment, clear=False):
+            settings = Settings(_env_file=None)
+
+        self.assertEqual(settings.app_env, "test")
+        self.assertEqual(settings.database_pool_size, 8)
+        self.assertTrue(settings.database_echo)
+        self.assertIn("test_db", settings.sqlalchemy_database_url)
+
+    def test_sensitive_values_are_masked_in_settings_representation(self) -> None:
+        settings = Settings(
+            _env_file=None,
+            database_url="postgresql+psycopg://private_user:private_password@db:5432/invoiceflow",
+            openai_api_key="private-api-key",
+        )
+
+        representation = repr(settings)
+        self.assertNotIn("private_password", representation)
+        self.assertNotIn("private-api-key", representation)
+        self.assertIn("**********", representation)
+
+    def test_invalid_pool_size_is_rejected(self) -> None:
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, database_pool_size=0)
+
+
+if __name__ == "__main__":
+    unittest.main()
