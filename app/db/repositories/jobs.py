@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
-from sqlalchemy import and_, or_, select, update
+from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -139,6 +139,24 @@ class ProcessingJobRepository(TenantRepository):
             .order_by(ProcessingJob.created_at.desc())
         )
         return list(self.session.scalars(statement))
+
+    def has_active_for_document(self, document_id: uuid.UUID) -> bool:
+        statement = select(ProcessingJob.id).where(
+            ProcessingJob.organization_id == self.tenant.organization_id,
+            ProcessingJob.document_id == document_id,
+            ProcessingJob.status.in_({JobStatus.QUEUED, JobStatus.PROCESSING}),
+        )
+        return self.session.scalar(statement) is not None
+
+    def purge_for_document(self, document_id: uuid.UUID) -> int:
+        result = self.session.execute(
+            delete(ProcessingJob).where(
+                ProcessingJob.organization_id == self.tenant.organization_id,
+                ProcessingJob.document_id == document_id,
+            )
+        )
+        self.session.flush()
+        return result.rowcount or 0
 
     def claim(
         self,
