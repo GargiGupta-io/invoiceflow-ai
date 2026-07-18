@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db.models import JobStatus, ProcessingJob
-from app.db.repositories.base import IdempotencyConflict, TenantRepository
+from app.db.repositories.base import (
+    IdempotencyConflict,
+    TenantRepository,
+    TenantResourceNotFound,
+)
 from app.db.repositories.documents import DocumentRepository
 from app.db.tenant import TenantContext
 
@@ -17,6 +24,40 @@ from app.db.tenant import TenantContext
 class JobReservation:
     job: ProcessingJob
     reused: bool
+
+
+class JobClaimState(str, Enum):
+    CLAIMED = "claimed"
+    COMPLETED = "completed"
+    UNAVAILABLE = "unavailable"
+
+
+@dataclass(frozen=True)
+class JobClaim:
+    job: ProcessingJob
+    state: JobClaimState
+
+
+class JobStateConflict(RuntimeError):
+    """A worker attempted a state transition that is no longer valid."""
+
+
+def resolve_worker_tenant(
+    session: Session,
+    *,
+    organization_id: uuid.UUID,
+    job_id: uuid.UUID,
+    document_id: uuid.UUID,
+) -> TenantContext:
+    statement = select(ProcessingJob.requested_by_user_id).where(
+        ProcessingJob.organization_id == organization_id,
+        ProcessingJob.id == job_id,
+        ProcessingJob.document_id == document_id,
+    )
+    actor_id = session.scalar(statement)
+    if actor_id is None:
+        raise TenantResourceNotFound("Resource was not found.")
+    return TenantContext(organization_id=organization_id, actor_id=actor_id)
 
 
 class ProcessingJobRepository(TenantRepository):
@@ -96,3 +137,90 @@ class ProcessingJobRepository(TenantRepository):
             .order_by(ProcessingJob.created_at.desc())
         )
         return list(self.session.scalars(statement))
+
+    def claim(self, *, job_id: uuid.UUID, document_id: uuid.UUID) -> JobClaim:
+        now = datetime.now(timezone.utc)
+        statement = (
+            update(ProcessingJob)
+            .where(
+                ProcessingJob.organization_id == self.tenant.organization_id,
+                ProcessingJob.id == job_id,
+                ProcessingJob.document_id == document_id,
+                ProcessingJob.status == JobStatus.QUEUED,
+            )
+            .values(
+                status=JobStatus.PROCESSING,
+                attempt_count=ProcessingJob.attempt_count + 1,
+                started_at=now,
+                completed_at=None,
+                error_code=None,
+                error_category=None,
+            )
+            .returning(ProcessingJob)
+        )
+        claimed = self.session.scalar(statement)
+        if claimed is not None:
+            return JobClaim(job=claimed, state=JobClaimState.CLAIMED)
+
+        existing = self.get(job_id)
+        if existing is None or existing.document_id != document_id:
+            raise TenantResourceNotFound("Resource was not found.")
+        state = (
+            JobClaimState.COMPLETED
+            if existing.status == JobStatus.COMPLETED
+            else JobClaimState.UNAVAILABLE
+        )
+        return JobClaim(job=existing, state=state)
+
+    def complete(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+        extraction_result: dict[str, Any],
+        evidence: list[dict[str, Any]],
+    ) -> ProcessingJob:
+        job = self._require_job_document(job_id=job_id, document_id=document_id)
+        if job.status == JobStatus.COMPLETED:
+            return job
+        if job.status != JobStatus.PROCESSING:
+            raise JobStateConflict("Processing job is not active.")
+        job.status = JobStatus.COMPLETED
+        job.extraction_result = dict(extraction_result)
+        job.evidence = list(evidence)
+        job.error_code = None
+        job.error_category = None
+        job.completed_at = datetime.now(timezone.utc)
+        self.session.flush()
+        return job
+
+    def mark_failed(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+        error_code: str,
+        error_category: str,
+    ) -> ProcessingJob:
+        job = self._require_job_document(job_id=job_id, document_id=document_id)
+        if job.status == JobStatus.COMPLETED:
+            return job
+        if job.status not in {JobStatus.PROCESSING, JobStatus.QUEUED}:
+            return job
+        job.status = JobStatus.FAILED
+        job.error_code = error_code[:100]
+        job.error_category = error_category[:100]
+        job.completed_at = datetime.now(timezone.utc)
+        self.session.flush()
+        return job
+
+    def _require_job_document(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+    ) -> ProcessingJob:
+        job = self.get(job_id)
+        if job is None or job.document_id != document_id:
+            raise TenantResourceNotFound("Resource was not found.")
+        return job
