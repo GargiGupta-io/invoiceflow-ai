@@ -95,5 +95,6 @@ def require_scope(required_scope: str) -> Callable[..., TenantContext]:
 
 
 require_read_tenant = require_scope("invoiceflow.read")
+require_process_tenant = require_scope("invoiceflow.process")
 require_review_tenant = require_scope("invoiceflow.review")
 require_upload_tenant = require_scope("invoiceflow.upload")
