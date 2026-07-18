@@ -20,6 +20,8 @@ class StorageOperationError(RuntimeError):
 
 
 class ObjectStorage(Protocol):
+    def check_health(self) -> None: ...
+
     def upload_quarantined(
         self,
         *,
