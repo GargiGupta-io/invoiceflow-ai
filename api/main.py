@@ -94,9 +94,9 @@ def _validate_upload_file(filename: str, content: bytes) -> None:
             status_code=400,
             detail=_error(
                 "unsupported_file_type",
-                "Unsupported file type. Upload a text-based PDF, .txt, or .md file.",
+                "Unsupported file type. Upload a PDF, PNG, JPEG, .txt, or .md file.",
                 allowed_extensions=list(allowed_extensions),
-                ocr_note="OCR is not configured in this environment. Text-based PDFs and pasted text still work.",
+                ocr_note="OCR for scanned PDFs and images requires Tesseract in the runtime environment.",
             ),
         )
 
@@ -131,6 +131,7 @@ def root() -> dict:
             "/workflow/upload",
             "/v2/me",
             "/v2/documents",
+            "/v2/search",
         ],
     }
 
@@ -230,7 +231,7 @@ async def workflow_from_upload(
             detail=_error(
                 "ingestion_failed",
                 str(exc),
-                fallback="Try a text-based PDF, .txt, .md, or pasted text converted to .txt.",
+                fallback="Try a readable PDF/image, .txt, .md, or pasted text converted to .txt.",
             ),
         ) from exc
     except Exception as exc:
