@@ -17,6 +17,7 @@ class RecordingS3Client:
         self.calls: list[tuple[str, dict[str, Any]]] = []
         self.fail_copy = False
         self.fail_put = False
+        self.fail_presign = False
 
     def put_object(self, **request: Any) -> dict[str, str]:
         self.calls.append(("put_object", request))
@@ -39,6 +40,28 @@ class RecordingS3Client:
     def delete_object(self, **request: Any) -> dict[str, Any]:
         self.calls.append(("delete_object", request))
         return {}
+
+    def generate_presigned_url(
+        self,
+        client_method: str,
+        *,
+        Params: dict[str, str],
+        ExpiresIn: int,
+        HttpMethod: str,
+    ) -> str:
+        request = {
+            "client_method": client_method,
+            "Params": Params,
+            "ExpiresIn": ExpiresIn,
+            "HttpMethod": HttpMethod,
+        }
+        self.calls.append(("generate_presigned_url", request))
+        if self.fail_presign:
+            raise ClientError(
+                {"Error": {"Code": "AccessDenied", "Message": "private signing detail"}},
+                "GetObject",
+            )
+        return "https://private.example.test/document?X-Amz-Signature=temporary"
 
 
 class DocumentStorageKeyTests(unittest.TestCase):
@@ -151,6 +174,45 @@ class S3ObjectStorageTests(unittest.TestCase):
             )
 
         self.assertEqual([call[0] for call in self.client.calls], ["copy_object"])
+
+    def test_download_url_uses_validated_key_and_five_minute_expiry(self) -> None:
+        url = self.storage.create_download_url(
+            key=self.keys.validated_key,
+            expires_in_seconds=300,
+        )
+
+        operation, request = self.client.calls[0]
+        self.assertEqual(operation, "generate_presigned_url")
+        self.assertEqual(request["client_method"], "get_object")
+        self.assertEqual(request["Params"]["Key"], self.keys.validated_key)
+        self.assertEqual(request["ExpiresIn"], 300)
+        self.assertEqual(request["HttpMethod"], "GET")
+        self.assertIn("X-Amz-Signature", url)
+
+    def test_download_url_rejects_quarantine_keys_and_long_expiry(self) -> None:
+        with self.assertRaises(ValueError):
+            self.storage.create_download_url(
+                key=self.keys.quarantine_key,
+                expires_in_seconds=300,
+            )
+        with self.assertRaises(ValueError):
+            self.storage.create_download_url(
+                key=self.keys.validated_key,
+                expires_in_seconds=301,
+            )
+        self.assertEqual(self.client.calls, [])
+
+    def test_download_url_provider_failure_is_redacted(self) -> None:
+        self.client.fail_presign = True
+
+        with self.assertRaises(StorageOperationError) as context:
+            self.storage.create_download_url(
+                key=self.keys.validated_key,
+                expires_in_seconds=300,
+            )
+
+        self.assertEqual(str(context.exception), "Storage operation failed.")
+        self.assertNotIn("private signing detail", str(context.exception))
 
     def test_provider_failure_is_redacted(self) -> None:
         self.client.fail_put = True
