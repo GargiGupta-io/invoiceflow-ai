@@ -5,12 +5,13 @@ from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Response, UploadFile, status
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import (
     get_db_session,
+    require_process_tenant,
     require_read_tenant,
     require_review_tenant,
     require_tenant,
@@ -22,6 +23,7 @@ from app.db.repositories import (
     DocumentRepository,
     ReviewDecisionRepository,
     TenantResourceNotFound,
+    IdempotencyConflict,
 )
 from app.db.repositories.jobs import ProcessingJobRepository
 from app.db.tenant import TenantContext
@@ -31,6 +33,12 @@ from app.ingest import (
     UploadValidator,
     persist_quarantined_upload,
 )
+from app.processing import (
+    DocumentProcessingStateError,
+    ProcessingDispatchError,
+    dispatch_processing_job,
+)
+from app.queue import ProcessingQueue, get_processing_queue
 from app.schemas.persistence import (
     AuditEventResponse,
     DocumentAccessResponse,
@@ -39,6 +47,7 @@ from app.schemas.persistence import (
     DocumentSummaryResponse,
     DocumentUploadResponse,
     ProcessingJobResponse,
+    ProcessingDispatchResponse,
     ReviewCreateRequest,
     ReviewDecisionResponse,
     TenantIdentityResponse,
@@ -256,6 +265,65 @@ def create_document_access(
         url=url,
         expires_in_seconds=settings.s3_presigned_url_ttl_seconds,
         expires_at=issued_at + timedelta(seconds=settings.s3_presigned_url_ttl_seconds),
+    )
+
+
+@router.post(
+    "/documents/{document_id}/processing-jobs",
+    response_model=ProcessingDispatchResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def create_processing_job(
+    document_id: uuid.UUID,
+    idempotency_key: Annotated[
+        str,
+        Header(
+            alias="Idempotency-Key",
+            min_length=1,
+            max_length=128,
+            pattern=r"^[A-Za-z0-9._:-]+$",
+        ),
+    ],
+    tenant: TenantContext = Depends(require_process_tenant),
+    session: Session = Depends(get_db_session),
+    queue: ProcessingQueue = Depends(get_processing_queue),
+) -> ProcessingDispatchResponse:
+    settings = get_settings()
+    try:
+        receipt = dispatch_processing_job(
+            session=session,
+            tenant=tenant,
+            queue=queue,
+            document_id=document_id,
+            idempotency_key=idempotency_key,
+            quarantine_prefix=settings.s3_quarantine_prefix,
+            validated_prefix=settings.s3_validated_prefix,
+        )
+    except TenantResourceNotFound as error:
+        raise _not_found() from error
+    except IdempotencyConflict as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "idempotency_conflict",
+                "message": "The idempotency key belongs to another processing request.",
+            },
+        ) from error
+    except DocumentProcessingStateError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"code": "document_not_ready", "message": str(error)},
+        ) from error
+    except ProcessingDispatchError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": error.code, "message": str(error)},
+        ) from error
+
+    return ProcessingDispatchResponse(
+        processing_job=ProcessingJobResponse.model_validate(receipt.job),
+        request_id=receipt.request_id,
+        reused_job=receipt.reused_job,
     )
 
 
