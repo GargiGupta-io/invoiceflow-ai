@@ -9,12 +9,20 @@ from app.db.repositories.jobs import (
     ProcessingJobRepository,
     resolve_worker_tenant,
 )
+from app.db.repositories.pages import (
+    DocumentPageInput,
+    DocumentPageRepository,
+    DocumentSearchHit,
+)
 from app.db.repositories.reviews import ReviewDecisionRepository
 from app.db.repositories.users import UserRepository
 
 __all__ = [
     "AuditEventRepository",
     "DocumentRepository",
+    "DocumentPageInput",
+    "DocumentPageRepository",
+    "DocumentSearchHit",
     "IdempotencyConflict",
     "JobClaim",
     "JobClaimState",
