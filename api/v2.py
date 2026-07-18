@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import (
     get_db_session,
+    require_delete_tenant,
     require_process_tenant,
     require_read_tenant,
     require_review_tenant,
@@ -43,6 +44,7 @@ from app.schemas.persistence import (
     AuditEventResponse,
     DocumentAccessResponse,
     DocumentDetailResponse,
+    DocumentDeletionResponse,
     DocumentListResponse,
     DocumentSummaryResponse,
     DocumentUploadResponse,
@@ -57,6 +59,11 @@ from app.storage import (
     StorageOperationError,
     build_document_keys,
     get_object_storage,
+)
+from app.retention import (
+    DeletionReason,
+    DocumentDeletionConflict,
+    DocumentDeletionService,
 )
 
 
@@ -161,6 +168,7 @@ async def upload_document(
             upload=upload,
             quarantine_prefix=settings.s3_quarantine_prefix,
             validated_prefix=settings.s3_validated_prefix,
+            retention_days=settings.document_retention_days,
         )
     except UploadPersistenceError as error:
         raise HTTPException(
@@ -191,6 +199,56 @@ def document_detail(
         document=DocumentSummaryResponse.model_validate(document),
         processing_jobs=[ProcessingJobResponse.model_validate(job) for job in jobs],
         reviews=[ReviewDecisionResponse.model_validate(review) for review in reviews],
+    )
+
+
+@router.delete(
+    "/documents/{document_id}",
+    response_model=DocumentDeletionResponse,
+)
+def delete_document(
+    document_id: uuid.UUID,
+    tenant: TenantContext = Depends(require_delete_tenant),
+    session: Session = Depends(get_db_session),
+    storage: ObjectStorage = Depends(get_object_storage),
+) -> DocumentDeletionResponse:
+    settings = get_settings()
+    service = DocumentDeletionService(
+        storage=storage,
+        quarantine_prefix=settings.s3_quarantine_prefix,
+        validated_prefix=settings.s3_validated_prefix,
+    )
+    try:
+        result = service.delete(
+            session=session,
+            tenant=tenant,
+            document_id=document_id,
+            reason=DeletionReason.USER_REQUESTED,
+        )
+    except TenantResourceNotFound as error:
+        raise _not_found() from error
+    except DocumentDeletionConflict as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "code": "document_processing_active",
+                "message": str(error),
+            },
+        ) from error
+    except StorageOperationError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "storage_unavailable",
+                "message": "The document could not be deleted safely. Try again later.",
+            },
+        ) from None
+
+    return DocumentDeletionResponse(
+        document_id=result.document_id,
+        deleted_at=result.deleted_at,
+        already_deleted=result.already_deleted,
+        request_id=result.request_id,
     )
 
 
@@ -389,7 +447,7 @@ def audit_history(
     session: Session = Depends(get_db_session),
 ) -> list[AuditEventResponse]:
     try:
-        DocumentRepository(session, tenant).require(document_id)
+        DocumentRepository(session, tenant).require_including_deleted(document_id)
     except TenantResourceNotFound as error:
         raise _not_found() from error
 
