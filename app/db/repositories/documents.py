@@ -66,3 +66,32 @@ class DocumentRepository(TenantRepository):
             .limit(limit)
         )
         return list(self.session.scalars(statement))
+
+    def mark_processing(self, document_id: uuid.UUID) -> Document:
+        document = self.require(document_id)
+        if document.status not in {DocumentStatus.QUEUED, DocumentStatus.PROCESSING}:
+            raise ValueError("Document is not queued for processing.")
+        document.status = DocumentStatus.PROCESSING
+        self.session.flush()
+        return document
+
+    def mark_completed(self, document_id: uuid.UUID, *, storage_key: str) -> Document:
+        document = self.require(document_id)
+        document.storage_key = storage_key
+        document.status = DocumentStatus.COMPLETED
+        self.session.flush()
+        return document
+
+    def mark_failed(
+        self,
+        document_id: uuid.UUID,
+        *,
+        storage_key: str | None = None,
+    ) -> Document:
+        document = self.require(document_id)
+        if storage_key is not None:
+            document.storage_key = storage_key
+        if document.status != DocumentStatus.COMPLETED:
+            document.status = DocumentStatus.FAILED
+        self.session.flush()
+        return document
