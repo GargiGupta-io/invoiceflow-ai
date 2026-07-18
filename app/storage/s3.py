@@ -61,6 +61,12 @@ class S3ObjectStorage:
             kms_key_id=settings.s3_kms_key_id,
         )
 
+    def check_health(self) -> None:
+        try:
+            self.client.head_bucket(Bucket=self.bucket_name)
+        except (BotoCoreError, ClientError):
+            raise StorageOperationError("Storage operation failed.") from None
+
     def upload_quarantined(
         self,
         *,
