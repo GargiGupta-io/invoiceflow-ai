@@ -20,7 +20,17 @@ class RecordingS3Client:
         self.fail_put = False
         self.fail_presign = False
         self.fail_get = False
+        self.fail_head = False
         self.object_content = b"document bytes"
+
+    def head_bucket(self, **request: Any) -> dict[str, Any]:
+        self.calls.append(("head_bucket", request))
+        if self.fail_head:
+            raise ClientError(
+                {"Error": {"Code": "AccessDenied", "Message": "private bucket detail"}},
+                "HeadBucket",
+            )
+        return {}
 
     def put_object(self, **request: Any) -> dict[str, str]:
         self.calls.append(("put_object", request))
@@ -124,6 +134,18 @@ class S3ObjectStorageTests(unittest.TestCase):
             organization_id=uuid.uuid4(),
             document_id=uuid.uuid4(),
         )
+
+    def test_health_check_uses_head_bucket_and_redacts_provider_failure(self) -> None:
+        self.storage.check_health()
+        self.assertEqual(
+            self.client.calls[0],
+            ("head_bucket", {"Bucket": "invoiceflow-private-documents"}),
+        )
+
+        self.client.fail_head = True
+        with self.assertRaisesRegex(StorageOperationError, "Storage operation failed") as raised:
+            self.storage.check_health()
+        self.assertNotIn("private bucket", str(raised.exception))
 
     def test_quarantine_upload_is_private_and_encrypted(self) -> None:
         stored = self.storage.upload_quarantined(
