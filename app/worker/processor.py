@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from app.ingest import IngestionError
 from app.orchestrator import run_workflow_from_upload
 
 
@@ -22,6 +23,15 @@ class DocumentProcessor(Protocol):
     ) -> ProcessedDocument: ...
 
 
+class PermanentDocumentProcessingError(RuntimeError):
+    """The document cannot succeed without changing the input or processor."""
+
+    def __init__(self, code: str, category: str = "document") -> None:
+        super().__init__(code)
+        self.code = code
+        self.category = category
+
+
 class InvoiceFlowDocumentProcessor:
     def __init__(self, *, extractor_mode: str = "heuristic") -> None:
         self.extractor_mode = extractor_mode
@@ -33,11 +43,16 @@ class InvoiceFlowDocumentProcessor:
         content: bytes,
         content_type: str,
     ) -> ProcessedDocument:
-        payload = run_workflow_from_upload(
-            filename=filename,
-            content=content,
-            extractor_mode=self.extractor_mode,
-        )
+        if content_type not in {"application/pdf", "text/plain", "text/markdown"}:
+            raise PermanentDocumentProcessingError("document_ocr_required")
+        try:
+            payload = run_workflow_from_upload(
+                filename=filename,
+                content=content,
+                extractor_mode=self.extractor_mode,
+            )
+        except IngestionError:
+            raise PermanentDocumentProcessingError("document_ingestion_failed") from None
         audit = payload.get("audit_trail") or {}
         context = payload.get("grounded_context") or {}
         result = {
