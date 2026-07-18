@@ -55,6 +55,12 @@ class DocumentRepository(TenantRepository):
             raise TenantResourceNotFound("Resource was not found.")
         return document
 
+    def require_including_deleted(self, document_id: uuid.UUID) -> Document:
+        document = self.get(document_id, include_deleted=True)
+        if document is None:
+            raise TenantResourceNotFound("Resource was not found.")
+        return document
+
     def list_recent(self, *, limit: int = 50) -> list[Document]:
         statement = (
             select(Document)
@@ -107,5 +113,21 @@ class DocumentRepository(TenantRepository):
             document.storage_key = storage_key
         if document.status != DocumentStatus.COMPLETED:
             document.status = DocumentStatus.FAILED
+        self.session.flush()
+        return document
+
+    def mark_deleted(self, document_id: uuid.UUID, *, deleted_at: datetime) -> Document:
+        document = self.require_including_deleted(document_id)
+        if document.deleted_at is not None:
+            return document
+        document.status = DocumentStatus.DELETED
+        document.deleted_at = deleted_at
+        document.original_filename = "[deleted]"
+        document.storage_key = (
+            f"deleted/{self.tenant.organization_id}/{document.id}"
+        )
+        document.content_type = "application/octet-stream"
+        document.size_bytes = 1
+        document.page_count = None
         self.session.flush()
         return document
