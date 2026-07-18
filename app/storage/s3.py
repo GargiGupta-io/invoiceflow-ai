@@ -106,6 +106,32 @@ class S3ObjectStorage:
             version_id=response.get("VersionId"),
         )
 
+    def read(self, *, key: str, max_bytes: int) -> bytes:
+        self._require_managed_key(key)
+        if max_bytes < 1:
+            raise ValueError("Object read limit must be positive.")
+        body = None
+        try:
+            response = self.client.get_object(Bucket=self.bucket_name, Key=key)
+            content_length = response.get("ContentLength")
+            if isinstance(content_length, int) and content_length > max_bytes:
+                raise StorageOperationError("Storage operation failed.")
+            body = response.get("Body")
+            if body is None or not hasattr(body, "read"):
+                raise StorageOperationError("Storage operation failed.")
+            content = body.read(max_bytes + 1)
+        except StorageOperationError:
+            raise
+        except (BotoCoreError, ClientError, OSError):
+            raise StorageOperationError("Storage operation failed.") from None
+        finally:
+            if body is not None and hasattr(body, "close"):
+                body.close()
+
+        if not isinstance(content, bytes) or len(content) > max_bytes:
+            raise StorageOperationError("Storage operation failed.")
+        return content
+
     def create_download_url(self, *, key: str, expires_in_seconds: int) -> str:
         self._require_prefix(key, self.validated_prefix)
         if not 60 <= expires_in_seconds <= 300:
