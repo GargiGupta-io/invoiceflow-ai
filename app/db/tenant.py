@@ -10,3 +10,4 @@ class TenantContext:
 
     organization_id: uuid.UUID
     actor_id: uuid.UUID
+    scopes: frozenset[str] = frozenset()
