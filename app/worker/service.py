@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import logging
 import uuid
 from dataclasses import dataclass
 from enum import Enum
+from time import perf_counter
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -18,6 +20,7 @@ from app.db.repositories import (
     resolve_worker_tenant,
 )
 from app.db.session import Database
+from app.observability.logging import RuntimeEventLogger
 from app.queue import (
     ProcessingMessage,
     ProcessingQueue,
@@ -32,6 +35,10 @@ from app.worker.processor import (
     ProcessedDocument,
 )
 from app.worker.visibility import VisibilityHeartbeat
+
+
+WORKER_LOGGER = logging.getLogger("invoiceflow.worker")
+WORKER_LOGGER.addHandler(logging.NullHandler())
 
 
 class WorkerOutcome(str, Enum):
@@ -52,11 +59,19 @@ class WorkerRunResult:
     outcome: WorkerOutcome
     message_id: str | None = None
     job_id: uuid.UUID | None = None
+    request_id: uuid.UUID | None = None
     receive_count: int | None = None
+    error_category: str | None = None
+    error_code: str | None = None
 
 
 class WorkerExecutionError(RuntimeError):
     """A safe worker failure that excludes document and provider details."""
+
+    def __init__(self, message: str, *, code: str, category: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.category = category
 
 
 class DocumentWorker:
@@ -77,6 +92,7 @@ class DocumentWorker:
         retry_max_delay_seconds: int,
         redrive_max_receive_count: int,
         stale_job_seconds: int,
+        event_logger: RuntimeEventLogger | None = None,
     ) -> None:
         self.database = database
         self.queue = queue
@@ -92,15 +108,53 @@ class DocumentWorker:
         self.retry_max_delay_seconds = retry_max_delay_seconds
         self.redrive_max_receive_count = redrive_max_receive_count
         self.stale_job_seconds = stale_job_seconds
+        self.event_logger = event_logger or RuntimeEventLogger(
+            WORKER_LOGGER,
+            service="worker",
+            environment="development",
+        )
 
     def run_once(self) -> WorkerRunResult:
+        started_at = perf_counter()
+        try:
+            result = self._run_once()
+        except WorkerExecutionError as error:
+            self.event_logger.emit(
+                "document_worker_error",
+                level=logging.ERROR,
+                service="worker",
+                status="failed",
+                duration_ms=round((perf_counter() - started_at) * 1000, 3),
+                error_category=error.category,
+                error_code=error.code,
+            )
+            raise
+
+        if result.outcome != WorkerOutcome.NO_MESSAGE:
+            self.event_logger.worker_result(
+                outcome=result.outcome.value,
+                duration_ms=(perf_counter() - started_at) * 1000,
+                request_id=result.request_id,
+                job_id=result.job_id,
+                message_id=result.message_id,
+                receive_count=result.receive_count,
+                error_category=result.error_category,
+                error_code=result.error_code,
+            )
+        return result
+
+    def _run_once(self) -> WorkerRunResult:
         try:
             received = self.queue.receive_one(
                 wait_time_seconds=self.wait_time_seconds,
                 visibility_timeout_seconds=self.visibility_timeout_seconds,
             )
         except QueueOperationError:
-            raise WorkerExecutionError("The processing queue could not be read.") from None
+            raise WorkerExecutionError(
+                "The processing queue could not be read.",
+                code="queue_receive_failed",
+                category="queue",
+            ) from None
         if received is None:
             return WorkerRunResult(outcome=WorkerOutcome.NO_MESSAGE)
 
@@ -108,18 +162,31 @@ class DocumentWorker:
             message = ProcessingMessage.from_body(received.body)
         except QueueMessageValidationError:
             self._defer_unprocessable(received)
-            return self._result(WorkerOutcome.INVALID_MESSAGE, received)
+            return self._result(
+                WorkerOutcome.INVALID_MESSAGE,
+                received,
+                error_category="validation",
+                error_code="queue_message_invalid",
+            )
 
         try:
             claim = self._claim(message=message, received=received)
         except TenantResourceNotFound:
             self._defer_unprocessable(received)
-            return self._result(WorkerOutcome.UNKNOWN_JOB, received, message.job_id)
+            return self._result(
+                WorkerOutcome.UNKNOWN_JOB,
+                received,
+                message.job_id,
+                request_id=message.request_id,
+                error_category="persistence",
+                error_code="processing_job_not_found",
+            )
         if claim.state == JobClaimState.COMPLETED:
             return self._acknowledge(
                 outcome=WorkerOutcome.ALREADY_COMPLETED,
                 received=received,
                 job_id=message.job_id,
+                request_id=message.request_id,
             )
         if claim.state == JobClaimState.TERMINAL:
             self._release_to_redrive(received)
@@ -127,6 +194,9 @@ class DocumentWorker:
                 WorkerOutcome.PERMANENT_FAILURE,
                 received,
                 message.job_id,
+                request_id=message.request_id,
+                error_category=claim.job.error_category,
+                error_code=claim.job.error_code,
             )
         if claim.state == JobClaimState.EXHAUSTED:
             if claim.job.status != JobStatus.DEAD_LETTERED:
@@ -139,9 +209,21 @@ class DocumentWorker:
                     storage_key=document.storage_key,
                 )
             self._release_to_redrive(received)
-            return self._result(WorkerOutcome.RETRY_EXHAUSTED, received, message.job_id)
+            return self._result(
+                WorkerOutcome.RETRY_EXHAUSTED,
+                received,
+                message.job_id,
+                request_id=message.request_id,
+                error_category=claim.job.error_category,
+                error_code=claim.job.error_code,
+            )
         if claim.state == JobClaimState.UNAVAILABLE:
-            return self._result(WorkerOutcome.IN_PROGRESS, received, message.job_id)
+            return self._result(
+                WorkerOutcome.IN_PROGRESS,
+                received,
+                message.job_id,
+                request_id=message.request_id,
+            )
 
         keys = build_document_keys(
             organization_id=message.organization_id,
@@ -195,6 +277,9 @@ class DocumentWorker:
                 WorkerOutcome.PERMANENT_FAILURE,
                 received,
                 message.job_id,
+                request_id=message.request_id,
+                error_category=error.category,
+                error_code=error.code,
             )
         except StorageOperationError:
             return self._schedule_retry(
@@ -228,6 +313,7 @@ class DocumentWorker:
             outcome=WorkerOutcome.COMPLETED,
             received=received,
             job_id=message.job_id,
+            request_id=message.request_id,
         )
 
     def _claim(
@@ -282,7 +368,11 @@ class DocumentWorker:
         except TenantResourceNotFound:
             raise
         except (SQLAlchemyError, ValueError):
-            raise WorkerExecutionError("The processing job could not be claimed safely.") from None
+            raise WorkerExecutionError(
+                "The processing job could not be claimed safely.",
+                code="processing_claim_failed",
+                category="persistence",
+            ) from None
 
     def _load_document(self, message: ProcessingMessage):
         with self.database.transaction() as session:
@@ -362,6 +452,9 @@ class DocumentWorker:
                 WorkerOutcome.RETRY_EXHAUSTED,
                 received,
                 message.job_id,
+                request_id=message.request_id,
+                error_category=error_category,
+                error_code=error_code,
             )
 
         delay_seconds = self._retry_delay(received.receive_count)
@@ -378,6 +471,9 @@ class DocumentWorker:
             WorkerOutcome.RETRY_SCHEDULED,
             received,
             message.job_id,
+            request_id=message.request_id,
+            error_category=error_category,
+            error_code=error_code,
         )
 
     def _record_retry(
@@ -424,7 +520,11 @@ class DocumentWorker:
                     },
                 )
         except Exception:
-            raise WorkerExecutionError("The processing retry could not be recorded safely.") from None
+            raise WorkerExecutionError(
+                "The processing retry could not be recorded safely.",
+                code="processing_retry_record_failed",
+                category="persistence",
+            ) from None
 
     def _record_retry_exhausted(
         self,
@@ -469,7 +569,11 @@ class DocumentWorker:
                     },
                 )
         except Exception:
-            raise WorkerExecutionError("Retry exhaustion could not be recorded safely.") from None
+            raise WorkerExecutionError(
+                "Retry exhaustion could not be recorded safely.",
+                code="retry_exhaustion_record_failed",
+                category="persistence",
+            ) from None
 
     def _record_permanent_failure(
         self,
@@ -511,7 +615,11 @@ class DocumentWorker:
                     },
                 )
         except Exception:
-            raise WorkerExecutionError("The permanent failure could not be recorded safely.") from None
+            raise WorkerExecutionError(
+                "The permanent failure could not be recorded safely.",
+                code="permanent_failure_record_failed",
+                category="persistence",
+            ) from None
 
     def _defer_unprocessable(self, received: ReceivedQueueMessage) -> None:
         if received.receive_count >= self.redrive_max_receive_count:
@@ -549,22 +657,37 @@ class DocumentWorker:
         outcome: WorkerOutcome,
         received: ReceivedQueueMessage,
         job_id: uuid.UUID,
+        request_id: uuid.UUID,
     ) -> WorkerRunResult:
         try:
             self.queue.delete(receipt_handle=received.receipt_handle)
         except QueueOperationError:
-            return self._result(WorkerOutcome.ACK_FAILED, received, job_id)
-        return self._result(outcome, received, job_id)
+            return self._result(
+                WorkerOutcome.ACK_FAILED,
+                received,
+                job_id,
+                request_id=request_id,
+                error_category="queue",
+                error_code="queue_acknowledgement_failed",
+            )
+        return self._result(outcome, received, job_id, request_id=request_id)
 
     @staticmethod
     def _result(
         outcome: WorkerOutcome,
         received: ReceivedQueueMessage,
         job_id: uuid.UUID | None = None,
+        *,
+        request_id: uuid.UUID | None = None,
+        error_category: str | None = None,
+        error_code: str | None = None,
     ) -> WorkerRunResult:
         return WorkerRunResult(
             outcome=outcome,
             message_id=received.message_id,
             job_id=job_id,
+            request_id=request_id,
             receive_count=received.receive_count,
+            error_category=error_category,
+            error_code=error_code,
         )
