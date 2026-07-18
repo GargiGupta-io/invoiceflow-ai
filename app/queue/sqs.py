@@ -105,3 +105,22 @@ class SQSProcessingQueue:
             )
         except (BotoCoreError, ClientError):
             raise QueueOperationError("Queue operation failed.") from None
+
+    def change_visibility(
+        self,
+        *,
+        receipt_handle: str,
+        visibility_timeout_seconds: int,
+    ) -> None:
+        if not receipt_handle:
+            raise ValueError("SQS receipt handle is required.")
+        if not 0 <= visibility_timeout_seconds <= 43200:
+            raise ValueError("SQS visibility timeout must be between 0 seconds and 12 hours.")
+        try:
+            self.client.change_message_visibility(
+                QueueUrl=self.queue_url,
+                ReceiptHandle=receipt_handle,
+                VisibilityTimeout=visibility_timeout_seconds,
+            )
+        except (BotoCoreError, ClientError):
+            raise QueueOperationError("Queue operation failed.") from None
