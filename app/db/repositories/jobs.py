@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -29,6 +29,8 @@ class JobReservation:
 class JobClaimState(str, Enum):
     CLAIMED = "claimed"
     COMPLETED = "completed"
+    EXHAUSTED = "exhausted"
+    TERMINAL = "terminal"
     UNAVAILABLE = "unavailable"
 
 
@@ -138,15 +140,30 @@ class ProcessingJobRepository(TenantRepository):
         )
         return list(self.session.scalars(statement))
 
-    def claim(self, *, job_id: uuid.UUID, document_id: uuid.UUID) -> JobClaim:
+    def claim(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+        stale_after_seconds: int = 3600,
+    ) -> JobClaim:
         now = datetime.now(timezone.utc)
+        stale_before = now - timedelta(seconds=stale_after_seconds)
         statement = (
             update(ProcessingJob)
             .where(
                 ProcessingJob.organization_id == self.tenant.organization_id,
                 ProcessingJob.id == job_id,
                 ProcessingJob.document_id == document_id,
-                ProcessingJob.status == JobStatus.QUEUED,
+                ProcessingJob.attempt_count < ProcessingJob.max_attempts,
+                or_(
+                    ProcessingJob.status == JobStatus.QUEUED,
+                    and_(
+                        ProcessingJob.status == JobStatus.PROCESSING,
+                        ProcessingJob.started_at.is_not(None),
+                        ProcessingJob.started_at <= stale_before,
+                    ),
+                ),
             )
             .values(
                 status=JobStatus.PROCESSING,
@@ -165,12 +182,55 @@ class ProcessingJobRepository(TenantRepository):
         existing = self.get(job_id)
         if existing is None or existing.document_id != document_id:
             raise TenantResourceNotFound("Resource was not found.")
-        state = (
-            JobClaimState.COMPLETED
-            if existing.status == JobStatus.COMPLETED
-            else JobClaimState.UNAVAILABLE
-        )
+        if existing.status == JobStatus.COMPLETED:
+            state = JobClaimState.COMPLETED
+        elif existing.status == JobStatus.FAILED:
+            state = JobClaimState.TERMINAL
+        elif (
+            existing.status == JobStatus.DEAD_LETTERED
+            or existing.attempt_count >= existing.max_attempts
+        ):
+            state = JobClaimState.EXHAUSTED
+        else:
+            state = JobClaimState.UNAVAILABLE
         return JobClaim(job=existing, state=state)
+
+    def release_for_retry(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+        error_code: str,
+        error_category: str,
+    ) -> ProcessingJob:
+        job = self._require_job_document(job_id=job_id, document_id=document_id)
+        if job.status != JobStatus.PROCESSING:
+            raise JobStateConflict("Processing job is not active.")
+        job.status = JobStatus.QUEUED
+        job.error_code = error_code[:100]
+        job.error_category = error_category[:100]
+        job.started_at = None
+        job.completed_at = None
+        self.session.flush()
+        return job
+
+    def mark_retry_exhausted(
+        self,
+        *,
+        job_id: uuid.UUID,
+        document_id: uuid.UUID,
+        error_code: str,
+        error_category: str,
+    ) -> ProcessingJob:
+        job = self._require_job_document(job_id=job_id, document_id=document_id)
+        if job.status == JobStatus.COMPLETED:
+            return job
+        job.status = JobStatus.DEAD_LETTERED
+        job.error_code = error_code[:100]
+        job.error_category = error_category[:100]
+        job.completed_at = datetime.now(timezone.utc)
+        self.session.flush()
+        return job
 
     def complete(
         self,
