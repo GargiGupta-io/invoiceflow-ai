@@ -86,6 +86,14 @@ class DocumentUploadResponse(BaseModel):
     request_id: uuid.UUID
 
 
+class DocumentAccessResponse(BaseModel):
+    document_id: uuid.UUID
+    request_id: uuid.UUID
+    url: str = Field(min_length=1, max_length=8192)
+    expires_in_seconds: int = Field(ge=60, le=300)
+    expires_at: datetime
+
+
 class ReviewCreateRequest(BaseModel):
     processing_job_id: uuid.UUID
     action: ReviewAction
