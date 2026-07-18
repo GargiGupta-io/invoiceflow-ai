@@ -63,6 +63,16 @@ class SettingsTests(unittest.TestCase):
             ).sqs_configured
         )
 
+    def test_worker_queue_timings_are_bounded(self) -> None:
+        settings = Settings(_env_file=None)
+        self.assertEqual(settings.sqs_wait_time_seconds, 20)
+        self.assertEqual(settings.sqs_visibility_timeout_seconds, 120)
+        self.assertEqual(settings.worker_extractor_mode, "heuristic")
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, sqs_wait_time_seconds=21)
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, sqs_visibility_timeout_seconds=29)
+
 
 if __name__ == "__main__":
     unittest.main()
