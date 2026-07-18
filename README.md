@@ -204,7 +204,7 @@ generic chat. The main story is:
 
 Implemented:
 - sample and upload ingestion
-- PDF parsing with OCR fallback hooks
+- page-aware PDF parsing and open-source OCR for scanned pages, PNG, and JPEG uploads
 - strict extraction schema
 - deterministic development extractor
 - optional LLM extraction path with schema-shaped JSON responses and validation repair
@@ -221,6 +221,7 @@ Implemented:
 - redacted JSON worker events with request/job correlation and CloudWatch metric fields
 - separate liveness and PostgreSQL/S3/SQS readiness endpoints for Version 2 deployment checks
 - configurable document expiry, tenant-authorized deletion, and idempotent retention cleanup
+- tenant-isolated page text storage with PostgreSQL full-text search and page locations
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -422,11 +423,20 @@ Version 2 protected routes use verified tenant identity and scope checks:
 - `GET /v2/documents`
 - `POST /v2/documents` - requires `invoiceflow.upload`
 - `GET /v2/documents/{document_id}` - requires `invoiceflow.read`
+- `GET /v2/documents/{document_id}/pages` - requires `invoiceflow.read`
 - `DELETE /v2/documents/{document_id}` - requires `invoiceflow.delete`
 - `POST /v2/documents/{document_id}/access` - requires `invoiceflow.read`
 - `POST /v2/documents/{document_id}/processing-jobs` - requires `invoiceflow.process`
 - `GET|POST /v2/documents/{document_id}/reviews`
 - `GET /v2/documents/{document_id}/audit`
+- `POST /v2/search` - tenant-scoped page search, requires `invoiceflow.read`
+
+Search results return an excerpt, source page number, and the protected access
+route for the document. The client must still request a short-lived private URL;
+search never returns an S3 key or presigned URL directly. Search text is sent in
+the request body so it does not appear in normal URL access logs. PostgreSQL uses
+a GIN full-text index, while SQLite provides a portable fallback for local tests
+only.
 
 Uploads receive a configurable expiry date through `DOCUMENT_RETENTION_DAYS`.
 Run one bounded cleanup batch with:
@@ -436,9 +446,10 @@ python -m app.retention.main
 ```
 
 The cleanup removes both possible private object locations, erases processing
-results and reviewer data, hides the document from normal history, and appends a
-safe deletion event. Repeated cleanup is a no-op. S3 Lifecycle configuration is
-kept as a second infrastructure-level cleanup layer for abandoned objects.
+results, extracted page text, and reviewer data, hides the document from normal
+history, and appends a safe deletion event. Repeated cleanup is a no-op. S3
+Lifecycle configuration is kept as a second infrastructure-level cleanup layer
+for abandoned objects.
 
 <details>
 <summary>Workflow response metadata</summary>
@@ -583,9 +594,9 @@ embedding or vector retrieval pipeline.
 
 ## Next Improvements
 
-- add real OCR support for scanned invoices using Tesseract or a hosted OCR service
+- add a managed OCR adapter such as Textract for production deployments
 - add role-based access for reviewers and operators
-- add a persistent case store with approval history and audit lookups
+- add reviewer-facing history and page-preview screens for the persistent case store
 - add vendor risk scoring and a PDF annotation view for invoice review
 - add email, Slack, and Teams notifications for escalations
 - add multi-tenant organization support
