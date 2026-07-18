@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -92,6 +92,13 @@ class DocumentAccessResponse(BaseModel):
     url: str = Field(min_length=1, max_length=8192)
     expires_in_seconds: int = Field(ge=60, le=300)
     expires_at: datetime
+
+
+class ProcessingDispatchResponse(BaseModel):
+    processing_job: ProcessingJobResponse
+    request_id: uuid.UUID
+    reused_job: bool
+    dispatch_state: Literal["sent"] = "sent"
 
 
 class ReviewCreateRequest(BaseModel):
