@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import unittest
 import uuid
-from typing import Any, Mapping
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from app.db import Base, DocumentStatus, JobStatus, Organization, User
 from app.db.repositories import AuditEventRepository, DocumentRepository, ProcessingJobRepository
@@ -15,7 +16,12 @@ from app.queue import (
     ReceivedQueueMessage,
 )
 from app.storage import StorageOperationError, StoredObject, build_document_keys
-from app.worker import DocumentWorker, ProcessedDocument, WorkerOutcome
+from app.worker import (
+    DocumentWorker,
+    PermanentDocumentProcessingError,
+    ProcessedDocument,
+    WorkerOutcome,
+)
 
 
 class RecordingWorkerQueue:
@@ -23,7 +29,9 @@ class RecordingWorkerQueue:
         self.received = received
         self.events = events
         self.deleted: list[str] = []
+        self.visibility_changes: list[tuple[str, int]] = []
         self.fail_delete = False
+        self.fail_visibility = False
 
     def send(self, message: ProcessingMessage) -> QueueDispatchReceipt:
         raise AssertionError("Worker must not send processing messages.")
@@ -39,12 +47,24 @@ class RecordingWorkerQueue:
             raise QueueOperationError("Queue operation failed.")
         self.deleted.append(receipt_handle)
 
+    def change_visibility(
+        self,
+        *,
+        receipt_handle: str,
+        visibility_timeout_seconds: int,
+    ) -> None:
+        self.events.append("queue.visibility")
+        if self.fail_visibility:
+            raise QueueOperationError("Queue operation failed.")
+        self.visibility_changes.append((receipt_handle, visibility_timeout_seconds))
+
 
 class RecordingWorkerStorage:
     def __init__(self, content: bytes, events: list[str]) -> None:
         self.content = content
         self.events = events
         self.promotions: list[tuple[str, str]] = []
+        self.read_keys: list[str] = []
         self.fail_read = False
         self.fail_promote = False
 
@@ -53,6 +73,7 @@ class RecordingWorkerStorage:
 
     def read(self, *, key: str, max_bytes: int) -> bytes:
         self.events.append("storage.read")
+        self.read_keys.append(key)
         if self.fail_read:
             raise StorageOperationError("Storage operation failed.")
         if len(self.content) > max_bytes:
@@ -146,12 +167,12 @@ class DocumentWorkerTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.database.dispose()
 
-    def received(self, body: str) -> ReceivedQueueMessage:
+    def received(self, body: str, *, receive_count: int = 1) -> ReceivedQueueMessage:
         return ReceivedQueueMessage(
             message_id="sqs-received-1",
             receipt_handle="receipt-handle-1",
             body=body,
-            receive_count=1,
+            receive_count=receive_count,
         )
 
     def worker(self) -> DocumentWorker:
@@ -165,6 +186,11 @@ class DocumentWorkerTests(unittest.TestCase):
             max_document_bytes=10 * 1024 * 1024,
             wait_time_seconds=20,
             visibility_timeout_seconds=120,
+            visibility_heartbeat_seconds=30,
+            retry_base_delay_seconds=30,
+            retry_max_delay_seconds=900,
+            redrive_max_receive_count=4,
+            stale_job_seconds=3600,
         )
 
     def test_success_persists_result_before_deleting_message(self) -> None:
@@ -232,6 +258,7 @@ class DocumentWorkerTests(unittest.TestCase):
         invalid = self.worker().run_once()
         self.assertEqual(invalid.outcome, WorkerOutcome.INVALID_MESSAGE)
         self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 30)])
 
         unknown = ProcessingMessage(
             job_id=uuid.uuid4(),
@@ -243,14 +270,62 @@ class DocumentWorkerTests(unittest.TestCase):
         result = self.worker().run_once()
         self.assertEqual(result.outcome, WorkerOutcome.UNKNOWN_JOB)
         self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(
+            self.queue.visibility_changes,
+            [("receipt-handle-1", 30), ("receipt-handle-1", 30)],
+        )
 
-    def test_workflow_failure_is_saved_and_message_is_not_deleted(self) -> None:
+    def test_temporary_workflow_failure_is_queued_with_backoff(self) -> None:
         self.processor.error = RuntimeError("sensitive invoice content")
 
         result = self.worker().run_once()
 
-        self.assertEqual(result.outcome, WorkerOutcome.FAILED)
+        self.assertEqual(result.outcome, WorkerOutcome.RETRY_SCHEDULED)
         self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 30)])
+        with self.database.transaction() as session:
+            job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
+            document = DocumentRepository(session, self.tenant).require(self.document_id)
+            audit = AuditEventRepository(session, self.tenant).list_for_resource(
+                "document", str(self.document_id)
+            )
+        assert job is not None
+        self.assertEqual(job.status, JobStatus.QUEUED)
+        self.assertEqual(job.error_code, "document_processing_failed")
+        self.assertNotIn("sensitive invoice", str(job.error_code))
+        self.assertEqual(document.status, DocumentStatus.QUEUED)
+        self.assertEqual(audit[0].action, "document.processing_retry_scheduled")
+
+    def test_retry_delay_grows_with_receive_count(self) -> None:
+        self.queue.received = self.received(self.message.to_body(), receive_count=3)
+        self.processor.error = RuntimeError("temporary provider failure")
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.RETRY_SCHEDULED)
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 120)])
+
+    def test_visibility_failure_keeps_retryable_job_queued(self) -> None:
+        self.queue.fail_visibility = True
+        self.processor.error = RuntimeError("temporary provider failure")
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.RETRY_SCHEDULED)
+        self.assertEqual(self.queue.deleted, [])
+        with self.database.transaction() as session:
+            job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
+        assert job is not None
+        self.assertEqual(job.status, JobStatus.QUEUED)
+
+    def test_permanent_document_failure_is_recorded_for_dlq_redrive(self) -> None:
+        self.processor.error = PermanentDocumentProcessingError("document_ocr_required")
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.PERMANENT_FAILURE)
+        self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 0)])
         with self.database.transaction() as session:
             job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
             document = DocumentRepository(session, self.tenant).require(self.document_id)
@@ -259,10 +334,95 @@ class DocumentWorkerTests(unittest.TestCase):
             )
         assert job is not None
         self.assertEqual(job.status, JobStatus.FAILED)
-        self.assertEqual(job.error_code, "document_processing_failed")
-        self.assertNotIn("sensitive invoice", str(job.error_code))
+        self.assertEqual(job.error_code, "document_ocr_required")
         self.assertEqual(document.status, DocumentStatus.FAILED)
-        self.assertEqual(audit[0].action, "document.processing_failed")
+        self.assertEqual(audit[0].action, "document.processing_failed_permanently")
+
+        self.queue.received = self.received(self.message.to_body(), receive_count=2)
+        duplicate = self.worker().run_once()
+        self.assertEqual(duplicate.outcome, WorkerOutcome.PERMANENT_FAILURE)
+        self.assertEqual(len(self.processor.calls), 1)
+        self.assertEqual(
+            self.queue.visibility_changes,
+            [("receipt-handle-1", 0), ("receipt-handle-1", 0)],
+        )
+
+    def test_retry_exhaustion_is_released_for_dlq_redrive(self) -> None:
+        self.queue.received = self.received(self.message.to_body(), receive_count=4)
+        self.processor.error = RuntimeError("temporary provider failure")
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.RETRY_EXHAUSTED)
+        self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 0)])
+        with self.database.transaction() as session:
+            job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
+            document = DocumentRepository(session, self.tenant).require(self.document_id)
+            audit = AuditEventRepository(session, self.tenant).list_for_resource(
+                "document", str(self.document_id)
+            )
+        assert job is not None
+        self.assertEqual(job.status, JobStatus.DEAD_LETTERED)
+        self.assertEqual(document.status, DocumentStatus.FAILED)
+        self.assertEqual(audit[0].action, "document.processing_retries_exhausted")
+
+    def test_invalid_message_is_released_after_redrive_limit(self) -> None:
+        self.queue.received = self.received("not-json", receive_count=4)
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.INVALID_MESSAGE)
+        self.assertEqual(self.queue.deleted, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 0)])
+
+    def test_retry_can_resume_from_an_already_promoted_object(self) -> None:
+        with self.database.transaction() as session:
+            document = DocumentRepository(session, self.tenant).require(self.document_id)
+            document.storage_key = self.keys.validated_key
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.COMPLETED)
+        self.assertEqual(self.storage.read_keys, [self.keys.validated_key])
+        self.assertEqual(self.storage.promotions, [])
+
+    def test_stale_processing_job_can_be_reclaimed(self) -> None:
+        with self.database.transaction() as session:
+            claim = ProcessingJobRepository(session, self.tenant).claim(
+                job_id=self.job.id,
+                document_id=self.document_id,
+            )
+            claim.job.started_at = datetime.now(timezone.utc) - timedelta(hours=2)
+            DocumentRepository(session, self.tenant).mark_processing(self.document_id)
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.COMPLETED)
+        with self.database.transaction() as session:
+            job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
+        assert job is not None
+        self.assertEqual(job.attempt_count, 2)
+
+    def test_stale_final_attempt_is_recorded_as_retry_exhausted(self) -> None:
+        with self.database.transaction() as session:
+            claim = ProcessingJobRepository(session, self.tenant).claim(
+                job_id=self.job.id,
+                document_id=self.document_id,
+            )
+            claim.job.attempt_count = claim.job.max_attempts
+            claim.job.started_at = datetime.now(timezone.utc) - timedelta(hours=2)
+            DocumentRepository(session, self.tenant).mark_processing(self.document_id)
+
+        result = self.worker().run_once()
+
+        self.assertEqual(result.outcome, WorkerOutcome.RETRY_EXHAUSTED)
+        self.assertEqual(self.processor.calls, [])
+        self.assertEqual(self.queue.visibility_changes, [("receipt-handle-1", 0)])
+        with self.database.transaction() as session:
+            job = ProcessingJobRepository(session, self.tenant).get(self.job.id)
+        assert job is not None
+        self.assertEqual(job.status, JobStatus.DEAD_LETTERED)
 
     def test_delete_failure_leaves_completed_job_for_safe_redelivery(self) -> None:
         self.queue.fail_delete = True
