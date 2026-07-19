@@ -5,6 +5,7 @@ from typing import Literal, Self
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 
 class Settings(BaseSettings):
@@ -23,9 +24,14 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     cloudwatch_metric_namespace: str = Field(default="InvoiceFlow", min_length=1, max_length=255)
 
-    database_url: SecretStr = SecretStr(
+    database_url: SecretStr | None = SecretStr(
         "postgresql+psycopg://invoiceflow:invoiceflow@localhost:5432/invoiceflow"
     )
+    database_host: str = ""
+    database_port: int = Field(default=5432, ge=1, le=65535)
+    database_name: str = ""
+    database_user: str = ""
+    database_password: SecretStr | None = None
     database_pool_size: int = Field(default=5, ge=1)
     database_max_overflow: int = Field(default=5, ge=0)
     database_pool_timeout_seconds: int = Field(default=30, ge=1)
@@ -66,6 +72,22 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_s3_encryption(self) -> Self:
+        database_url = (
+            self.database_url.get_secret_value().strip() if self.database_url else ""
+        )
+        database_parts = (
+            self.database_host.strip(),
+            self.database_name.strip(),
+            self.database_user.strip(),
+            self.database_password.get_secret_value().strip()
+            if self.database_password
+            else "",
+        )
+        if not database_url and not all(database_parts):
+            raise ValueError(
+                "Configure DATABASE_URL or all of DATABASE_HOST, DATABASE_NAME, "
+                "DATABASE_USER, and DATABASE_PASSWORD."
+            )
         if self.s3_sse_algorithm == "aws:kms" and not (self.s3_kms_key_id or "").strip():
             raise ValueError("S3_KMS_KEY_ID is required when S3_SSE_ALGORITHM is aws:kms.")
         if self.sqs_visibility_heartbeat_seconds >= self.sqs_visibility_timeout_seconds:
@@ -85,7 +107,21 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_url(self) -> str:
-        return self.database_url.get_secret_value()
+        if self.database_url:
+            database_url = self.database_url.get_secret_value().strip()
+            if database_url:
+                return database_url
+
+        return URL.create(
+            drivername="postgresql+psycopg",
+            username=self.database_user.strip(),
+            password=self.database_password.get_secret_value()
+            if self.database_password
+            else None,
+            host=self.database_host.strip(),
+            port=self.database_port,
+            database=self.database_name.strip(),
+        ).render_as_string(hide_password=False)
 
     @property
     def auth_configured(self) -> bool:
