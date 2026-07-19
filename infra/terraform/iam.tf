@@ -126,3 +126,26 @@ resource "aws_iam_role_policy" "worker" {
   role   = aws_iam_role.worker.id
   policy = data.aws_iam_policy_document.worker.json
 }
+
+resource "aws_iam_role" "provisioner" {
+  name               = "${local.name_prefix}-provisioner"
+  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
+}
+
+data "aws_iam_policy_document" "provisioner" {
+  statement {
+    sid    = "ProvisionReviewerIdentity"
+    effect = "Allow"
+    actions = [
+      "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminGetUser",
+    ]
+    resources = [aws_cognito_user_pool.main.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "provisioner" {
+  name   = "invoiceflow-reviewer-provisioner"
+  role   = aws_iam_role.provisioner.id
+  policy = data.aws_iam_policy_document.provisioner.json
+}
