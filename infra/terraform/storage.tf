@@ -3,11 +3,8 @@ resource "random_id" "bucket_suffix" {
 }
 
 resource "aws_s3_bucket" "documents" {
-  bucket = "${local.name_prefix}-documents-${random_id.bucket_suffix.hex}"
-
-  lifecycle {
-    prevent_destroy = true
-  }
+  bucket        = "${local.name_prefix}-documents-${random_id.bucket_suffix.hex}"
+  force_destroy = local.document_bucket_force_destroy
 
   tags = { Name = "${local.name_prefix}-documents" }
 }
