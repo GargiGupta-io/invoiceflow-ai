@@ -39,8 +39,18 @@ output "worker_service_name" {
 }
 
 output "private_app_subnet_ids" {
-  description = "Subnets used by API, worker, and one-off migration tasks."
+  description = "Private application subnets used by the production profile."
   value       = aws_subnet.app[*].id
+}
+
+output "runtime_subnet_ids" {
+  description = "Subnets used by API, worker, migration, and provisioner tasks for the selected deployment profile."
+  value       = local.runtime_subnet_ids
+}
+
+output "runtime_assign_public_ip" {
+  description = "Whether one-off Fargate tasks must request a public IP in the selected deployment profile."
+  value       = local.runtime_assign_public_ip
 }
 
 output "task_security_group_id" {
@@ -87,4 +97,9 @@ output "cognito_hosted_ui_domain" {
 output "alarm_topic_arn" {
   description = "SNS topic receiving operational alarms."
   value       = aws_sns_topic.alarms.arn
+}
+
+output "monthly_cost_budget_name" {
+  description = "Account-wide pre-credit usage budget name when alarm_email is configured."
+  value       = try(aws_budgets_budget.monthly_usage[0].name, null)
 }
