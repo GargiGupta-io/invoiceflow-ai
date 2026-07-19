@@ -44,6 +44,7 @@ from app.queue import ProcessingQueue, get_processing_queue
 from app.schemas.persistence import (
     AuditEventResponse,
     DocumentAccessResponse,
+    DocumentCaseResultResponse,
     DocumentDetailResponse,
     DocumentDeletionResponse,
     DocumentListResponse,
@@ -251,10 +252,29 @@ def document_detail(
     except TenantResourceNotFound as error:
         raise _not_found() from error
 
+    completed_job = next(
+        (job for job in jobs if job.status.value == "completed" and job.extraction_result),
+        None,
+    )
+    case_result = None
+    if completed_job is not None:
+        stored_result = completed_job.extraction_result or {}
+        case_result = DocumentCaseResultResponse(
+            processing_job_id=completed_job.id,
+            workflow_result=stored_result.get("workflow_result") or {},
+            route=stored_result.get("route") or {},
+            policy_assessment=stored_result.get("policy_assessment") or {},
+            human_review=stored_result.get("human_review") or {},
+            agent_tool_trace=stored_result.get("agent_tool_trace") or [],
+            stage_latencies_ms=stored_result.get("stage_latencies_ms") or {},
+            evidence=completed_job.evidence or [],
+        )
+
     return DocumentDetailResponse(
         document=DocumentSummaryResponse.model_validate(document),
         processing_jobs=[ProcessingJobResponse.model_validate(job) for job in jobs],
         reviews=[ReviewDecisionResponse.model_validate(review) for review in reviews],
+        case_result=case_result,
     )
 
 
@@ -508,9 +528,11 @@ def create_processing_job(
 )
 def review_history(
     document_id: uuid.UUID,
+    response: Response,
     tenant: TenantContext = Depends(require_read_tenant),
     session: Session = Depends(get_db_session),
 ) -> list[ReviewDecisionResponse]:
+    _prevent_private_caching(response)
     try:
         reviews = ReviewDecisionRepository(session, tenant).list_for_document(document_id)
     except TenantResourceNotFound as error:
@@ -526,9 +548,11 @@ def review_history(
 def create_review(
     document_id: uuid.UUID,
     request: ReviewCreateRequest,
+    response: Response,
     tenant: TenantContext = Depends(require_review_tenant),
     session: Session = Depends(get_db_session),
 ) -> ReviewDecisionResponse:
+    _prevent_private_caching(response)
     try:
         review = ReviewDecisionRepository(session, tenant).create(
             document_id=document_id,
@@ -560,9 +584,11 @@ def create_review(
 )
 def audit_history(
     document_id: uuid.UUID,
+    response: Response,
     tenant: TenantContext = Depends(require_read_tenant),
     session: Session = Depends(get_db_session),
 ) -> list[AuditEventResponse]:
+    _prevent_private_caching(response)
     try:
         DocumentRepository(session, tenant).require_including_deleted(document_id)
     except TenantResourceNotFound as error:
