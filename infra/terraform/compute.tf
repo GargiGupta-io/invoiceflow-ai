@@ -249,11 +249,43 @@ resource "aws_ecs_task_definition" "migration" {
   }])
 }
 
+resource "aws_ecs_task_definition" "provisioner" {
+  family                   = "${local.name_prefix}-provisioner"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.execution.arn
+  task_role_arn            = aws_iam_role.provisioner.arn
+
+  container_definitions = jsonencode([{
+    name                   = "provisioner"
+    image                  = "${aws_ecr_repository.app.repository_url}:${var.container_image_tag}"
+    essential              = true
+    command                = ["python", "-m", "app.admin.provision_reviewer", "--help"]
+    user                   = "10001:10001"
+    readonlyRootFilesystem = true
+    environment = concat(local.common_environment, [
+      { name = "COGNITO_USER_POOL_ID", value = aws_cognito_user_pool.main.id },
+    ])
+    secrets = local.database_password_secret
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.api.name
+        awslogs-region        = var.aws_region
+        awslogs-stream-prefix = "provisioner"
+      }
+    }
+  }])
+}
+
 resource "aws_ecs_service" "api" {
   name                               = "api"
   cluster                            = aws_ecs_cluster.main.id
   task_definition                    = aws_ecs_task_definition.api.arn
-  desired_count                      = var.api_desired_count
+  desired_count                      = var.services_enabled ? var.api_desired_count : 0
   launch_type                        = "FARGATE"
   platform_version                   = "LATEST"
   health_check_grace_period_seconds  = 60
@@ -285,7 +317,7 @@ resource "aws_ecs_service" "worker" {
   name                               = "worker"
   cluster                            = aws_ecs_cluster.main.id
   task_definition                    = aws_ecs_task_definition.worker.arn
-  desired_count                      = var.worker_desired_count
+  desired_count                      = var.services_enabled ? var.worker_desired_count : 0
   launch_type                        = "FARGATE"
   platform_version                   = "LATEST"
   deployment_minimum_healthy_percent = 0
@@ -305,6 +337,8 @@ resource "aws_ecs_service" "worker" {
 }
 
 resource "aws_appautoscaling_target" "api" {
+  count = var.services_enabled ? 1 : 0
+
   max_capacity       = 6
   min_capacity       = var.api_desired_count
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.api.name}"
@@ -313,11 +347,13 @@ resource "aws_appautoscaling_target" "api" {
 }
 
 resource "aws_appautoscaling_policy" "api_cpu" {
+  count = var.services_enabled ? 1 : 0
+
   name               = "${local.name_prefix}-api-cpu"
   policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.api.resource_id
-  scalable_dimension = aws_appautoscaling_target.api.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.api.service_namespace
+  resource_id        = aws_appautoscaling_target.api[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.api[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.api[0].service_namespace
 
   target_tracking_scaling_policy_configuration {
     target_value       = 60
