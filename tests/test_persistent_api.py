@@ -134,6 +134,53 @@ class PersistentApiTests(unittest.TestCase):
         self.assertEqual(payload["processing_jobs"][0]["id"], str(self.job_a.id))
         self.assertNotIn("extraction_result", payload["processing_jobs"][0])
         self.assertNotIn("evidence", payload["processing_jobs"][0])
+        self.assertIsNone(payload["case_result"])
+
+    def test_document_detail_exposes_safe_completed_case_result(self) -> None:
+        with self.database.transaction() as session:
+            jobs = ProcessingJobRepository(session, self.tenant_a)
+            jobs.claim(job_id=self.job_a.id, document_id=self.document_a.id)
+            jobs.complete(
+                job_id=self.job_a.id,
+                document_id=self.document_a.id,
+                extraction_result={
+                    "workflow_result": {
+                        "workflow_type": "accounts_payable",
+                        "extraction": {"vendor_name": "Northstar Supplies"},
+                        "ap_decision": {
+                            "recommendation": "review",
+                            "reviewer_summary": "A purchase order needs review.",
+                        },
+                    },
+                    "route": {"workflow_type": "accounts_payable"},
+                    "policy_assessment": {"reason_codes": ["po_required_missing"]},
+                    "human_review": {"required": True, "blocking": True},
+                    "agent_tool_trace": [{"tool": "extract_invoice_fields"}],
+                    "stage_latencies_ms": {"extraction": 12.5},
+                },
+                evidence=[
+                    {
+                        "source_id": "AP-APPROVAL-001",
+                        "source_title": "Approval policy",
+                        "excerpt": "A purchase order is required.",
+                    }
+                ],
+            )
+
+        response = self.client.get(
+            f"/v2/documents/{self.document_a.id}",
+            headers=self.headers,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        case_result = response.json()["case_result"]
+        self.assertEqual(case_result["processing_job_id"], str(self.job_a.id))
+        self.assertEqual(
+            case_result["workflow_result"]["extraction"]["vendor_name"],
+            "Northstar Supplies",
+        )
+        self.assertEqual(case_result["evidence"][0]["source_id"], "AP-APPROVAL-001")
+        self.assertNotIn("idempotency_key", case_result)
 
     def test_review_creation_persists_review_and_safe_audit(self) -> None:
         response = self.client.post(
@@ -150,17 +197,22 @@ class PersistentApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["actor_user_id"], str(self.user_a))
 
-        reviews = self.client.get(
+        reviews_response = self.client.get(
             f"/v2/documents/{self.document_a.id}/reviews",
             headers=self.headers,
-        ).json()
-        audit = self.client.get(
+        )
+        audit_response = self.client.get(
             f"/v2/documents/{self.document_a.id}/audit",
             headers=self.headers,
-        ).json()
+        )
+        reviews = reviews_response.json()
+        audit = audit_response.json()
         self.assertEqual(len(reviews), 1)
         self.assertEqual(audit[0]["action"], "review.approved")
         self.assertNotIn("reviewer_note", audit[0]["safe_metadata"])
+        self.assertEqual(response.headers["cache-control"], "no-store")
+        self.assertEqual(reviews_response.headers["cache-control"], "no-store")
+        self.assertEqual(audit_response.headers["cache-control"], "no-store")
 
     def test_review_rejects_job_from_another_document(self) -> None:
         response = self.client.post(
