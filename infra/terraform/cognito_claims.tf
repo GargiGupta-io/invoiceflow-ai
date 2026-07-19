@@ -17,8 +17,9 @@ data "aws_iam_policy_document" "lambda_assume" {
 }
 
 resource "aws_iam_role" "pre_token_generation" {
-  name               = "${local.name_prefix}-pre-token"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+  name                 = "${local.name_prefix}-pre-token"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_assume.json
+  permissions_boundary = local.task_permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy_attachment" "pre_token_generation_logs" {
