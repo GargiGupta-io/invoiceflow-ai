@@ -88,10 +88,22 @@ class DocumentListResponse(BaseModel):
     count: int
 
 
+class DocumentCaseResultResponse(BaseModel):
+    processing_job_id: uuid.UUID
+    workflow_result: dict[str, Any] = Field(default_factory=dict)
+    route: dict[str, Any] = Field(default_factory=dict)
+    policy_assessment: dict[str, Any] = Field(default_factory=dict)
+    human_review: dict[str, Any] = Field(default_factory=dict)
+    agent_tool_trace: list[dict[str, Any]] = Field(default_factory=list)
+    stage_latencies_ms: dict[str, float] = Field(default_factory=dict)
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class DocumentDetailResponse(BaseModel):
     document: DocumentSummaryResponse
     processing_jobs: list[ProcessingJobResponse]
     reviews: list[ReviewDecisionResponse]
+    case_result: DocumentCaseResultResponse | None = None
 
 
 class DocumentUploadResponse(BaseModel):
