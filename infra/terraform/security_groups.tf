@@ -30,7 +30,7 @@ resource "aws_vpc_security_group_ingress_rule" "alb_https" {
 
 resource "aws_security_group" "tasks" {
   name        = "${local.name_prefix}-tasks"
-  description = "Private API and worker tasks"
+  description = "API, worker, migration, and provisioner tasks"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${local.name_prefix}-tasks" }
@@ -51,7 +51,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_to_api" {
   from_port                    = 8000
   to_port                      = 8000
   ip_protocol                  = "tcp"
-  description                  = "Forward requests to private API tasks"
+  description                  = "Forward requests to API tasks"
 }
 
 resource "aws_vpc_security_group_egress_rule" "tasks_https" {
