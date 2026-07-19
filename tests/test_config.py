@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from pydantic import ValidationError
+from sqlalchemy import make_url
 
 from app.config import Settings
 
@@ -33,15 +34,45 @@ class SettingsTests(unittest.TestCase):
         self.assertTrue(settings.database_echo)
         self.assertIn("test_db", settings.sqlalchemy_database_url)
 
+    def test_managed_database_secret_builds_url_from_components(self) -> None:
+        settings = Settings(
+            _env_file=None,
+            database_url="",
+            database_host="private-db.internal",
+            database_port=5432,
+            database_name="invoiceflow",
+            database_user="invoiceflow_app",
+            database_password="p@ss word/with:symbols",
+        )
+
+        url = make_url(settings.sqlalchemy_database_url)
+        self.assertEqual(url.drivername, "postgresql+psycopg")
+        self.assertEqual(url.username, "invoiceflow_app")
+        self.assertEqual(url.password, "p@ss word/with:symbols")
+        self.assertEqual(url.host, "private-db.internal")
+        self.assertEqual(url.port, 5432)
+        self.assertEqual(url.database, "invoiceflow")
+
+    def test_partial_database_components_are_rejected(self) -> None:
+        with self.assertRaises(ValidationError):
+            Settings(
+                _env_file=None,
+                database_url="",
+                database_host="private-db.internal",
+                database_name="invoiceflow",
+            )
+
     def test_sensitive_values_are_masked_in_settings_representation(self) -> None:
         settings = Settings(
             _env_file=None,
             database_url="postgresql+psycopg://private_user:private_password@db:5432/invoiceflow",
+            database_password="private-component-password",
             openai_api_key="private-api-key",
         )
 
         representation = repr(settings)
         self.assertNotIn("private_password", representation)
+        self.assertNotIn("private-component-password", representation)
         self.assertNotIn("private-api-key", representation)
         self.assertIn("**********", representation)
 
