@@ -80,6 +80,41 @@ class SettingsTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             Settings(_env_file=None, database_pool_size=0)
 
+    def test_browser_auth_configuration_requires_complete_https_settings(self) -> None:
+        with self.assertRaises(ValidationError):
+            Settings(_env_file=None, auth_browser_domain="https://login.example.com")
+
+        with self.assertRaises(ValidationError):
+            Settings(
+                _env_file=None,
+                auth_issuer="https://issuer.example.com/pool",
+                auth_client_id="browser-client",
+                auth_browser_domain="http://login.example.com",
+                auth_redirect_uri="https://app.example.com/reviewer/callback",
+                auth_logout_uri="https://app.example.com/reviewer/",
+            )
+
+    def test_browser_auth_allows_https_and_local_development_callbacks(self) -> None:
+        production = Settings(
+            _env_file=None,
+            auth_issuer="https://issuer.example.com/pool",
+            auth_client_id="browser-client",
+            auth_browser_domain="https://login.example.com",
+            auth_redirect_uri="https://app.example.com/reviewer/callback",
+            auth_logout_uri="https://app.example.com/reviewer/",
+        )
+        local = Settings(
+            _env_file=None,
+            auth_issuer="https://issuer.example.com/pool",
+            auth_client_id="browser-client",
+            auth_browser_domain="https://login.example.com",
+            auth_redirect_uri="http://localhost:5173/reviewer/callback",
+            auth_logout_uri="http://127.0.0.1:5173/reviewer/",
+        )
+
+        self.assertTrue(production.auth_browser_configured)
+        self.assertTrue(local.auth_browser_configured)
+
     def test_presigned_url_lifetime_is_capped_at_five_minutes(self) -> None:
         self.assertEqual(Settings(_env_file=None).s3_presigned_url_ttl_seconds, 300)
         with self.assertRaises(ValidationError):
