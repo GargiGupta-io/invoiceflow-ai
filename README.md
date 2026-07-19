@@ -224,7 +224,7 @@ Implemented:
 - tenant-isolated page text storage with PostgreSQL full-text search and page locations
 - one non-root Python 3.11 container image for API, worker, and migration tasks
 - validated Terraform for private S3, SQS/DLQ, RDS PostgreSQL, Cognito, IAM, ECS/Fargate, and CloudWatch
-- React reviewer shell with Cognito authorization-code/PKCE login, session-only token storage, tenant identity verification, and explicit unavailable/error states
+- React reviewer workspace with Cognito authorization-code/PKCE login, session-only token storage, tenant identity verification, secure document upload, persistent tenant history, and live processing states
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -384,7 +384,9 @@ cd ..
 uvicorn api.main:app --reload
 ```
 
-Then open `http://127.0.0.1:8000/reviewer`. Browser login requires the
+Then open `http://127.0.0.1:8000/reviewer`. An authenticated reviewer can upload
+PDF, PNG, or JPEG documents, dispatch processing, and follow saved cases through
+queued, processing, completed, or failed states. Browser login requires the
 `AUTH_ISSUER`, `AUTH_CLIENT_ID`, `AUTH_BROWSER_DOMAIN`, `AUTH_REDIRECT_URI`,
 and `AUTH_LOGOUT_URI` settings. Without them, the reviewer shell returns a safe
 unavailable state and the public `/ui` demo remains usable.
@@ -641,8 +643,8 @@ embedding or vector retrieval pipeline.
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
 - The Version 2 Terraform stack is validated but has not been applied to AWS.
-- The React reviewer shell verifies Cognito sessions and tenant identity, but its
-  document, evidence, and review-action views are not connected yet.
+- The React reviewer workspace connects tenant document upload, history, and
+  processing states; evidence inspection and review actions are not connected yet.
 - The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
   the Fargate worker.
 - Production validation still requires a real tenant policy pack, approved
@@ -651,7 +653,6 @@ embedding or vector retrieval pipeline.
 ## Next Improvements
 
 - add a managed OCR adapter such as Textract for production deployments
-- connect document history, processing status, and upload controls to the authenticated reviewer shell
 - add reviewer-facing evidence search, page preview, decisions, and audit history
 - add vendor risk scoring and a PDF annotation view for invoice review
 - add email, Slack, and Teams notifications for escalations
