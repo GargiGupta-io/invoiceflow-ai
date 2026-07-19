@@ -37,6 +37,17 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
+variable "task_permissions_boundary_name" {
+  description = "Administrator-owned IAM permissions boundary required on every InvoiceFlow runtime role."
+  type        = string
+  default     = "InvoiceFlowTaskBoundary"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9+=,.@_-]{1,128}$", var.task_permissions_boundary_name))
+    error_message = "task_permissions_boundary_name must be a valid IAM managed policy name."
+  }
+}
+
 variable "vpc_cidr" {
   description = "CIDR range for the InvoiceFlow VPC."
   type        = string
