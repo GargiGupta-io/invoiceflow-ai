@@ -107,6 +107,12 @@ variable "container_image_tag" {
   }
 }
 
+variable "services_enabled" {
+  description = "Start API and worker tasks only after the image exists and migrations succeed."
+  type        = bool
+  default     = false
+}
+
 variable "api_desired_count" {
   description = "Number of API tasks."
   type        = number
