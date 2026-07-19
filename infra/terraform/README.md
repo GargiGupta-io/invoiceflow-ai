@@ -8,9 +8,9 @@ provisioned.
 
 - A two-availability-zone VPC
 - Public subnets for an HTTPS Application Load Balancer
-- Private application subnets for API, worker, and migration Fargate tasks
+- Private application subnets for production API, worker, and migration tasks
 - Isolated database subnets for RDS PostgreSQL
-- One or two NAT gateways, depending on the cost/availability setting
+- Zero, one, or two NAT gateways, depending on the deployment profile
 - A private encrypted and versioned S3 document bucket
 - An encrypted SQS processing queue and dead-letter queue
 - A private encrypted RDS PostgreSQL instance
@@ -21,27 +21,32 @@ provisioned.
 - An ECR repository with image scanning and immutable tags
 - ECS/Fargate API and worker services
 - A one-off Alembic migration task definition
-- CloudWatch log groups, Container Insights, metrics, and alarms
+- CloudWatch log groups, profile-aware Container Insights, metrics, and alarms
 - An SNS alarm topic with an optional email subscription
+- An optional account-wide monthly usage budget measured before credits
 
 ## Trust Boundary
 
 ```text
 Internet
    -> HTTPS Application Load Balancer (public subnets)
-      -> FastAPI tasks (private application subnets)
+      -> FastAPI tasks (private in production; public egress in showcase)
          -> RDS PostgreSQL (isolated database subnets)
          -> private S3 bucket
          -> SQS processing queue
 
 SQS
-   -> worker tasks (private application subnets)
+   -> worker tasks (private in production; public egress in showcase)
       -> private S3 bucket
       -> RDS PostgreSQL
 ```
 
-RDS and Fargate tasks receive no public IP addresses. PostgreSQL accepts port
-5432 only from the Fargate task security group. HTTP is redirected to HTTPS.
+In the `production` profile, RDS and Fargate tasks receive no public IP
+addresses. In the lower-cost `showcase` profile, Fargate receives public egress
+in the public subnets so no NAT gateway is required, but inbound application
+traffic is still accepted only from the load balancer security group. RDS is
+isolated and private in both profiles. PostgreSQL accepts port 5432 only from
+the Fargate task security group. HTTP is redirected to HTTPS.
 
 ## Prerequisites
 
@@ -80,8 +85,16 @@ encrypted, versioned, and excluded from public access.
 
 ## Plan Safely
 
+For the Free Plan showcase, start from the dedicated profile:
+
 ```bash
-cp terraform.tfvars.example terraform.tfvars
+cp showcase.tfvars.example terraform.tfvars
+```
+
+For a production-shaped plan with private Fargate networking and stronger
+deletion protection, start from `terraform.tfvars.example` instead.
+
+```bash
 # Replace the certificate, application domain, URLs, image tag, email, and
 # account-specific values.
 
@@ -130,7 +143,8 @@ Do not start a new API or worker revision before its migration succeeds.
 
 1. Plan and apply with `services_enabled = false`.
 2. Push the immutable image into the newly created ECR repository.
-3. Run the one-off migration task in the private application subnets.
+3. Run the one-off migration task using `runtime_subnet_ids`,
+   `task_security_group_id`, and `runtime_assign_public_ip` outputs.
 4. Wait for the task to stop and verify container exit code zero.
 5. Run the one-off reviewer provisioner for each approved sample reviewer.
 6. Set `services_enabled = true`, review a second plan, and apply it.
@@ -161,8 +175,9 @@ tenant:
 ORGANIZATION_ID="$(python -c 'import uuid; print(uuid.uuid4())')"
 ```
 
-Run the Terraform output `provisioner_task_definition_arn` in the private app
-subnets with the `task_security_group_id`. Override its command as follows:
+Run the Terraform output `provisioner_task_definition_arn` using
+`runtime_subnet_ids`, `task_security_group_id`, and
+`runtime_assign_public_ip`. Override its command as follows:
 
 ```text
 python -m app.admin.provision_reviewer
@@ -214,18 +229,48 @@ because S3 cannot remove PostgreSQL extraction, review, or evidence records.
 
 ## Cost And Availability
 
-The default uses two API tasks and Multi-AZ RDS, but only one NAT gateway to
-limit portfolio cost. One NAT gateway is a network availability compromise.
-Set `single_nat_gateway = false` for one gateway per availability zone.
+`deployment_profile = "showcase"` is the Free Plan portfolio configuration. It:
 
-The main recurring costs are NAT gateways, Fargate tasks, the load balancer,
-RDS, the Cognito Plus tier used for access-token customization and advanced
-security, CloudWatch logs, and data transfer. Run `terraform plan` and use the
-AWS Pricing Calculator before applying.
+- provisions no NAT gateway;
+- runs one API task and one worker when services are enabled;
+- caps API autoscaling at the configured desired count;
+- uses single-AZ private RDS with one day of backups and no Performance Insights;
+- disables Container Insights;
+- uses seven-day document and log retention in the example file; and
+- disables deletion protection for resources that otherwise block teardown.
 
-S3 and the load balancer have deletion protection in this configuration.
-RDS deletion protection and final snapshots are enabled by default. Deliberate
-teardown therefore requires explicit configuration changes and a reviewed plan.
+The showcase tasks use public IP addresses only for outbound internet/AWS API
+access. Their security group still accepts API traffic only from the load
+balancer, and the database and document bucket remain private.
+
+`deployment_profile = "production"` keeps Fargate in private application
+subnets. The default uses two API tasks and Multi-AZ RDS, but only one NAT
+gateway. One NAT gateway is a network availability compromise. Set
+`single_nat_gateway = false` for one gateway per availability zone.
+
+The main recurring credit consumers are Fargate tasks, the load balancer, RDS,
+the Cognito Plus tier used for access-token customization and advanced
+security, CloudWatch, public IPv4 addresses, and data transfer. Production also
+adds NAT gateway hourly and data-processing usage. Run `terraform plan` and use
+the AWS Pricing Calculator before applying.
+
+When `alarm_email` is set, Terraform creates one free monitoring-only AWS
+Budget. It measures account-wide usage before credits and sends actual-usage
+alerts at 50%, 80%, and 100% of `monthly_cost_budget_usd`. Budget data can lag
+and an alert is not a hard spending cap. The AWS Free Plan itself prevents
+charges unless the account is deliberately upgraded, and it ends after six
+months or when its credits are depleted, whichever happens first.
+
+Keep `services_enabled = false` whenever the live reviewer is not being shown.
+This stops Fargate compute but does not stop the load balancer or RDS. For a
+long pause, take a final sanitized backup if needed and run a reviewed
+`terraform destroy` with the showcase profile. Never leave a demonstration
+stack running merely because credits remain.
+
+Production keeps load-balancer, Cognito, and RDS deletion protection and a final
+RDS snapshot. Showcase disables those controls and allows Terraform to empty
+the synthetic-data S3 bucket so a deliberate reviewed teardown can complete.
+Do not use the showcase teardown policy for customer data.
 
 ## What Is Not Automated Yet
 
