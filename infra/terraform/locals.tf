@@ -19,6 +19,7 @@ locals {
   container_insights                = local.is_showcase ? "disabled" : "enabled"
   api_max_capacity                  = local.is_showcase ? var.api_desired_count : 6
   document_bucket_force_destroy     = local.is_showcase
+  task_permissions_boundary_arn     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.task_permissions_boundary_name}"
 
   common_environment = [
     { name = "APP_ENV", value = var.environment },
