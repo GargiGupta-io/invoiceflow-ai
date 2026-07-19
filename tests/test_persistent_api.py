@@ -94,6 +94,7 @@ class PersistentApiTests(unittest.TestCase):
         response = self.client.get("/v2/me", headers=self.headers)
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["cache-control"], "no-store")
         self.assertEqual(response.json()["organization_id"], str(self.organization_a))
         self.assertEqual(response.json()["actor_id"], str(self.user_a))
 
@@ -101,6 +102,7 @@ class PersistentApiTests(unittest.TestCase):
         response = self.client.get("/v2/documents", headers=self.headers)
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["cache-control"], "no-store")
         payload = response.json()
         self.assertEqual(payload["count"], 2)
         returned_ids = {item["id"] for item in payload["items"]}
@@ -126,6 +128,7 @@ class PersistentApiTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["cache-control"], "no-store")
         payload = response.json()
         self.assertEqual(payload["document"]["id"], str(self.document_a.id))
         self.assertEqual(payload["processing_jobs"][0]["id"], str(self.job_a.id))
