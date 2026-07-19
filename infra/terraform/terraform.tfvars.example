@@ -2,6 +2,11 @@ project_name = "invoiceflow"
 environment  = "production"
 aws_region   = "ap-south-1"
 
+# Production keeps Fargate in private subnets behind NAT, enables Multi-AZ RDS,
+# and retains stronger deletion protection. Use showcase.tfvars.example for the
+# lower-cost Free Plan deployment.
+deployment_profile = "production"
+
 # Create/import an ACM certificate in the same region before planning.
 certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
 application_domain_name = "invoiceflow.example.com"
@@ -30,6 +35,9 @@ document_retention_days       = 90
 log_retention_days            = 30
 
 alarm_email = "finance-platform-alerts@example.com"
+
+# Tracks account usage before credits are applied. Alerts do not stop resources.
+monthly_cost_budget_usd = 10
 
 tags = {
   Owner      = "GargiGupta"
