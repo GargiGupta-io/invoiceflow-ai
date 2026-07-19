@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from typing import Literal, Self
+from urllib.parse import urlparse
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -39,6 +40,9 @@ class Settings(BaseSettings):
 
     auth_issuer: str = ""
     auth_client_id: str = ""
+    auth_browser_domain: str = ""
+    auth_redirect_uri: str = ""
+    auth_logout_uri: str = ""
     auth_organization_claim: str = "custom:organization_id"
     auth_jwks_cache_seconds: int = Field(default=300, ge=1, le=3600)
     auth_jwks_timeout_seconds: float = Field(default=5, gt=0, le=30)
@@ -103,6 +107,37 @@ class Settings(BaseSettings):
             raise ValueError(
                 "WORKER_STALE_JOB_SECONDS must exceed SQS_VISIBILITY_TIMEOUT_SECONDS."
             )
+        browser_auth_values = (
+            self.auth_browser_domain.strip(),
+            self.auth_redirect_uri.strip(),
+            self.auth_logout_uri.strip(),
+        )
+        if any(browser_auth_values) and not all(browser_auth_values):
+            raise ValueError(
+                "Configure AUTH_BROWSER_DOMAIN, AUTH_REDIRECT_URI, and "
+                "AUTH_LOGOUT_URI together."
+            )
+        if all(browser_auth_values):
+            if not self.auth_configured:
+                raise ValueError(
+                    "AUTH_ISSUER and AUTH_CLIENT_ID are required for browser login."
+                )
+            browser_domain = urlparse(browser_auth_values[0])
+            if browser_domain.scheme != "https" or not browser_domain.netloc:
+                raise ValueError("AUTH_BROWSER_DOMAIN must be an HTTPS URL.")
+            for field_name, value in (
+                ("AUTH_REDIRECT_URI", browser_auth_values[1]),
+                ("AUTH_LOGOUT_URI", browser_auth_values[2]),
+            ):
+                parsed = urlparse(value)
+                local_http = parsed.scheme == "http" and parsed.hostname in {
+                    "127.0.0.1",
+                    "localhost",
+                }
+                if not parsed.netloc or (parsed.scheme != "https" and not local_http):
+                    raise ValueError(
+                        f"{field_name} must use HTTPS or local HTTP development."
+                    )
         return self
 
     @property
@@ -126,6 +161,15 @@ class Settings(BaseSettings):
     @property
     def auth_configured(self) -> bool:
         return bool(self.auth_issuer.strip() and self.auth_client_id.strip())
+
+    @property
+    def auth_browser_configured(self) -> bool:
+        return bool(
+            self.auth_configured
+            and self.auth_browser_domain.strip()
+            and self.auth_redirect_uri.strip()
+            and self.auth_logout_uri.strip()
+        )
 
     @property
     def s3_configured(self) -> bool:
