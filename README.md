@@ -432,8 +432,9 @@ Terraform stack defines private Fargate tasks, private RDS PostgreSQL, private
 S3, SQS/DLQ, Cognito, scoped IAM roles, HTTPS ingress, and CloudWatch alarms.
 Follow [the infrastructure guide](infra/terraform/README.md) to review costs,
 bootstrap remote state, build an immutable image, plan the stack, and run the
-database migration task. No paid AWS resources are created by this repository
-automatically.
+database migration and reviewer-provisioning tasks. The first release keeps API
+and worker services at zero until the image exists and the migration succeeds.
+No paid AWS resources are created by this repository automatically.
 
 ## Technical UI And API Reference
 
