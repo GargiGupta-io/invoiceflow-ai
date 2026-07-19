@@ -128,4 +128,23 @@ describe("reviewer workspace", () => {
 
     await waitFor(() => expect(onSessionInvalid).toHaveBeenCalledOnce());
   });
+
+  it("opens a saved document as a protected case and returns to history", async () => {
+    const completed = document();
+    const fetchImpl = vi.fn(async (path) => {
+      if (path.endsWith("/pages")) return response({ items: [], count: 0 });
+      if (path.endsWith("/audit")) return response([]);
+      if (path === `/v2/documents/${completed.id}`) {
+        return response({ document: completed, processing_jobs: [], reviews: [], case_result: null });
+      }
+      return response({ items: [completed], count: 1 });
+    });
+
+    render(<ReviewerWorkspace accessToken="tenant-token" fetchImpl={fetchImpl} />);
+    fireEvent.click(await screen.findByRole("button", { name: /open case/i }));
+
+    expect(await screen.findByRole("heading", { name: "northstar-invoice.pdf" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /back to history/i }));
+    expect(await screen.findByRole("heading", { name: "Document history" })).toBeInTheDocument();
+  });
 });
