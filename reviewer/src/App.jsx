@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Building2,
-  Check,
   Clock3,
   FileCheck2,
   LogIn,
@@ -14,6 +13,7 @@ import {
 
 import { getTenantIdentity } from "./api.js";
 import { createAuthManager, loadAuthConfig, signOut } from "./auth.js";
+import ReviewerWorkspace from "./ReviewerWorkspace.jsx";
 
 const INITIAL_STATE = { phase: "loading", message: "Checking reviewer access..." };
 
@@ -92,7 +92,7 @@ function UnavailableView({ error, onRetry }) {
   );
 }
 
-function SignedOutView({ onSignIn, busy }) {
+function SignedOutView({ onSignIn, busy, message }) {
   return (
     <main className="reviewer-main">
       <section className="entry-band">
@@ -101,6 +101,7 @@ function SignedOutView({ onSignIn, busy }) {
         <p className="lede">
           Sign in to reach tenant-owned documents, evidence, decisions, and audit history.
         </p>
+        {message ? <p className="session-message" role="status">{message}</p> : null}
         <button className="primary-button" type="button" onClick={onSignIn} disabled={busy}>
           <LogIn size={19} aria-hidden="true" />
           {busy ? "Opening secure sign-in..." : "Sign in securely"}
@@ -128,14 +129,14 @@ function SignedOutView({ onSignIn, busy }) {
   );
 }
 
-function AuthenticatedView({ identity, user, onSignOut }) {
+function AuthenticatedView({ identity, user, fetchImpl, onSessionInvalid, onSignOut }) {
   return (
     <main className="reviewer-main authenticated-main">
       <section className="workspace-heading">
         <div>
           <p className="eyebrow">Protected reviewer workspace</p>
-          <h1>Access verified.</h1>
-          <p className="lede">Your signed session is connected to one InvoiceFlow organization.</p>
+          <h1>Finance review workspace</h1>
+          <p className="lede">Upload documents and follow their processing state inside the verified organization.</p>
         </div>
         <button className="secondary-button" type="button" onClick={onSignOut}>
           <LogOut size={18} aria-hidden="true" /> Sign out
@@ -157,13 +158,11 @@ function AuthenticatedView({ identity, user, onSignOut }) {
         </div>
       </section>
 
-      <section className="workspace-empty" aria-live="polite">
-        <span className="success-icon"><Check size={24} aria-hidden="true" /></span>
-        <div>
-          <h2>Identity and organization checks passed</h2>
-          <p>The reviewer can now request tenant-scoped workspace data from protected Version 2 APIs.</p>
-        </div>
-      </section>
+      <ReviewerWorkspace
+        accessToken={user.access_token}
+        fetchImpl={fetchImpl}
+        onSessionInvalid={onSessionInvalid}
+      />
     </main>
   );
 }
@@ -262,6 +261,11 @@ export default function App({
     }
   }
 
+  function handleSessionInvalid() {
+    Promise.resolve(managerRef.current?.removeUser?.()).catch(() => undefined);
+    setState({ phase: "signed-out", message: "Your reviewer session expired. Sign in again." });
+  }
+
   const authenticated = state.phase === "authenticated";
 
   return (
@@ -272,9 +276,15 @@ export default function App({
       {state.phase === "unavailable" ? (
         <UnavailableView error={state.message} onRetry={() => setRetryKey((value) => value + 1)} />
       ) : null}
-      {state.phase === "signed-out" ? <SignedOutView onSignIn={handleSignIn} busy={busy} /> : null}
+      {state.phase === "signed-out" ? <SignedOutView onSignIn={handleSignIn} busy={busy} message={state.message} /> : null}
       {authenticated ? (
-        <AuthenticatedView identity={state.identity} user={state.user} onSignOut={handleSignOut} />
+        <AuthenticatedView
+          identity={state.identity}
+          user={state.user}
+          fetchImpl={fetchImpl}
+          onSessionInvalid={handleSessionInvalid}
+          onSignOut={handleSignOut}
+        />
       ) : null}
       <footer className="reviewer-footer">
         <span>Developed by Gargi Gupta</span>
