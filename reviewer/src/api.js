@@ -94,3 +94,61 @@ export async function dispatchDocumentProcessing(
     fetchImpl
   );
 }
+
+export async function getTenantDocument(accessToken, documentId, fetchImpl = fetch) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}`,
+    accessToken,
+    { fallbackMessage: "The case detail could not be loaded." },
+    fetchImpl
+  );
+}
+
+export async function listDocumentPages(accessToken, documentId, fetchImpl = fetch) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}/pages`,
+    accessToken,
+    { fallbackMessage: "Extracted document pages could not be loaded." },
+    fetchImpl
+  );
+}
+
+export async function listDocumentAudit(accessToken, documentId, fetchImpl = fetch) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}/audit`,
+    accessToken,
+    { fallbackMessage: "Audit history could not be loaded." },
+    fetchImpl
+  );
+}
+
+export async function requestDocumentAccess(accessToken, documentId, fetchImpl = fetch) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}/access`,
+    accessToken,
+    {
+      method: "POST",
+      fallbackMessage: "Private document access could not be prepared."
+    },
+    fetchImpl
+  );
+}
+
+export async function createReviewDecision(
+  accessToken,
+  documentId,
+  review,
+  fetchImpl = fetch
+) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}/reviews`,
+    accessToken,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(review),
+      fallbackMessage: "The review decision could not be saved."
+    },
+    fetchImpl
+  );
+}
