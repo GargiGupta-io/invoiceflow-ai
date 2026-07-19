@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  createReviewDecision,
   ReviewerApiError,
   dispatchDocumentProcessing,
+  getTenantDocument,
+  listDocumentAudit,
+  listDocumentPages,
   listTenantDocuments,
+  requestDocumentAccess,
   uploadTenantDocument
 } from "./api.js";
 
@@ -64,5 +69,48 @@ describe("reviewer api", () => {
       message: "The file exceeds the upload limit."
     });
     await expect(listTenantDocuments("tenant-token", fetchImpl)).rejects.toBeInstanceOf(ReviewerApiError);
+  });
+
+  it("loads the tenant case, extracted pages, and audit history", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(response({ items: [] }));
+
+    await getTenantDocument("tenant-token", "doc-1", fetchImpl);
+    await listDocumentPages("tenant-token", "doc-1", fetchImpl);
+    await listDocumentAudit("tenant-token", "doc-1", fetchImpl);
+
+    expect(fetchImpl.mock.calls.map(([path]) => path)).toEqual([
+      "/v2/documents/doc-1",
+      "/v2/documents/doc-1/pages",
+      "/v2/documents/doc-1/audit"
+    ]);
+    expect(fetchImpl.mock.calls.every(([, options]) => options.cache === "no-store")).toBe(true);
+  });
+
+  it("requests a temporary private link without putting it in a GET request", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(response({ url: "https://private.example.test" }));
+
+    await requestDocumentAccess("tenant-token", "doc-1", fetchImpl);
+
+    const [path, options] = fetchImpl.mock.calls[0];
+    expect(path).toBe("/v2/documents/doc-1/access");
+    expect(options.method).toBe("POST");
+  });
+
+  it("submits a structured human review decision", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(response({ id: "review-1" }, 201));
+    const review = {
+      processing_job_id: "job-1",
+      action: "returned_for_info",
+      reason: "Purchase order is missing.",
+      reviewer_note: "Ask the vendor for PO evidence."
+    };
+
+    await createReviewDecision("tenant-token", "doc-1", review, fetchImpl);
+
+    const [path, options] = fetchImpl.mock.calls[0];
+    expect(path).toBe("/v2/documents/doc-1/reviews");
+    expect(options.method).toBe("POST");
+    expect(options.headers.get("Content-Type")).toBe("application/json");
+    expect(JSON.parse(options.body)).toEqual(review);
   });
 });
