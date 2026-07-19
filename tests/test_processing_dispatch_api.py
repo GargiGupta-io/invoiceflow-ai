@@ -142,6 +142,7 @@ class ProcessingDispatchApiTests(unittest.TestCase):
         response = self.dispatch(document.id, "upload-a-001")
 
         self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.headers["cache-control"], "no-store")
         payload = response.json()
         self.assertFalse(payload["reused_job"])
         self.assertEqual(payload["dispatch_state"], "sent")
