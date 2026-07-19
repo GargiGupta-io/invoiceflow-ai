@@ -198,11 +198,27 @@ variable "alarm_email" {
 variable "oauth_callback_urls" {
   description = "Allowed Cognito authorization-code callback URLs."
   type        = list(string)
+
+  validation {
+    condition = (
+      length(var.oauth_callback_urls) > 0 &&
+      alltrue([for uri in var.oauth_callback_urls : can(regex("^https://", uri))])
+    )
+    error_message = "oauth_callback_urls must contain at least one HTTPS URL."
+  }
 }
 
 variable "oauth_logout_urls" {
   description = "Allowed Cognito logout return URLs."
   type        = list(string)
+
+  validation {
+    condition = (
+      length(var.oauth_logout_urls) > 0 &&
+      alltrue([for uri in var.oauth_logout_urls : can(regex("^https://", uri))])
+    )
+    error_message = "oauth_logout_urls must contain at least one HTTPS URL."
+  }
 }
 
 variable "tags" {
