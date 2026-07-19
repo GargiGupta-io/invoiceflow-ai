@@ -104,6 +104,10 @@ def _document_not_ready() -> HTTPException:
     )
 
 
+def _prevent_private_caching(response: Response) -> None:
+    response.headers["Cache-Control"] = "no-store"
+
+
 @lru_cache
 def get_upload_validator() -> UploadValidator:
     return UploadValidator.from_settings(get_settings())
@@ -159,7 +163,11 @@ def _upload_validation_error(error: UploadValidationError) -> HTTPException:
 
 
 @router.get("/me", response_model=TenantIdentityResponse)
-def current_identity(tenant: TenantContext = Depends(require_tenant)) -> TenantIdentityResponse:
+def current_identity(
+    response: Response,
+    tenant: TenantContext = Depends(require_tenant),
+) -> TenantIdentityResponse:
+    _prevent_private_caching(response)
     return TenantIdentityResponse(
         organization_id=tenant.organization_id,
         actor_id=tenant.actor_id,
@@ -168,10 +176,12 @@ def current_identity(tenant: TenantContext = Depends(require_tenant)) -> TenantI
 
 @router.get("/documents", response_model=DocumentListResponse)
 def document_history(
+    response: Response,
     limit: int = Query(default=50, ge=1, le=100),
     tenant: TenantContext = Depends(require_read_tenant),
     session: Session = Depends(get_db_session),
 ) -> DocumentListResponse:
+    _prevent_private_caching(response)
     documents = DocumentRepository(session, tenant).list_recent(limit=limit)
     items = [DocumentSummaryResponse.model_validate(document) for document in documents]
     return DocumentListResponse(items=items, count=len(items))
@@ -183,12 +193,14 @@ def document_history(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_document(
+    response: Response,
     file: Annotated[UploadFile, File(description="PDF, PNG, or JPEG finance document")],
     tenant: TenantContext = Depends(require_upload_tenant),
     session: Session = Depends(get_db_session),
     storage: ObjectStorage = Depends(get_object_storage),
     validator: UploadValidator = Depends(get_upload_validator),
 ) -> DocumentUploadResponse:
+    _prevent_private_caching(response)
     try:
         content = await file.read(validator.max_bytes + 1)
         upload = validator.validate(
@@ -227,9 +239,11 @@ async def upload_document(
 @router.get("/documents/{document_id}", response_model=DocumentDetailResponse)
 def document_detail(
     document_id: uuid.UUID,
+    response: Response,
     tenant: TenantContext = Depends(require_read_tenant),
     session: Session = Depends(get_db_session),
 ) -> DocumentDetailResponse:
+    _prevent_private_caching(response)
     try:
         document = DocumentRepository(session, tenant).require(document_id)
         jobs = ProcessingJobRepository(session, tenant).list_for_document(document_id)
@@ -434,6 +448,7 @@ def create_document_access(
 )
 def create_processing_job(
     document_id: uuid.UUID,
+    response: Response,
     idempotency_key: Annotated[
         str,
         Header(
@@ -447,6 +462,7 @@ def create_processing_job(
     session: Session = Depends(get_db_session),
     queue: ProcessingQueue = Depends(get_processing_queue),
 ) -> ProcessingDispatchResponse:
+    _prevent_private_caching(response)
     settings = get_settings()
     try:
         receipt = dispatch_processing_job(
