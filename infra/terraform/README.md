@@ -117,10 +117,17 @@ AWS_PROFILE=invoiceflow-deploy terraform plan -out=invoiceflow.tfplan
 Review the plan before applying it. Terraform variable files and plan files may
 contain environment details and are ignored by Git.
 
-Before the remote backend exists, Step 20C can inspect a real-provider plan
-without creating resources by initializing with `-backend=false`. That plan is
-for permission, dependency, and cost-surface review only. A deployable plan must
-be regenerated after the approved backend bootstrap and remote initialization.
+`terraform init -backend=false` supports validation but does not support a
+normal plan while this root declares an S3 backend. Before the backend exists,
+use a disposable copy of this directory with the backend declaration omitted
+to inspect a real-provider plan. Do not commit that copy or alter the tracked
+backend configuration. The resulting plan is for permission, dependency, and
+cost-surface review only.
+
+The sanitized Step 20C findings are recorded in
+[`../../docs/aws-showcase-plan-review.md`](../../docs/aws-showcase-plan-review.md).
+A deployable plan must be regenerated after the approved backend bootstrap and
+remote initialization.
 
 The HTTPS listener still requires a real ACM certificate and a DNS name covered
 by that certificate. A syntactically valid placeholder can exercise Terraform
