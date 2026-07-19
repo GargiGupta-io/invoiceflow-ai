@@ -2,6 +2,9 @@ project_name = "invoiceflow"
 environment  = "production"
 aws_region   = "ap-south-1"
 
+# Must already exist as an administrator-owned IAM managed policy.
+task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
+
 # Production keeps Fargate in private subnets behind NAT, enables Multi-AZ RDS,
 # and retains stronger deletion protection. Use showcase.tfvars.example for the
 # lower-cost Free Plan deployment.
