@@ -6,9 +6,9 @@ aws_region   = "ap-south-1"
 certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
 application_domain_name = "invoiceflow.example.com"
 
-# Replace these with the final reviewer application routes.
-oauth_callback_urls = ["https://invoiceflow.example.com/callback"]
-oauth_logout_urls   = ["https://invoiceflow.example.com/"]
+# Replace the host with the final reviewer application domain.
+oauth_callback_urls = ["https://invoiceflow.example.com/reviewer/callback"]
+oauth_logout_urls   = ["https://invoiceflow.example.com/reviewer/"]
 
 # One NAT gateway is cheaper for a portfolio environment. Set false for
 # one gateway per availability zone when higher network availability matters.
