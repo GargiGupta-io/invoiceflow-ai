@@ -11,6 +11,7 @@ import {
   UploadCloud
 } from "lucide-react";
 
+import CaseDetail from "./CaseDetail.jsx";
 import {
   ReviewerApiError,
   dispatchDocumentProcessing,
@@ -85,7 +86,7 @@ function StatusBadge({ status }) {
   return <span className={`document-status status-${copy.tone}`}>{copy.label}</span>;
 }
 
-function DocumentRow({ document, actionBusy, canRetryQueue, onProcess }) {
+function DocumentRow({ document, actionBusy, canRetryQueue, onOpen, onProcess }) {
   const copy = statusCopy(document.status);
   const Icon = documentIcon(document.content_type);
   const canProcess = document.status === "quarantined" || canRetryQueue;
@@ -119,7 +120,9 @@ function DocumentRow({ document, actionBusy, canRetryQueue, onProcess }) {
             {actionBusy ? "Starting" : canRetryQueue ? "Retry queue" : "Start processing"}
           </button>
         ) : (
-          <span className="document-id" title={document.id}>Case {document.id.slice(0, 8)}</span>
+          <button className="compact-button" type="button" onClick={() => onOpen(document.id)}>
+            Open case
+          </button>
         )}
       </div>
     </article>
@@ -139,6 +142,7 @@ export default function ReviewerWorkspace({
   const [actionDocumentId, setActionDocumentId] = useState(null);
   const [queueRetryIds, setQueueRetryIds] = useState(() => new Set());
   const [notice, setNotice] = useState(null);
+  const [selectedDocumentId, setSelectedDocumentId] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleApiError = useCallback((error, fallbackMessage) => {
@@ -235,6 +239,18 @@ export default function ReviewerWorkspace({
       });
       setUploadStage("idle");
     }
+  }
+
+  if (selectedDocumentId) {
+    return (
+      <CaseDetail
+        accessToken={accessToken}
+        documentId={selectedDocumentId}
+        fetchImpl={fetchImpl}
+        onBack={() => setSelectedDocumentId(null)}
+        onSessionInvalid={onSessionInvalid}
+      />
+    );
   }
 
   return (
@@ -346,6 +362,7 @@ export default function ReviewerWorkspace({
                 document={document}
                 actionBusy={actionDocumentId === document.id}
                 canRetryQueue={queueRetryIds.has(document.id)}
+                onOpen={setSelectedDocumentId}
                 onProcess={startProcessing}
               />
             ))}
