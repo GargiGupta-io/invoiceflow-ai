@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse, JSONResponse
@@ -22,6 +23,8 @@ from app.queue import get_processing_queue
 from app.storage import get_object_storage
 
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
+REVIEWER_DIR = Path(__file__).resolve().parents[1] / "reviewer" / "dist"
+REVIEWER_INDEX = REVIEWER_DIR / "index.html"
 ALLOWED_EXTRACTOR_MODES = {"auto", "heuristic", "llm"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
@@ -35,6 +38,12 @@ app = FastAPI(
 )
 
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+if (REVIEWER_DIR / "assets").is_dir():
+    app.mount(
+        "/reviewer/assets",
+        StaticFiles(directory=REVIEWER_DIR / "assets"),
+        name="reviewer-assets",
+    )
 app.include_router(v2_router)
 
 
@@ -101,6 +110,41 @@ def _validate_upload_file(filename: str, content: bytes) -> None:
         )
 
 
+def _url_origin(value: str) -> str:
+    parsed = urlparse(value)
+    return f"{parsed.scheme}://{parsed.netloc}" if parsed.scheme and parsed.netloc else ""
+
+
+def _reviewer_security_headers() -> dict[str, str]:
+    settings = get_settings()
+    connect_sources = {"'self'"}
+    form_sources = {"'self'"}
+    if settings.auth_browser_configured:
+        connect_sources.add(_url_origin(settings.auth_issuer))
+        connect_sources.add(_url_origin(settings.auth_browser_domain))
+        form_sources.add(_url_origin(settings.auth_browser_domain))
+
+    connect_policy = " ".join(sorted(source for source in connect_sources if source))
+    form_policy = " ".join(sorted(source for source in form_sources if source))
+    return {
+        "Cache-Control": "no-store",
+        "Content-Security-Policy": (
+            "default-src 'self'; "
+            "base-uri 'self'; "
+            f"connect-src {connect_policy}; "
+            f"form-action {form_policy}; "
+            "frame-ancestors 'none'; "
+            "img-src 'self' data:; "
+            "object-src 'none'; "
+            "script-src 'self'; "
+            "style-src 'self'"
+        ),
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+    }
+
+
 @lru_cache
 def get_readiness_checker() -> ReadinessChecker:
     settings = get_settings()
@@ -120,6 +164,7 @@ def root() -> dict:
         "version": "0.1.0",
         "endpoints": [
             "/ui",
+            "/reviewer",
             "/health",
             "/health/live",
             "/health/ready",
@@ -130,6 +175,7 @@ def root() -> dict:
             "/workflow/sample",
             "/workflow/upload",
             "/v2/me",
+            "/v2/auth/config",
             "/v2/documents",
             "/v2/search",
         ],
@@ -139,6 +185,21 @@ def root() -> dict:
 @app.get("/ui", response_class=FileResponse)
 def ui() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
+
+
+@app.get("/reviewer", response_class=FileResponse)
+@app.get("/reviewer/", response_class=FileResponse)
+@app.get("/reviewer/callback", response_class=FileResponse)
+def reviewer_ui() -> FileResponse:
+    if not REVIEWER_INDEX.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "reviewer_ui_unavailable",
+                "message": "The reviewer application has not been built in this environment.",
+            },
+        )
+    return FileResponse(REVIEWER_INDEX, headers=_reviewer_security_headers())
 
 
 @app.get("/health")
