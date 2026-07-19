@@ -3,7 +3,7 @@ resource "aws_cognito_user_pool" "main" {
   user_pool_tier           = "PLUS"
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
-  deletion_protection      = "ACTIVE"
+  deletion_protection      = local.cognito_deletion_protection
 
   admin_create_user_config {
     allow_admin_create_user_only = true
