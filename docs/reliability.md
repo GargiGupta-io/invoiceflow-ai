@@ -57,11 +57,15 @@ The queue also publishes standard SQS metrics automatically.
 - ECR tags are immutable and scanned on push.
 - ECS services use deployment circuit breakers with rollback.
 - Database migrations run as a separate one-off task before services update.
-- RDS uses backups, encryption, Multi-AZ by default, deletion protection, and a
-  final snapshot by default.
-- S3 is versioned and protected from Terraform destroy.
-- One NAT gateway is the cost-saving default; two are recommended for higher
-  availability.
+- Production RDS uses encryption, Multi-AZ, seven-day backups, deletion
+  protection, and a final snapshot by default.
+- The Free Plan showcase keeps RDS private but uses single-AZ deployment,
+  one-day backups, and teardown-friendly protection settings.
+- S3 is private, encrypted, versioned, and non-public in both profiles.
+- Production uses one NAT gateway by default; showcase uses no NAT gateway and
+  gives tightly firewalled Fargate tasks public egress instead.
+- The showcase profile caps API scaling and creates pre-credit AWS Budget
+  alerts when an alarm email is configured.
 
 ## Evidence Still Required
 
