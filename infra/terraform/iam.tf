@@ -11,8 +11,9 @@ data "aws_iam_policy_document" "ecs_task_assume" {
 }
 
 resource "aws_iam_role" "execution" {
-  name               = "${local.name_prefix}-execution"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
+  name                 = "${local.name_prefix}-execution"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_task_assume.json
+  permissions_boundary = local.task_permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy_attachment" "execution" {
@@ -36,8 +37,9 @@ resource "aws_iam_role_policy" "execution_secrets" {
 }
 
 resource "aws_iam_role" "api" {
-  name               = "${local.name_prefix}-api"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
+  name                 = "${local.name_prefix}-api"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_task_assume.json
+  permissions_boundary = local.task_permissions_boundary_arn
 }
 
 data "aws_iam_policy_document" "api" {
@@ -81,8 +83,9 @@ resource "aws_iam_role_policy" "api" {
 }
 
 resource "aws_iam_role" "worker" {
-  name               = "${local.name_prefix}-worker"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
+  name                 = "${local.name_prefix}-worker"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_task_assume.json
+  permissions_boundary = local.task_permissions_boundary_arn
 }
 
 data "aws_iam_policy_document" "worker" {
@@ -128,8 +131,9 @@ resource "aws_iam_role_policy" "worker" {
 }
 
 resource "aws_iam_role" "provisioner" {
-  name               = "${local.name_prefix}-provisioner"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
+  name                 = "${local.name_prefix}-provisioner"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_task_assume.json
+  permissions_boundary = local.task_permissions_boundary_arn
 }
 
 data "aws_iam_policy_document" "provisioner" {
