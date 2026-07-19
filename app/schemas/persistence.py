@@ -14,6 +14,19 @@ class TenantIdentityResponse(BaseModel):
     actor_id: uuid.UUID
 
 
+class ReviewerAuthConfigResponse(BaseModel):
+    configured: bool
+    issuer: str | None = None
+    client_id: str | None = None
+    authorization_endpoint: str | None = None
+    token_endpoint: str | None = None
+    logout_endpoint: str | None = None
+    jwks_uri: str | None = None
+    redirect_uri: str | None = None
+    post_logout_redirect_uri: str | None = None
+    scopes: list[str] = Field(default_factory=list)
+
+
 class DocumentSummaryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
