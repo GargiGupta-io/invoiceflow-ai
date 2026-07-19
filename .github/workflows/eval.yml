@@ -49,6 +49,33 @@ jobs:
           name: invoiceflow-eval-results
           path: eval-results.json
 
+  reviewer:
+    name: Reviewer frontend tests and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: reviewer/package-lock.json
+
+      - name: Install reviewer dependencies
+        working-directory: reviewer
+        run: npm ci
+
+      - name: Test reviewer application
+        working-directory: reviewer
+        run: npm run test:run
+
+      - name: Build reviewer application
+        working-directory: reviewer
+        run: npm run build
+
   infrastructure:
     name: Terraform and container checks
     runs-on: ubuntu-latest
