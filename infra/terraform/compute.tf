@@ -42,7 +42,7 @@ resource "aws_ecs_cluster" "main" {
 
   setting {
     name  = "containerInsights"
-    value = "enabled"
+    value = local.container_insights
   }
 }
 
@@ -53,7 +53,7 @@ resource "aws_lb" "api" {
   security_groups            = [aws_security_group.alb.id]
   subnets                    = aws_subnet.public[*].id
   drop_invalid_header_fields = true
-  enable_deletion_protection = true
+  enable_deletion_protection = local.load_balancer_deletion_protection
 
   tags = { Name = "${local.name_prefix}-api" }
 }
@@ -299,9 +299,9 @@ resource "aws_ecs_service" "api" {
   }
 
   network_configuration {
-    subnets          = aws_subnet.app[*].id
+    subnets          = local.runtime_subnet_ids
     security_groups  = [aws_security_group.tasks.id]
-    assign_public_ip = false
+    assign_public_ip = local.runtime_assign_public_ip
   }
 
   load_balancer {
@@ -330,16 +330,16 @@ resource "aws_ecs_service" "worker" {
   }
 
   network_configuration {
-    subnets          = aws_subnet.app[*].id
+    subnets          = local.runtime_subnet_ids
     security_groups  = [aws_security_group.tasks.id]
-    assign_public_ip = false
+    assign_public_ip = local.runtime_assign_public_ip
   }
 }
 
 resource "aws_appautoscaling_target" "api" {
   count = var.services_enabled ? 1 : 0
 
-  max_capacity       = 6
+  max_capacity       = local.api_max_capacity
   min_capacity       = var.api_desired_count
   resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.api.name}"
   scalable_dimension = "ecs:service:DesiredCount"
