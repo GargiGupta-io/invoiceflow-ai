@@ -224,6 +224,7 @@ Implemented:
 - tenant-isolated page text storage with PostgreSQL full-text search and page locations
 - one non-root Python 3.11 container image for API, worker, and migration tasks
 - validated Terraform for private S3, SQS/DLQ, RDS PostgreSQL, Cognito, IAM, ECS/Fargate, and CloudWatch
+- React reviewer shell with Cognito authorization-code/PKCE login, session-only token storage, tenant identity verification, and explicit unavailable/error states
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -373,6 +374,21 @@ Then open:
 - API root: `http://127.0.0.1:8000/`
 - Operator UI: `http://127.0.0.1:8000/ui`
 
+The Version 2 reviewer shell is built separately and served by FastAPI:
+
+```bash
+cd reviewer
+npm install
+npm run build
+cd ..
+uvicorn api.main:app --reload
+```
+
+Then open `http://127.0.0.1:8000/reviewer`. Browser login requires the
+`AUTH_ISSUER`, `AUTH_CLIENT_ID`, `AUTH_BROWSER_DOMAIN`, `AUTH_REDIRECT_URI`,
+and `AUTH_LOGOUT_URI` settings. Without them, the reviewer shell returns a safe
+unavailable state and the public `/ui` demo remains usable.
+
 ## Deployment
 
 InvoiceFlow is prepared for a hosted demo with deterministic sample data. The
@@ -391,6 +407,7 @@ The repo includes:
 - `runtime.txt` for Python 3.11 pinning
 - `render.yaml` for Render blueprint deployment
 - `Dockerfile` for the API, worker, and migration commands
+- `reviewer/` for the React/Cognito reviewer shell bundled into the production image
 - `infra/terraform/` for the production-shaped private AWS stack
 
 Deploy from GitHub:
@@ -436,6 +453,7 @@ For screenshots or quick demos, the UI also supports:
 
 - `GET /`
 - `GET /ui`
+- `GET /reviewer` - React reviewer shell; Cognito configuration is loaded at runtime
 - `GET /health`
 - `GET /health/live` - process liveness without external dependency checks
 - `GET /health/ready` - PostgreSQL, private S3, and SQS readiness for Version 2
@@ -448,6 +466,7 @@ For screenshots or quick demos, the UI also supports:
 
 Version 2 protected routes use verified tenant identity and scope checks:
 
+- `GET /v2/auth/config` - public, non-secret browser login configuration
 - `GET /v2/me`
 - `GET /v2/documents`
 - `POST /v2/documents` - requires `invoiceflow.upload`
@@ -584,9 +603,9 @@ The current heuristic baseline already shows:
 
 GitHub Actions runs `.github/workflows/eval.yml` on pushes, pull requests, and
 manual dispatches. The workflow installs dependencies, runs backend tests and
-the eval threshold gate, uploads `eval-results.json`, checks Terraform format
-and validity without contacting a deployment backend, and builds the production
-container without publishing it.
+the eval threshold gate, uploads `eval-results.json`, tests and builds the React
+reviewer shell, checks Terraform format and validity without contacting a
+deployment backend, and builds the production container without publishing it.
 
 <details>
 <summary>Default CI thresholds</summary>
@@ -622,6 +641,8 @@ embedding or vector retrieval pipeline.
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
 - The Version 2 Terraform stack is validated but has not been applied to AWS.
+- The React reviewer shell verifies Cognito sessions and tenant identity, but its
+  document, evidence, and review-action views are not connected yet.
 - The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
   the Fargate worker.
 - Production validation still requires a real tenant policy pack, approved
@@ -630,8 +651,8 @@ embedding or vector retrieval pipeline.
 ## Next Improvements
 
 - add a managed OCR adapter such as Textract for production deployments
-- connect role-specific reviewer/operator screens to the protected Version 2 APIs
-- add reviewer-facing history and page-preview screens for the persistent case store
+- connect document history, processing status, and upload controls to the authenticated reviewer shell
+- add reviewer-facing evidence search, page preview, decisions, and audit history
 - add vendor risk scoring and a PDF annotation view for invoice review
 - add email, Slack, and Teams notifications for escalations
 - provision and test the Terraform stack in an approved AWS account
