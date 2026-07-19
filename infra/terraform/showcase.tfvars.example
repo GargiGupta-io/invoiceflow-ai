@@ -3,6 +3,9 @@ environment        = "showcase"
 deployment_profile = "showcase"
 aws_region         = "ap-south-1"
 
+# Must already exist as an administrator-owned IAM managed policy.
+task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
+
 # Create/import an ACM certificate in the same region before planning.
 certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
 application_domain_name = "invoiceflow.example.com"
