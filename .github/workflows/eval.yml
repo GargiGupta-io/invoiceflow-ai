@@ -101,5 +101,17 @@ jobs:
         working-directory: infra/terraform
         run: terraform validate -no-color
 
+      - name: Test Terraform plan assertions
+        working-directory: infra/terraform
+        run: terraform test -no-color
+
+      - name: Initialize state bootstrap without a backend
+        working-directory: infra/terraform/bootstrap
+        run: terraform init -backend=false -input=false
+
+      - name: Validate state bootstrap
+        working-directory: infra/terraform/bootstrap
+        run: terraform validate -no-color
+
       - name: Build production container
         run: docker build --platform linux/amd64 --tag "invoiceflow-ci:${GITHUB_SHA}" .
