@@ -144,6 +144,7 @@ class SecureUploadApiTests(unittest.TestCase):
         response = self.upload_pdf(filename="July invoice (final).pdf")
 
         self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.headers["cache-control"], "no-store")
         payload = response.json()
         self.assertNotIn("storage_key", payload["document"])
         self.assertNotIn("bucket", payload)
