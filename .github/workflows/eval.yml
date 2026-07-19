@@ -1,5 +1,8 @@
 name: InvoiceFlow CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -45,3 +48,31 @@ jobs:
         with:
           name: invoiceflow-eval-results
           path: eval-results.json
+
+  infrastructure:
+    name: Terraform and container checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Check Terraform formatting
+        working-directory: infra/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform without remote state
+        working-directory: infra/terraform
+        run: terraform init -backend=false -input=false
+
+      - name: Validate Terraform
+        working-directory: infra/terraform
+        run: terraform validate -no-color
+
+      - name: Build production container
+        run: docker build --platform linux/amd64 --tag "invoiceflow-ci:${GITHUB_SHA}" .
