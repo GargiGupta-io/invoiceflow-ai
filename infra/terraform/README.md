@@ -50,13 +50,15 @@ the Fargate task security group. HTTP is redirected to HTTPS.
 
 ## Prerequisites
 
-1. An AWS account and an IAM deployment role with permission to create the
-   resources in this directory.
-2. Terraform 1.7 or newer.
-3. An ACM certificate in the selected AWS region.
-4. A DNS name that can point to the load balancer after creation.
-5. A separately bootstrapped S3 state bucket and DynamoDB lock table.
-6. Docker and the AWS CLI for building and pushing the application image.
+1. An AWS account and the dedicated deployment role described in
+   [`access/README.md`](access/README.md).
+2. The administrator-owned `InvoiceFlowTaskBoundary` managed policy described
+   in that access guide. Terraform refuses to create runtime roles without it.
+3. Terraform 1.7 or newer.
+4. An ACM certificate in the selected AWS region.
+5. A DNS name that can point to the load balancer after creation.
+6. A separately bootstrapped S3 state bucket and DynamoDB lock table.
+7. Docker and the AWS CLI for building and pushing the application image.
 
 Do not use a personal long-lived AWS access key in CI. Use GitHub Actions OIDC
 to assume a narrowly scoped deployment role when deployment automation is
@@ -65,8 +67,9 @@ added.
 ## Remote State Bootstrap
 
 Terraform cannot create the bucket that holds its own state in the same state
-file. Create the encrypted versioned state bucket and lock table once in a
-small bootstrap stack or through an approved platform account process.
+file. Review the separate [`bootstrap/`](bootstrap/) stack first. Step 20C may
+plan that stack, but it must not apply it. The approved Step 20D rollout creates
+the backend before the main stack is reinitialized against remote state.
 
 Then initialize this stack:
 
@@ -85,6 +88,13 @@ encrypted, versioned, and excluded from public access.
 
 ## Plan Safely
 
+Confirm Terraform is using the assumed deployment role, never the root account
+or the direct developer identity:
+
+```bash
+aws sts get-caller-identity --profile invoiceflow-deploy
+```
+
 For the Free Plan showcase, start from the dedicated profile:
 
 ```bash
@@ -96,15 +106,27 @@ deletion protection, start from `terraform.tfvars.example` instead.
 
 ```bash
 # Replace the certificate, application domain, URLs, image tag, email, and
-# account-specific values.
+# account-specific values. Keep task_permissions_boundary_name set to the
+# administrator-created InvoiceFlowTaskBoundary policy.
 
-terraform fmt -check
+terraform fmt -check -recursive
 terraform validate
-terraform plan -out=invoiceflow.tfplan
+AWS_PROFILE=invoiceflow-deploy terraform plan -out=invoiceflow.tfplan
 ```
 
 Review the plan before applying it. Terraform variable files and plan files may
 contain environment details and are ignored by Git.
+
+Before the remote backend exists, Step 20C can inspect a real-provider plan
+without creating resources by initializing with `-backend=false`. That plan is
+for permission, dependency, and cost-surface review only. A deployable plan must
+be regenerated after the approved backend bootstrap and remote initialization.
+
+The HTTPS listener still requires a real ACM certificate and a DNS name covered
+by that certificate. A syntactically valid placeholder can exercise Terraform
+configuration during local validation, but it is not approval to apply the
+stack. Step 20D remains blocked until the certificate and DNS prerequisite are
+real.
 
 For the first release, keep `services_enabled = false`. The first apply creates
 the ECR repository, database, queues, identity resources, load balancer, task
