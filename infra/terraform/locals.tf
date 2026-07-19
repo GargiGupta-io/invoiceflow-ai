@@ -1,6 +1,24 @@
 locals {
   name_prefix = "${var.project_name}-${var.environment}"
   azs         = slice(data.aws_availability_zones.available.names, 0, 2)
+  is_showcase = var.deployment_profile == "showcase"
+
+  nat_gateway_count        = local.is_showcase ? 0 : (var.single_nat_gateway ? 1 : 2)
+  runtime_subnet_ids       = local.is_showcase ? aws_subnet.public[*].id : aws_subnet.app[*].id
+  runtime_assign_public_ip = local.is_showcase
+  runtime_s3_route_tables  = local.is_showcase ? [aws_route_table.public.id] : aws_route_table.app[*].id
+
+  database_multi_az                 = local.is_showcase ? false : var.database_multi_az
+  database_max_allocated_storage    = local.is_showcase ? 0 : var.database_max_allocated_storage
+  database_backup_retention_days    = local.is_showcase ? 1 : 7
+  database_deletion_protection      = local.is_showcase ? false : var.database_deletion_protection
+  database_skip_final_snapshot      = local.is_showcase ? true : var.database_skip_final_snapshot
+  database_performance_insights     = local.is_showcase ? false : true
+  load_balancer_deletion_protection = local.is_showcase ? false : true
+  cognito_deletion_protection       = local.is_showcase ? "INACTIVE" : "ACTIVE"
+  container_insights                = local.is_showcase ? "disabled" : "enabled"
+  api_max_capacity                  = local.is_showcase ? var.api_desired_count : 6
+  document_bucket_force_destroy     = local.is_showcase
 
   common_environment = [
     { name = "APP_ENV", value = var.environment },
