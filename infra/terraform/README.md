@@ -93,6 +93,15 @@ terraform plan -out=invoiceflow.tfplan
 Review the plan before applying it. Terraform variable files and plan files may
 contain environment details and are ignored by Git.
 
+For the first release, keep `services_enabled = false`. The first apply creates
+the ECR repository, database, queues, identity resources, load balancer, task
+definitions, and zero-count ECS services. It must not try to start a container
+before the immutable image exists or before the database migration succeeds.
+
+```bash
+terraform apply invoiceflow.tfplan
+```
+
 ## Build And Push The Image
 
 Use an immutable Git commit SHA as the image tag:
@@ -111,19 +120,23 @@ docker build --platform linux/amd64 -t "${REPOSITORY}:${IMAGE_TAG}" .
 docker push "${REPOSITORY}:${IMAGE_TAG}"
 ```
 
-Set `container_image_tag` to the same immutable tag before applying task
-definition changes. The ECR repository rejects overwriting an existing tag.
+Set `container_image_tag` to the same immutable tag before the first apply. The
+first apply creates ECR while services remain stopped; then push that exact tag.
+The repository rejects overwriting an existing tag.
 
 ## Database Migration Order
 
 Do not start a new API or worker revision before its migration succeeds.
 
-1. Push the immutable image.
-2. Register/apply the new migration task definition.
+1. Plan and apply with `services_enabled = false`.
+2. Push the immutable image into the newly created ECR repository.
 3. Run the one-off migration task in the private application subnets.
-4. Wait for exit code zero.
-5. Update the API and worker services.
-6. Verify `/health/live` and `/health/ready`.
+4. Wait for the task to stop and verify container exit code zero.
+5. Run the one-off reviewer provisioner for each approved sample reviewer.
+6. Set `services_enabled = true`, review a second plan, and apply it.
+7. Wait for the API and worker services to stabilize.
+8. Create the application DNS record for the load balancer.
+9. Verify `/health/live`, `/health/ready`, `/reviewer`, and Cognito login.
 
 The required cluster, task definition, subnets, and security-group identifiers
 are Terraform outputs. The migration task runs `alembic upgrade head` using the
@@ -133,6 +146,39 @@ The production image also builds and serves the React reviewer shell at
 `/reviewer`. Cognito browser settings are injected into the API task at runtime
 and returned through the non-secret `/v2/auth/config` endpoint. Access and ID
 tokens are not compiled into the image.
+
+## First Reviewer Provisioning
+
+The provisioner task creates one Cognito user and the matching PostgreSQL
+organization/user rows as one idempotent operator workflow. Cognito sends the
+temporary-password invitation email; the command does not accept or print a
+password.
+
+Choose one organization UUID and keep it stable for every reviewer in that
+tenant:
+
+```bash
+ORGANIZATION_ID="$(python -c 'import uuid; print(uuid.uuid4())')"
+```
+
+Run the Terraform output `provisioner_task_definition_arn` in the private app
+subnets with the `task_security_group_id`. Override its command as follows:
+
+```text
+python -m app.admin.provision_reviewer
+  --organization-id <stable-organization-uuid>
+  --organization-name "InvoiceFlow Demo Finance"
+  --email <approved-sample-reviewer-email>
+  --display-name "Demo Reviewer"
+```
+
+The task role can call only `cognito-idp:AdminCreateUser` and
+`cognito-idp:AdminGetUser` for this stack's user pool. It has no document,
+queue, or general Cognito administration permissions. Re-running the command
+with the same tenant and email reuses both identities. Conflicting tenant,
+subject, name, or email mappings fail instead of silently changing ownership.
+
+Do not use real customer identities or documents in the portfolio deployment.
 
 ## Database Credentials
 
@@ -189,7 +235,6 @@ teardown therefore requires explicit configuration changes and a reviewed plan.
 - Terraform apply in CI
 - Scheduled retention Fargate task
 - Textract integration
-- Reviewer document/history/evidence views beyond the authenticated shell
 - Production load test execution
 
 These omissions are explicit so validation of this directory is not mistaken
