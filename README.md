@@ -222,6 +222,8 @@ Implemented:
 - separate liveness and PostgreSQL/S3/SQS readiness endpoints for Version 2 deployment checks
 - configurable document expiry, tenant-authorized deletion, and idempotent retention cleanup
 - tenant-isolated page text storage with PostgreSQL full-text search and page locations
+- one non-root Python 3.11 container image for API, worker, and migration tasks
+- validated Terraform for private S3, SQS/DLQ, RDS PostgreSQL, Cognito, IAM, ECS/Fargate, and CloudWatch
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -237,6 +239,18 @@ Still worth improving:
 - cost and token tracking for LLM mode
 
 ## Technical Architecture
+
+The current finance workflow and the Version 2 production-shaped AWS design are
+documented separately:
+
+- [Version 2 architecture](docs/architecture.md)
+- [Version 2 security model](docs/security.md)
+- [Version 2 reliability model](docs/reliability.md)
+- [Terraform deployment guide](infra/terraform/README.md)
+
+The Terraform configuration is validated infrastructure code on the feature
+branch. It has not been applied to an AWS account, so the hosted Render URL
+remains the deterministic Version 1 portfolio demo.
 
 ```text
 [Document Input: PDF / text / email fixture]
@@ -317,7 +331,12 @@ invoiceflow-ai/
 |- api/
 |  `- main.py
 |- docs/
+|  |- architecture.md
+|  |- security.md
+|  |- reliability.md
 |  `- showcase.md
+|- infra/
+|  `- terraform/
 |- app/
 |  |- agents/
 |  |- eval/
@@ -371,6 +390,8 @@ The repo includes:
 
 - `runtime.txt` for Python 3.11 pinning
 - `render.yaml` for Render blueprint deployment
+- `Dockerfile` for the API, worker, and migration commands
+- `infra/terraform/` for the production-shaped private AWS stack
 
 Deploy from GitHub:
 
@@ -383,6 +404,14 @@ Hosted demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-a
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 Note: Render free-tier deployments may take up to a minute to wake on first
 load.
+
+Version 2 AWS deployment is intentionally separate from the public demo. Its
+Terraform stack defines private Fargate tasks, private RDS PostgreSQL, private
+S3, SQS/DLQ, Cognito, scoped IAM roles, HTTPS ingress, and CloudWatch alarms.
+Follow [the infrastructure guide](infra/terraform/README.md) to review costs,
+bootstrap remote state, build an immutable image, plan the stack, and run the
+database migration task. No paid AWS resources are created by this repository
+automatically.
 
 ## Technical UI And API Reference
 
@@ -551,12 +580,13 @@ The current heuristic baseline already shows:
 - `100%` citation coverage and grounding support on the bundled synthetic eval set
 - review-gate and tool-like trace metrics for workflow observability
 
-## CI/CD Eval Gate
+## CI/CD Quality Gates
 
 GitHub Actions runs `.github/workflows/eval.yml` on pushes, pull requests, and
-manual dispatches. The workflow installs dependencies, runs the eval threshold
-gate, fails the build if quality drops below configured minimums, and uploads
-`eval-results.json` as an artifact for inspection.
+manual dispatches. The workflow installs dependencies, runs backend tests and
+the eval threshold gate, uploads `eval-results.json`, checks Terraform format
+and validity without contacting a deployment backend, and builds the production
+container without publishing it.
 
 <details>
 <summary>Default CI thresholds</summary>
@@ -591,15 +621,21 @@ embedding or vector retrieval pipeline.
 - The optional LLM gateway currently covers extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
+- The Version 2 Terraform stack is validated but has not been applied to AWS.
+- The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
+  the Fargate worker.
+- Production validation still requires a real tenant policy pack, approved
+  historical cases, cross-tenant tests against Cognito/RDS, and load tests.
 
 ## Next Improvements
 
 - add a managed OCR adapter such as Textract for production deployments
-- add role-based access for reviewers and operators
+- connect role-specific reviewer/operator screens to the protected Version 2 APIs
 - add reviewer-facing history and page-preview screens for the persistent case store
 - add vendor risk scoring and a PDF annotation view for invoice review
 - add email, Slack, and Teams notifications for escalations
-- add multi-tenant organization support
+- provision and test the Terraform stack in an approved AWS account
+- add GitHub OIDC deployment after the manual deployment path is verified
 - add cost tracking for LLM calls and per-case runtime metadata
 - add real tool-calling agent behavior after the current deterministic baseline
 - record a short walkthrough video for portfolio sharing
