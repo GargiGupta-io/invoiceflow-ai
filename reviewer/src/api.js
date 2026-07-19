@@ -7,26 +7,90 @@ export class ReviewerApiError extends Error {
   }
 }
 
-export async function getTenantIdentity(accessToken, fetchImpl = fetch) {
-  const response = await fetchImpl("/v2/me", {
-    headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${accessToken}`
-    },
+async function responseDetail(response, fallbackMessage) {
+  try {
+    const payload = await response.json();
+    const detail = payload?.detail;
+    if (typeof detail === "string") {
+      return { message: detail, code: "request_failed" };
+    }
+    return {
+      message: detail?.message || fallbackMessage,
+      code: detail?.code || "request_failed"
+    };
+  } catch {
+    return { message: fallbackMessage, code: "request_failed" };
+  }
+}
+
+async function reviewerRequest(path, accessToken, options = {}, fetchImpl = fetch) {
+  const headers = new Headers(options.headers || {});
+  headers.set("Accept", "application/json");
+  headers.set("Authorization", `Bearer ${accessToken}`);
+
+  const response = await fetchImpl(path, {
+    ...options,
+    headers,
     cache: "no-store"
   });
 
   if (!response.ok) {
-    let detail = null;
-    try {
-      detail = (await response.json()).detail;
-    } catch {
-      detail = null;
-    }
-    const message = detail?.message || "The protected reviewer workspace could not be opened.";
-    const code = detail?.code || "request_failed";
-    throw new ReviewerApiError(message, response.status, code);
+    const detail = await responseDetail(
+      response,
+      options.fallbackMessage || "The protected reviewer request could not be completed."
+    );
+    throw new ReviewerApiError(detail.message, response.status, detail.code);
   }
 
   return response.json();
+}
+
+export async function getTenantIdentity(accessToken, fetchImpl = fetch) {
+  return reviewerRequest(
+    "/v2/me",
+    accessToken,
+    { fallbackMessage: "The protected reviewer workspace could not be opened." },
+    fetchImpl
+  );
+}
+
+export async function listTenantDocuments(accessToken, fetchImpl = fetch) {
+  return reviewerRequest(
+    "/v2/documents?limit=50",
+    accessToken,
+    { fallbackMessage: "Document history could not be loaded." },
+    fetchImpl
+  );
+}
+
+export async function uploadTenantDocument(accessToken, file, fetchImpl = fetch) {
+  const body = new FormData();
+  body.append("file", file);
+  return reviewerRequest(
+    "/v2/documents",
+    accessToken,
+    {
+      method: "POST",
+      body,
+      fallbackMessage: "The document could not be uploaded."
+    },
+    fetchImpl
+  );
+}
+
+export async function dispatchDocumentProcessing(
+  accessToken,
+  documentId,
+  fetchImpl = fetch
+) {
+  return reviewerRequest(
+    `/v2/documents/${documentId}/processing-jobs`,
+    accessToken,
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": `reviewer-${documentId}` },
+      fallbackMessage: "Document processing could not be started."
+    },
+    fetchImpl
+  );
 }
