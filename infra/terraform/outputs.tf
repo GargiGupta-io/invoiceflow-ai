@@ -23,6 +23,21 @@ output "migration_task_definition_arn" {
   value       = aws_ecs_task_definition.migration.arn
 }
 
+output "provisioner_task_definition_arn" {
+  description = "Run this task to create a Cognito reviewer and matching tenant database rows."
+  value       = aws_ecs_task_definition.provisioner.arn
+}
+
+output "api_service_name" {
+  description = "ECS API service enabled only after a successful migration."
+  value       = aws_ecs_service.api.name
+}
+
+output "worker_service_name" {
+  description = "ECS worker service enabled only after a successful migration."
+  value       = aws_ecs_service.worker.name
+}
+
 output "private_app_subnet_ids" {
   description = "Subnets used by API, worker, and one-off migration tasks."
   value       = aws_subnet.app[*].id
