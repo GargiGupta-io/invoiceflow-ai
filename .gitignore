@@ -13,3 +13,9 @@ coverage/
 tmp/
 *.log
 eval-results.json
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+crash.log
