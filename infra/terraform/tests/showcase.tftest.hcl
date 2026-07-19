@@ -15,6 +15,15 @@ override_data {
 }
 
 override_data {
+  target = data.aws_caller_identity.current
+  values = {
+    account_id = "123456789012"
+    arn        = "arn:aws:iam::123456789012:user/terraform-test"
+    user_id    = "AIDATESTIDENTITY"
+  }
+}
+
+override_data {
   target = data.aws_iam_policy_document.ecs_task_assume
   values = { json = "{}" }
 }
