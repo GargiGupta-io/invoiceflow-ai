@@ -18,7 +18,7 @@ from app.auth.dependencies import (
     require_tenant,
     require_upload_tenant,
 )
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.db.repositories import (
     AuditEventRepository,
     DocumentPageRepository,
@@ -58,6 +58,7 @@ from app.schemas.persistence import (
     ProcessingDispatchResponse,
     ReviewCreateRequest,
     ReviewDecisionResponse,
+    ReviewerAuthConfigResponse,
     TenantIdentityResponse,
 )
 from app.storage import (
@@ -74,6 +75,16 @@ from app.retention import (
 
 
 router = APIRouter(prefix="/v2", tags=["Version 2 persistence"])
+
+REVIEWER_SCOPES = [
+    "openid",
+    "email",
+    "invoiceflow/read",
+    "invoiceflow/upload",
+    "invoiceflow/process",
+    "invoiceflow/review",
+    "invoiceflow/delete",
+]
 
 
 def _not_found() -> HTTPException:
@@ -96,6 +107,31 @@ def _document_not_ready() -> HTTPException:
 @lru_cache
 def get_upload_validator() -> UploadValidator:
     return UploadValidator.from_settings(get_settings())
+
+
+@router.get("/auth/config", response_model=ReviewerAuthConfigResponse)
+def reviewer_auth_config(
+    response: Response,
+    settings: Settings = Depends(get_settings),
+) -> ReviewerAuthConfigResponse:
+    response.headers["Cache-Control"] = "no-store"
+    if not settings.auth_browser_configured:
+        return ReviewerAuthConfigResponse(configured=False)
+
+    browser_domain = settings.auth_browser_domain.rstrip("/")
+    issuer = settings.auth_issuer.rstrip("/")
+    return ReviewerAuthConfigResponse(
+        configured=True,
+        issuer=issuer,
+        client_id=settings.auth_client_id,
+        authorization_endpoint=f"{browser_domain}/oauth2/authorize",
+        token_endpoint=f"{browser_domain}/oauth2/token",
+        logout_endpoint=f"{browser_domain}/logout",
+        jwks_uri=f"{issuer}/.well-known/jwks.json",
+        redirect_uri=settings.auth_redirect_uri,
+        post_logout_redirect_uri=settings.auth_logout_uri,
+        scopes=REVIEWER_SCOPES,
+    )
 
 
 def _upload_validation_error(error: UploadValidationError) -> HTTPException:
