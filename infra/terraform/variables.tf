@@ -20,6 +20,17 @@ variable "environment" {
   }
 }
 
+variable "deployment_profile" {
+  description = "Cost and availability profile. Showcase minimizes recurring credit use; production preserves private runtime networking and stronger deletion protection."
+  type        = string
+  default     = "production"
+
+  validation {
+    condition     = contains(["showcase", "production"], var.deployment_profile)
+    error_message = "deployment_profile must be showcase or production."
+  }
+}
+
 variable "aws_region" {
   description = "AWS region for the complete stack."
   type        = string
@@ -33,7 +44,7 @@ variable "vpc_cidr" {
 }
 
 variable "public_subnet_cidrs" {
-  description = "Two public subnet CIDRs for the load balancer and NAT gateways."
+  description = "Two public subnet CIDRs for the load balancer, NAT gateways, and showcase runtime tasks."
   type        = list(string)
   default     = ["10.42.0.0/24", "10.42.1.0/24"]
 
@@ -44,7 +55,7 @@ variable "public_subnet_cidrs" {
 }
 
 variable "app_subnet_cidrs" {
-  description = "Two private subnet CIDRs for Fargate tasks."
+  description = "Two private subnet CIDRs for production Fargate tasks."
   type        = list(string)
   default     = ["10.42.10.0/24", "10.42.11.0/24"]
 
@@ -199,6 +210,17 @@ variable "alarm_email" {
   description = "Optional email subscription for the CloudWatch alarm topic."
   type        = string
   default     = ""
+}
+
+variable "monthly_cost_budget_usd" {
+  description = "Monthly pre-credit AWS usage amount that triggers budget alerts when alarm_email is set."
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.monthly_cost_budget_usd > 0
+    error_message = "monthly_cost_budget_usd must be greater than zero."
+  }
 }
 
 variable "oauth_callback_urls" {
