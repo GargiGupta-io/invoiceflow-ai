@@ -18,4 +18,7 @@ eval-results.json
 *.tfstate.*
 *.tfvars
 !terraform.tfvars.example
+*.tfplan
+*.tfplan.json
+.aws-local/
 crash.log
