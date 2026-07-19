@@ -31,6 +31,25 @@ Reviewer browser
   -> short-lived document access after ownership check
 ```
 
+## Protected Reviewer Flow
+
+The React reviewer workspace uses separate tenant-authorized requests instead
+of receiving one unrestricted payload:
+
+```text
+Open history
+  -> select owned document
+  -> load safe case result + extracted pages + audit events
+  -> request five-minute document link only when needed
+  -> submit attributed review decision
+  -> reload review and append-only audit history
+```
+
+The case result exposes the latest completed workflow output and policy
+evidence, but processing-job responses continue to omit raw result storage.
+The browser never receives an S3 key, AWS credential, organization selector,
+or presigned URL until the reviewer explicitly requests document access.
+
 ## Data Ownership
 
 PostgreSQL stores organizations, users, document metadata, jobs, extracted
