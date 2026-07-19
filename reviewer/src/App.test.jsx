@@ -77,7 +77,8 @@ describe("reviewer app", () => {
           organization_id: "11111111-1111-4111-8111-111111111111",
           actor_id: "22222222-2222-4222-8222-222222222222"
         })
-      );
+      )
+      .mockResolvedValue(response({ items: [], count: 0 }));
 
     render(
       <App
@@ -87,9 +88,10 @@ describe("reviewer app", () => {
       />
     );
 
-    expect(await screen.findByRole("heading", { name: "Access verified." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Finance review workspace" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Document history" })).toBeInTheDocument();
     expect(screen.getByTitle("11111111-1111-4111-8111-111111111111")).toHaveTextContent("11111111...1111");
-    expect(fetchImpl.mock.calls[1][1].headers.Authorization).toBe("Bearer private-access-token");
+    expect(fetchImpl.mock.calls[1][1].headers.get("Authorization")).toBe("Bearer private-access-token");
   });
 
   it("completes the callback before loading protected identity", async () => {
@@ -109,7 +111,8 @@ describe("reviewer app", () => {
           organization_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
           actor_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
         })
-      );
+      )
+      .mockResolvedValue(response({ items: [], count: 0 }));
     const browserHistory = { replaceState: vi.fn() };
 
     render(
@@ -121,7 +124,7 @@ describe("reviewer app", () => {
       />
     );
 
-    expect(await screen.findByRole("heading", { name: "Access verified." })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Finance review workspace" })).toBeInTheDocument();
     expect(manager.signinRedirectCallback).toHaveBeenCalledOnce();
     expect(browserHistory.replaceState).toHaveBeenCalledWith({}, document.title, "/reviewer/");
   });
