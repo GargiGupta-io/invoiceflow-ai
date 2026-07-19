@@ -1,3 +1,13 @@
+FROM node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS reviewer-build
+
+WORKDIR /reviewer
+
+COPY reviewer/package.json reviewer/package-lock.json ./
+RUN npm ci
+
+COPY reviewer/ ./
+RUN npm run build
+
 FROM python:3.11-slim@sha256:db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93 AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -20,6 +30,7 @@ COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+COPY --from=reviewer-build /reviewer/dist /app/reviewer/dist
 
 RUN groupadd --gid 10001 invoiceflow \
     && useradd --uid 10001 --gid invoiceflow --no-create-home invoiceflow
