@@ -129,6 +129,11 @@ The required cluster, task definition, subnets, and security-group identifiers
 are Terraform outputs. The migration task runs `alembic upgrade head` using the
 same RDS-managed password injection as the services.
 
+The production image also builds and serves the React reviewer shell at
+`/reviewer`. Cognito browser settings are injected into the API task at runtime
+and returned through the non-secret `/v2/auth/config` endpoint. Access and ID
+tokens are not compiled into the image.
+
 ## Database Credentials
 
 RDS generates and rotates the master password through Secrets Manager.
@@ -184,7 +189,7 @@ teardown therefore requires explicit configuration changes and a reviewed plan.
 - Terraform apply in CI
 - Scheduled retention Fargate task
 - Textract integration
-- React reviewer application
+- Reviewer document/history/evidence views beyond the authenticated shell
 - Production load test execution
 
 These omissions are explicit so validation of this directory is not mistaken
