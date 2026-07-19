@@ -413,7 +413,7 @@ The repo includes:
 - `render.yaml` for Render blueprint deployment
 - `Dockerfile` for the API, worker, and migration commands
 - `reviewer/` for the React/Cognito reviewer shell bundled into the production image
-- `infra/terraform/` for the production-shaped private AWS stack
+- `infra/terraform/` for production and cost-limited Free Plan AWS profiles
 
 Deploy from GitHub:
 
