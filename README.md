@@ -249,9 +249,10 @@ documented separately:
 - [Version 2 reliability model](docs/reliability.md)
 - [Terraform deployment guide](infra/terraform/README.md)
 
-The Terraform configuration is validated infrastructure code on the feature
-branch. It has not been applied to an AWS account, so the hosted Render URL
-remains the deterministic Version 1 portfolio demo.
+The private Terraform state backend is provisioned on AWS, and the application
+stack has a validated 93-resource remote-backed plan on the feature branch. The
+application plan has not been applied, so the hosted Render URL remains the
+deterministic Version 1 portfolio demo.
 
 ```text
 [Document Input: PDF / text / email fixture]
@@ -649,7 +650,8 @@ embedding or vector retrieval pipeline.
 - The optional LLM gateway currently covers extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- The Version 2 Terraform stack is validated but has not been applied to AWS.
+- The Version 2 state backend is provisioned, but the 93-resource application
+  plan has not been applied to AWS.
 - The React reviewer workspace is connected to tenant document intake, case
   results, evidence, review decisions, private access, and audit history, but it
   still requires the unapplied AWS/Cognito stack for a live multi-user deployment.
