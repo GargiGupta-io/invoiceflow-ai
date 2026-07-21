@@ -1,10 +1,20 @@
 output "api_url" {
-  description = "Public HTTPS endpoint after this DNS name is pointed at the load balancer."
-  value       = "https://${var.application_domain_name}"
+  description = "Public HTTPS endpoint for the reviewer and API."
+  value       = local.public_base_url
+}
+
+output "public_endpoint_mode" {
+  description = "Whether this stack uses the generated CloudFront URL or a custom-domain ALB certificate."
+  value       = var.public_endpoint_mode
+}
+
+output "cloudfront_distribution_id" {
+  description = "Domain-free showcase distribution ID, or null in custom-domain mode."
+  value       = try(aws_cloudfront_distribution.app[0].id, null)
 }
 
 output "load_balancer_dns_name" {
-  description = "DNS name to use when creating the application DNS record."
+  description = "Origin DNS name. Direct access is blocked when CloudFront mode is active."
   value       = aws_lb.api.dns_name
 }
 
