@@ -156,6 +156,56 @@ distribution, no HTTPS load-balancer listener, no public CIDR ingress to the
 load balancer, zero-count ECS services, a USD 5 budget, and no update or destroy
 actions. Applying it still requires a separate, explicit decision.
 
+### Cost And Account Gate
+
+Immediately before any application apply, open the AWS console Cost and Usage
+widget and verify all three values manually:
+
+1. the account still says **Free Plan**;
+2. at least USD 15 of Free Tier credit remains; and
+3. the Free Plan expiration date is later than the planned teardown date.
+
+The deployment role intentionally has no billing or Free Tier read permission.
+Do not broaden it for this check. The July 22, 2026 public-price estimate is
+approximately USD 43.12/month with ECS stopped and USD 107.21/month with the
+one API and one worker task continuously enabled. The calculation and sources
+are recorded in
+[`../../docs/aws-showcase-plan-review.md`](../../docs/aws-showcase-plan-review.md).
+
+Stop if any account value is missing or if the remaining credit is below the
+local USD 15 gate. A separate explicit approval is required after this check
+and before `terraform apply invoiceflow.tfplan`.
+
+### Stopped-First Launch Checklist
+
+Use the exact saved plan and image tag that were reviewed. Documentation-only
+commits may follow that source tag, but no Docker build input may differ from
+it. Keep shell tracing disabled so temporary AWS credentials are not printed.
+
+```bash
+set +x
+aws sts get-caller-identity --profile invoiceflow-deploy
+grep -E '^services_enabled[[:space:]]*=[[:space:]]*false$' terraform.tfvars
+grep -E '^container_image_tag[[:space:]]*=' terraform.tfvars
+```
+
+The identity must be the dedicated `InvoiceFlowTerraformDeployRole`, the
+service flag must be `false`, and the image tag must match the reviewed plan.
+Then follow this order without skipping checkpoints:
+
+1. Apply the reviewed 93-resource plan. API and worker desired count remain
+   zero.
+2. Read `ecr_repository_url` from Terraform output and push the exact immutable
+   image tag.
+3. Run the migration task and require container exit code zero.
+4. Run the reviewer provisioner and require container exit code zero.
+5. Change only `services_enabled` to `true`, generate and review a second plan,
+   and apply it.
+6. Verify both ECS services, both health endpoints, Cognito login, and the
+   synthetic document workflow.
+7. Stop services or destroy the showcase immediately after its approved demo
+   window.
+
 For the first release, keep `services_enabled = false`. The first apply creates
 the ECR repository, database, queues, identity resources, load balancer, task
 definitions, and zero-count ECS services. It must not try to start a container
@@ -167,17 +217,20 @@ terraform apply invoiceflow.tfplan
 
 ## Build And Push The Image
 
-Use an immutable Git commit SHA as the image tag:
+Use the immutable image tag already recorded in the reviewed plan. Do not
+derive a different tag after the first apply:
 
 ```bash
-AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
 AWS_REGION="ap-south-1"
-IMAGE_TAG="$(git rev-parse --short=12 HEAD)"
-REPOSITORY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/invoiceflow-production"
+IMAGE_TAG="REPLACE_WITH_REVIEWED_CONTAINER_IMAGE_TAG"
+REPOSITORY="$(terraform output -raw ecr_repository_url)"
+REGISTRY="${REPOSITORY%%/*}"
 
-aws ecr get-login-password --region "$AWS_REGION" \
+aws ecr get-login-password \
+  --profile invoiceflow-deploy \
+  --region "$AWS_REGION" \
   | docker login --username AWS --password-stdin \
-    "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+    "$REGISTRY"
 
 docker build --platform linux/amd64 -t "${REPOSITORY}:${IMAGE_TAG}" .
 docker push "${REPOSITORY}:${IMAGE_TAG}"
@@ -207,6 +260,51 @@ Do not start a new API or worker revision before its migration succeeds.
 The required cluster, task definition, subnets, and security-group identifiers
 are Terraform outputs. The migration task runs `alembic upgrade head` using the
 same RDS-managed password injection as the services.
+
+Build the one-off task network configuration once from those outputs:
+
+```bash
+if [ "$(terraform output -raw runtime_assign_public_ip)" = "true" ]; then
+  ASSIGN_PUBLIC_IP="ENABLED"
+else
+  ASSIGN_PUBLIC_IP="DISABLED"
+fi
+
+NETWORK_CONFIGURATION="$(jq -nc \
+  --argjson subnets "$(terraform output -json runtime_subnet_ids)" \
+  --arg security_group "$(terraform output -raw task_security_group_id)" \
+  --arg assign_public_ip "$ASSIGN_PUBLIC_IP" \
+  '{awsvpcConfiguration:{subnets:$subnets,securityGroups:[$security_group],assignPublicIp:$assign_public_ip}}')"
+```
+
+Run the migration, wait for completion, and inspect the exit code:
+
+```bash
+MIGRATION_TASK_ARN="$(aws ecs run-task \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --launch-type FARGATE \
+  --task-definition "$(terraform output -raw migration_task_definition_arn)" \
+  --network-configuration "$NETWORK_CONFIGURATION" \
+  --query 'tasks[0].taskArn' \
+  --output text)"
+
+aws ecs wait tasks-stopped \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --tasks "$MIGRATION_TASK_ARN"
+
+aws ecs describe-tasks \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --tasks "$MIGRATION_TASK_ARN" \
+  --query 'tasks[0].containers[0].{exit_code:exitCode,reason:reason}'
+```
+
+Do not continue unless `exit_code` is `0`.
 
 The production image also builds and serves the React reviewer shell at
 `/reviewer`. Cognito browser settings are injected into the API task at runtime
@@ -246,6 +344,49 @@ with the same tenant and email reuses both identities. Conflicting tenant,
 subject, name, or email mappings fail instead of silently changing ownership.
 
 Do not use real customer identities or documents in the portfolio deployment.
+
+For the first approved synthetic reviewer, create the command override without
+putting the email address in Git or shell history:
+
+```bash
+read -r -p "Approved demo reviewer email: " REVIEWER_EMAIL
+
+PROVISIONER_OVERRIDES="$(jq -nc \
+  --arg organization_id "$ORGANIZATION_ID" \
+  --arg email "$REVIEWER_EMAIL" \
+  '{containerOverrides:[{name:"provisioner",command:["python","-m","app.admin.provision_reviewer","--organization-id",$organization_id,"--organization-name","InvoiceFlow Demo Finance","--email",$email,"--display-name","Demo Reviewer"]}]}')"
+
+PROVISIONER_TASK_ARN="$(aws ecs run-task \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --launch-type FARGATE \
+  --task-definition "$(terraform output -raw provisioner_task_definition_arn)" \
+  --network-configuration "$NETWORK_CONFIGURATION" \
+  --overrides "$PROVISIONER_OVERRIDES" \
+  --query 'tasks[0].taskArn' \
+  --output text)"
+
+aws ecs wait tasks-stopped \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --tasks "$PROVISIONER_TASK_ARN"
+
+aws ecs describe-tasks \
+  --profile invoiceflow-deploy \
+  --region ap-south-1 \
+  --cluster "$(terraform output -raw ecs_cluster_name)" \
+  --tasks "$PROVISIONER_TASK_ARN" \
+  --query 'tasks[0].containers[0].{exit_code:exitCode,reason:reason}'
+```
+
+Require exit code zero before enabling either service. Then clear the local
+shell values:
+
+```bash
+unset REVIEWER_EMAIL PROVISIONER_OVERRIDES
+```
 
 ## Database Credentials
 
@@ -306,12 +447,22 @@ customization and advanced security, CloudWatch, public IPv4 addresses, and
 data transfer. Production also adds NAT gateway hourly and data-processing
 usage. Run `terraform plan` and use the AWS Pricing Calculator before applying.
 
+The reviewed showcase estimate uses these current `ap-south-1` rates: USD
+0.021 per RDS `db.t4g.micro` hour, USD 0.131 per RDS GP3 GB-month, USD 0.0239
+per load-balancer hour, USD 0.005 per public IPv4 address-hour, USD 0.04256 per
+Fargate vCPU-hour, USD 0.004655 per Fargate GB-hour, USD 0.40 per Secrets
+Manager secret-month, and USD 0.020 per active Cognito Plus user. Variable
+request, storage, logging, transfer, and load-balancer-capacity charges remain
+usage-dependent.
+
 When `alarm_email` is set, Terraform creates one free monitoring-only AWS
 Budget. It measures account-wide usage before credits and sends actual-usage
 alerts at 50%, 80%, and 100% of `monthly_cost_budget_usd`. Budget data can lag
 and an alert is not a hard spending cap. The AWS Free Plan itself prevents
-charges unless the account is deliberately upgraded, and it ends after six
-months or when its credits are depleted, whichever happens first.
+charges while the account remains on that plan, and it ends after six months
+or when its credits are depleted, whichever happens first. Do not deliberately
+upgrade or take one of AWS's documented automatic-upgrade actions during the
+showcase window.
 
 Keep `services_enabled = false` whenever the live reviewer is not being shown.
 This stops Fargate compute but does not stop the load balancer or RDS. For a
