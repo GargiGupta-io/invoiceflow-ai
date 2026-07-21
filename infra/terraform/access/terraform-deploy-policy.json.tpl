@@ -38,9 +38,8 @@
     {
       "Effect": "Allow",
       "Action": [
+        "s3:Get*Configuration",
         "s3:GetBucket*",
-        "s3:GetEncryptionConfiguration",
-        "s3:GetLifecycleConfiguration",
         "s3:ListBucket",
         "s3:ListBucketVersions"
       ],
@@ -180,6 +179,7 @@
         "dynamodb:DeleteTable",
         "dynamodb:DescribeContinuousBackups",
         "dynamodb:DescribeTable",
+        "dynamodb:DescribeTimeToLive",
         "dynamodb:GetItem",
         "dynamodb:ListTagsOfResource",
         "dynamodb:PutItem",
