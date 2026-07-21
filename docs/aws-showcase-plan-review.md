@@ -1,12 +1,13 @@
 # AWS Showcase Plan Review
 
-Reviewed through July 21, 2026 from `feature/version-2-pipeline` with Terraform
+Reviewed through July 22, 2026 from `feature/version-2-pipeline` with Terraform
 1.9.8. The plans used the dedicated `InvoiceFlowTerraformDeployRole` and
-short-lived browser-login credentials. No `terraform apply` command was run.
+short-lived browser-login credentials. Only the state bootstrap was applied;
+no InvoiceFlow application resources were applied.
 
 ## State Bootstrap
 
-The state bootstrap plan contains 8 additions, 0 changes, and 0 deletions:
+The approved state bootstrap created:
 
 - one private S3 state bucket;
 - complete S3 public-access blocking;
@@ -16,9 +17,15 @@ The state bootstrap plan contains 8 additions, 0 changes, and 0 deletions:
 - a TLS-only bucket policy; and
 - one encrypted, on-demand DynamoDB lock table.
 
-The saved bootstrap plan and account-specific variable file are local ignored
-artifacts. The state bucket and lock table do not exist until Step 20D receives
-explicit apply approval.
+The bucket and lock table were independently checked after apply. Public access
+is blocked, object ownership is bucket-owner enforced, default encryption and
+versioning are enabled, the noncurrent-version lifecycle is active, the bucket
+policy denies insecure transport, and the lock table is active with on-demand
+billing and server-side encryption.
+
+The main stack is now initialized against that S3 backend with DynamoDB state
+locking. Saved plans, local backend metadata, and account-specific variable
+files remain ignored local artifacts.
 
 ## Prior Step 20C Application Stack
 
@@ -63,13 +70,14 @@ The production profile continues to require a custom domain, an ACM
 certificate, and end-to-end HTTPS at the Application Load Balancer.
 
 Local Terraform validation and mocked profile tests pass for both endpoint
-modes. The rendered deployment policy is 10,158 characters after JSON
+modes. The rendered deployment policy is 10,147 characters after JSON
 compaction, below AWS's 10,240-character inline-role aggregate limit, and has
 no medium-or-higher Parliament findings. Its local and installed policy hashes
 match exactly.
 
-The replacement real-provider plan succeeds with 93 additions, 0 changes, 0
-deletions, and 5 data reads. Structured inspection of the saved plan confirms:
+The replacement real-provider plan was regenerated after remote-backend
+initialization and succeeds with 93 additions, 0 changes, 0 deletions, and 5
+data reads. Structured inspection of the saved plan confirms:
 
 - exactly one CloudFront distribution using its default HTTPS certificate;
 - viewer HTTP requests redirect to HTTPS;
@@ -82,8 +90,8 @@ deletions, and 5 data reads. Structured inspection of the saved plan confirms:
 - the endpoint mode is `cloudfront`; and
 - the monthly usage budget remains USD 5.
 
-All 16 structural assertions passed. The saved plan is a local ignored review
-artifact only; no apply was run.
+All 18 plan checks passed. The saved plan is a local ignored review artifact
+only; no application apply was run.
 
 ## Main Cost Drivers
 
@@ -96,15 +104,17 @@ for a controlled demo but are still metered.
 The budget is an alert, not a hard spending cap. The deployment must still be
 torn down after the planned demo window.
 
-## Apply Blockers
+## Remaining Application Apply Gates
 
 No application resources may be applied until all of the following are true:
 
-1. The bootstrap plan is reviewed again and explicitly approved for apply.
-2. The main plan is regenerated against the new remote backend.
-3. Current AWS pricing and remaining Free Plan credits are checked.
-4. The immutable container image, database migration, reviewer provisioning,
+1. Current AWS pricing and remaining Free Plan credits are checked.
+2. The immutable container image, database migration, reviewer provisioning,
    service enablement, and teardown order are ready.
+
+The state bootstrap and remote-backend plan regeneration are complete. They do
+not authorize application deployment. The application plan still requires a
+separate, explicit apply decision.
 
 The Step 20C application plan used syntactically valid placeholder certificate
 and DNS values. It proves provider access, resource dependencies, security
