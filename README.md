@@ -430,6 +430,9 @@ load.
 Version 2 AWS deployment is intentionally separate from the public demo. Its
 Terraform stack defines private Fargate tasks, private RDS PostgreSQL, private
 S3, SQS/DLQ, Cognito, scoped IAM roles, HTTPS ingress, and CloudWatch alarms.
+The synthetic Free Plan showcase can use an AWS-provided CloudFront HTTPS URL,
+so it does not require a purchased domain or ACM certificate. The production
+profile retains a custom domain and end-to-end HTTPS at the load balancer.
 Follow [the infrastructure guide](infra/terraform/README.md) to review costs,
 bootstrap remote state, build an immutable image, plan the stack, and run the
 database migration and reviewer-provisioning tasks. The first release keeps API
