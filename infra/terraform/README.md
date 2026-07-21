@@ -1,8 +1,9 @@
 # InvoiceFlow AWS Infrastructure
 
 This directory defines the production-shaped Version 2 AWS foundation. It is
-validated infrastructure code, not proof that the resources are currently
-provisioned.
+validated infrastructure code. The private Terraform state backend is
+provisioned, but the 93-resource InvoiceFlow application plan has not been
+applied.
 
 ## What It Creates
 
@@ -82,9 +83,10 @@ added.
 ## Remote State Bootstrap
 
 Terraform cannot create the bucket that holds its own state in the same state
-file. Review the separate [`bootstrap/`](bootstrap/) stack first. Step 20C may
-plan that stack, but it must not apply it. The approved Step 20D rollout creates
-the backend before the main stack is reinitialized against remote state.
+file. The separately reviewed [`bootstrap/`](bootstrap/) stack created the
+private, encrypted, versioned S3 state bucket and encrypted DynamoDB lock table.
+The main stack is initialized against that backend; bootstrap remains a
+separate state because Terraform cannot manage its own state bucket safely.
 
 Then initialize this stack:
 
@@ -133,17 +135,14 @@ AWS_PROFILE=invoiceflow-deploy terraform plan -out=invoiceflow.tfplan
 Review the plan before applying it. Terraform variable files and plan files may
 contain environment details and are ignored by Git.
 
-`terraform init -backend=false` supports validation but does not support a
-normal plan while this root declares an S3 backend. Before the backend exists,
-use a disposable copy of this directory with the backend declaration omitted
-to inspect a real-provider plan. Do not commit that copy or alter the tracked
-backend configuration. The resulting plan is for permission, dependency, and
-cost-surface review only.
+`terraform init -backend=false` is still useful for isolated validation, but it
+does not support a normal plan while this root declares an S3 backend. The
+current application plan was generated through the initialized remote backend,
+not through the disposable pre-bootstrap workflow.
 
-The sanitized Step 20C findings are recorded in
+The sanitized bootstrap and remote-backed application-plan findings are
+recorded in
 [`../../docs/aws-showcase-plan-review.md`](../../docs/aws-showcase-plan-review.md).
-A deployable plan must be regenerated after the approved backend bootstrap and
-remote initialization.
 
 `public_endpoint_mode = "cloudfront"` derives Cognito callback and logout URLs
 from the generated distribution domain, so the showcase needs no placeholder
@@ -151,11 +150,11 @@ certificate or DNS name. CloudFront's default certificate covers that generated
 hostname. `custom_domain` mode still requires a real ACM certificate, matching
 domain, and explicit HTTPS callback/logout URLs.
 
-The CloudFront adaptation does not approve an apply. Regenerate and inspect a
-real plan after the deployment role policy is updated and the remote backend is
-bootstrapped. Confirm that the showcase contains one CloudFront distribution,
-no HTTPS load-balancer listener, no public CIDR ingress to the load balancer,
-and zero-count ECS services on the first apply.
+The CloudFront adaptation does not approve an apply. The remote-backed plan has
+been regenerated and structurally inspected: it contains one CloudFront
+distribution, no HTTPS load-balancer listener, no public CIDR ingress to the
+load balancer, zero-count ECS services, a USD 5 budget, and no update or destroy
+actions. Applying it still requires a separate, explicit decision.
 
 For the first release, keep `services_enabled = false`. The first apply creates
 the ECR repository, database, queues, identity resources, load balancer, task
