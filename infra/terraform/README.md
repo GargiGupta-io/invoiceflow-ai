@@ -176,6 +176,13 @@ Stop if any account value is missing or if the remaining credit is below the
 local USD 15 gate. A separate explicit approval is required after this check
 and before `terraform apply invoiceflow.tfplan`.
 
+The July 22, 2026 owner check passed: the account showed **Free Plan**, an
+active USD 100 AWS Free Tier credit, USD 0 used, and USD 100 remaining. The
+credit started July 19, 2026 and expires July 19, 2027. The Free Plan itself
+still ends after six months or credit exhaustion, whichever occurs first; the
+planned seven-day showcase is safely inside that window. Re-run this manual
+check if the apply is delayed to another day.
+
 ### Stopped-First Launch Checklist
 
 Use the exact saved plan and image tag that were reviewed. Documentation-only
