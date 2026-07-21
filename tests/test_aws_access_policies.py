@@ -92,10 +92,15 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("iam:CreateAccessKey", actions)
         self.assertNotIn("iam:CreatePolicy", actions)
         self.assertNotIn("organizations:*", actions)
+        self.assertNotIn("cloudfront:*", actions)
         self.assertNotIn("s3:PutBucketEncryption", actions)
         self.assertNotIn("s3:PutBucketLifecycleConfiguration", actions)
+        self.assertIn("cloudfront:CreateDistribution", actions)
+        self.assertIn("cloudfront:UpdateDistribution", actions)
+        self.assertIn("elasticloadbalancing:CreateRule", actions)
         self.assertIn("iam:PassRole", actions)
         self.assertIn("ec2:Describe*", actions)
+        self.assertIn("ec2:GetManagedPrefixListEntries", actions)
         self.assertIn("s3:PutEncryptionConfiguration", actions)
         self.assertIn("s3:PutLifecycleConfiguration", actions)
 
@@ -116,6 +121,45 @@ class AwsAccessPolicyTests(unittest.TestCase):
                 "iam:PermissionsBoundary"
             ],
             "arn:aws:iam::123456789012:policy/InvoiceFlowTaskBoundary",
+        )
+
+        create_distribution_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if "cloudfront:CreateDistribution"
+            in (
+                statement["Action"]
+                if isinstance(statement["Action"], list)
+                else [statement["Action"]]
+            )
+        )
+        self.assertEqual(create_distribution_statement["Resource"], "*")
+        self.assertEqual(
+            create_distribution_statement["Condition"]["StringEquals"][
+                "aws:RequestTag/Application"
+            ],
+            "invoiceflow",
+        )
+
+        update_distribution_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if "cloudfront:UpdateDistribution"
+            in (
+                statement["Action"]
+                if isinstance(statement["Action"], list)
+                else [statement["Action"]]
+            )
+        )
+        self.assertEqual(
+            update_distribution_statement["Resource"],
+            "arn:aws:cloudfront::123456789012:distribution/*",
+        )
+        self.assertEqual(
+            update_distribution_statement["Condition"]["StringEquals"][
+                "aws:ResourceTag/Environment"
+            ],
+            "showcase",
         )
 
     def test_task_boundary_caps_runtime_roles_to_invoiceflow_services(self) -> None:
