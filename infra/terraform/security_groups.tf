@@ -1,13 +1,18 @@
+data "aws_ec2_managed_prefix_list" "cloudfront_origin" {
+  count = local.uses_cloudfront_endpoint ? 1 : 0
+  name  = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
 resource "aws_security_group" "alb" {
   name        = "${local.name_prefix}-alb"
-  description = "Public HTTPS entry for InvoiceFlow"
+  description = "InvoiceFlow public entry or CloudFront origin"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${local.name_prefix}-alb" }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_http" {
-  for_each = toset(var.allowed_ingress_cidrs)
+  for_each = local.uses_cloudfront_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
 
   security_group_id = aws_security_group.alb.id
   cidr_ipv4         = each.value
@@ -18,7 +23,7 @@ resource "aws_vpc_security_group_ingress_rule" "alb_http" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_https" {
-  for_each = toset(var.allowed_ingress_cidrs)
+  for_each = local.uses_cloudfront_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
 
   security_group_id = aws_security_group.alb.id
   cidr_ipv4         = each.value
@@ -26,6 +31,17 @@ resource "aws_vpc_security_group_ingress_rule" "alb_https" {
   to_port           = 443
   ip_protocol       = "tcp"
   description       = "Public HTTPS"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "alb_cloudfront_http" {
+  count = local.uses_cloudfront_endpoint ? 1 : 0
+
+  security_group_id = aws_security_group.alb.id
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.cloudfront_origin[0].id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  description       = "HTTP origin traffic from CloudFront only"
 }
 
 resource "aws_security_group" "tasks" {
