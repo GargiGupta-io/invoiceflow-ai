@@ -6,12 +6,10 @@ aws_region         = "ap-south-1"
 # Must already exist as an administrator-owned IAM managed policy.
 task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
 
-# Create/import an ACM certificate in the same region before planning.
-certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
-application_domain_name = "invoiceflow.example.com"
-
-oauth_callback_urls = ["https://invoiceflow.example.com/reviewer/callback"]
-oauth_logout_urls   = ["https://invoiceflow.example.com/reviewer/"]
+# The showcase uses an AWS-provided *.cloudfront.net HTTPS endpoint, so no
+# purchased domain or ACM certificate is required. Terraform derives the
+# Cognito callback and logout URLs from the generated distribution domain.
+public_endpoint_mode = "cloudfront"
 
 # The first apply creates zero-count services. Enable only after the image is
 # pushed and both migration and reviewer provisioning tasks succeed.
