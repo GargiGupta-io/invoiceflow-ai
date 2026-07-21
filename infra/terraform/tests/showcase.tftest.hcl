@@ -24,6 +24,14 @@ override_data {
 }
 
 override_data {
+  target = data.aws_ec2_managed_prefix_list.cloudfront_origin
+  values = {
+    id   = "pl-12345678"
+    name = "com.amazonaws.global.cloudfront.origin-facing"
+  }
+}
+
+override_data {
   target = data.aws_iam_policy_document.ecs_task_assume
   values = { json = "{}" }
 }
@@ -62,17 +70,37 @@ run "showcase_cost_guardrails" {
   command = plan
 
   variables {
-    deployment_profile      = "showcase"
-    environment             = "showcase"
-    certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/00000000-0000-0000-0000-000000000000"
-    application_domain_name = "invoiceflow.example.com"
-    oauth_callback_urls     = ["https://invoiceflow.example.com/reviewer/callback"]
-    oauth_logout_urls       = ["https://invoiceflow.example.com/reviewer/"]
-    container_image_tag     = "abcdef123456"
-    services_enabled        = true
-    api_desired_count       = 1
-    worker_desired_count    = 1
-    alarm_email             = "owner@example.com"
+    deployment_profile   = "showcase"
+    environment          = "showcase"
+    public_endpoint_mode = "cloudfront"
+    container_image_tag  = "abcdef123456"
+    services_enabled     = true
+    api_desired_count    = 1
+    worker_desired_count = 1
+    alarm_email          = "owner@example.com"
+  }
+
+  assert {
+    condition = (
+      length(aws_cloudfront_distribution.app) == 1 &&
+      length(aws_lb_listener.cloudfront_origin) == 1 &&
+      length(aws_lb_listener_rule.cloudfront_origin) == 1 &&
+      length(aws_lb_listener.https) == 0 &&
+      length(aws_vpc_security_group_ingress_rule.alb_cloudfront_http) == 1 &&
+      length(aws_vpc_security_group_ingress_rule.alb_http) == 0 &&
+      length(aws_vpc_security_group_ingress_rule.alb_https) == 0
+    )
+    error_message = "The domain-free showcase must expose only the CloudFront-restricted HTTP origin."
+  }
+
+  assert {
+    condition = (
+      aws_cloudfront_distribution.app[0].viewer_certificate[0].cloudfront_default_certificate &&
+      aws_cloudfront_distribution.app[0].default_cache_behavior[0].cache_policy_id == "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" &&
+      aws_cloudfront_distribution.app[0].default_cache_behavior[0].origin_request_policy_id == "b689b0a8-53d0-40ab-baf2-68738e2966ac" &&
+      aws_lb_listener.cloudfront_origin[0].default_action[0].fixed_response[0].status_code == "403"
+    )
+    error_message = "CloudFront must supply viewer TLS, disable caching, forward authenticated requests, and deny direct origin access."
   }
 
   assert {
@@ -128,6 +156,7 @@ run "production_security_defaults" {
   variables {
     deployment_profile      = "production"
     environment             = "production"
+    public_endpoint_mode    = "custom_domain"
     certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/00000000-0000-0000-0000-000000000000"
     application_domain_name = "invoiceflow.example.com"
     oauth_callback_urls     = ["https://invoiceflow.example.com/reviewer/callback"]
@@ -137,6 +166,18 @@ run "production_security_defaults" {
     api_desired_count       = 2
     worker_desired_count    = 1
     alarm_email             = ""
+  }
+
+  assert {
+    condition = (
+      length(aws_cloudfront_distribution.app) == 0 &&
+      length(aws_lb_listener.cloudfront_origin) == 0 &&
+      length(aws_lb_listener.https) == 1 &&
+      length(aws_vpc_security_group_ingress_rule.alb_cloudfront_http) == 0 &&
+      length(aws_vpc_security_group_ingress_rule.alb_http) == 1 &&
+      length(aws_vpc_security_group_ingress_rule.alb_https) == 1
+    )
+    error_message = "Production must retain the custom-domain HTTPS load balancer path."
   }
 
   assert {
