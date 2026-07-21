@@ -9,6 +9,7 @@ task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
 # and retains stronger deletion protection. Use showcase.tfvars.example for the
 # lower-cost Free Plan deployment.
 deployment_profile = "production"
+public_endpoint_mode = "custom_domain"
 
 # Create/import an ACM certificate in the same region before planning.
 certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
