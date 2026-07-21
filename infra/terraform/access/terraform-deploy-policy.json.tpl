@@ -4,25 +4,16 @@
     {
       "Effect": "Allow",
       "Action": [
-        "acm:DescribeCertificate",
-        "acm:ListCertificates",
-        "application-autoscaling:DescribeScalableTargets",
-        "application-autoscaling:DescribeScalingActivities",
-        "application-autoscaling:DescribeScalingPolicies",
-        "budgets:ViewBudget",
+        "application-autoscaling:Describe*",
+        "cloudfront:ListDistributions",
         "cloudwatch:DescribeAlarms",
-        "cognito-idp:DescribeUserPool",
-        "cognito-idp:DescribeUserPoolClient",
-        "cognito-idp:DescribeUserPoolDomain",
-        "cognito-idp:ListResourceServers",
-        "cognito-idp:ListTagsForResource",
-        "cognito-idp:ListUserPoolClients",
-        "cognito-idp:ListUserPools",
+        "cognito-idp:Describe*",
+        "cognito-idp:List*",
         "ec2:Describe*",
+        "ec2:GetManagedPrefixListEntries",
         "ecr:Describe*",
-        "ecr:GetLifecyclePolicy",
-        "ecr:GetRepositoryPolicy",
-        "ecr:ListTagsForResource",
+        "ecr:Get*",
+        "ecr:List*",
         "ecs:Describe*",
         "ecs:List*",
         "elasticloadbalancing:Describe*",
@@ -30,23 +21,16 @@
         "iam:GetRolePolicy",
         "iam:ListAttachedRolePolicies",
         "iam:ListRolePolicies",
-        "lambda:GetFunction",
-        "lambda:GetFunctionConfiguration",
-        "lambda:GetPolicy",
+        "lambda:Get*",
         "lambda:ListTags",
         "logs:DescribeLogGroups",
         "rds:Describe*",
         "s3:ListAllMyBuckets",
         "secretsmanager:DescribeSecret",
-        "sns:GetSubscriptionAttributes",
-        "sns:GetTopicAttributes",
-        "sns:ListSubscriptionsByTopic",
-        "sns:ListTagsForResource",
-        "sns:ListTopics",
-        "sqs:GetQueueAttributes",
-        "sqs:GetQueueUrl",
-        "sqs:ListQueueTags",
-        "sqs:ListQueues",
+        "sns:Get*",
+        "sns:List*",
+        "sqs:GetQueue*",
+        "sqs:List*",
         "sts:GetCallerIdentity"
       ],
       "Resource": "*"
@@ -72,6 +56,39 @@
         "arn:aws:s3:::__RESOURCE_PREFIX__-*/*",
         "arn:aws:s3:::__STATE_BUCKET_NAME__/*"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:CreateDistribution",
+        "cloudfront:TagResource"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Application": "__PROJECT_NAME__",
+          "aws:RequestTag/Environment": "__ENVIRONMENT__"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudfront:DeleteDistribution",
+        "cloudfront:GetDistribution",
+        "cloudfront:GetDistributionConfig",
+        "cloudfront:ListTagsForResource",
+        "cloudfront:TagResource",
+        "cloudfront:UntagResource",
+        "cloudfront:UpdateDistribution"
+      ],
+      "Resource": "arn:aws:cloudfront::__ACCOUNT_ID__:distribution/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:ResourceTag/Application": "__PROJECT_NAME__",
+          "aws:ResourceTag/Environment": "__ENVIRONMENT__"
+        }
+      }
     },
     {
       "Effect": "Allow",
@@ -222,7 +239,6 @@
         "ecs:CreateService",
         "ecs:DeleteCluster",
         "ecs:DeleteService",
-        "ecs:RegisterTaskDefinition",
         "ecs:TagResource",
         "ecs:UntagResource",
         "ecs:UpdateClusterSettings",
@@ -260,24 +276,27 @@
         "elasticloadbalancing:AddTags",
         "elasticloadbalancing:CreateListener",
         "elasticloadbalancing:CreateLoadBalancer",
+        "elasticloadbalancing:CreateRule",
         "elasticloadbalancing:CreateTargetGroup",
         "elasticloadbalancing:DeleteListener",
         "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:DeleteRule",
         "elasticloadbalancing:DeleteTargetGroup",
         "elasticloadbalancing:ModifyListener",
         "elasticloadbalancing:ModifyLoadBalancerAttributes",
+        "elasticloadbalancing:ModifyRule",
         "elasticloadbalancing:ModifyTargetGroup",
         "elasticloadbalancing:ModifyTargetGroupAttributes",
         "elasticloadbalancing:RemoveTags",
         "elasticloadbalancing:SetSecurityGroups",
+        "elasticloadbalancing:SetRulePriorities",
         "elasticloadbalancing:SetSubnets"
       ],
       "Resource": [
         "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:loadbalancer/app/__RESOURCE_PREFIX__-*/*",
-        "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:loadbalancer/net/__RESOURCE_PREFIX__-*/*",
         "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:targetgroup/__RESOURCE_PREFIX__-*/*",
-        "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:listener/app/__RESOURCE_PREFIX__-*/*/*",
-        "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:listener/net/__RESOURCE_PREFIX__-*/*/*"
+        "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:listener/*/__RESOURCE_PREFIX__-*/*/*",
+        "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:listener-rule/*/__RESOURCE_PREFIX__-*/*/*/*"
       ]
     },
     {
