@@ -173,26 +173,37 @@ as a conservative local deployment gate. If the balance is lower, the workload
 apply is a no-go. Do not create or join an AWS Organization, enable Control
 Tower, or deliberately upgrade the account as part of this deployment.
 
+The account owner completed the manual check on July 22, 2026:
+
+- account banner: **Free Plan**;
+- active AWS Free Tier credit: **USD 100.00**;
+- amount used: **USD 0.00**;
+- amount remaining: **USD 100.00**;
+- credit start date: **July 19, 2026**; and
+- credit expiration date: **July 19, 2027**.
+
+The credit expiration date is not the Free Plan expiration date. AWS limits the
+Free Plan itself to six months or credit exhaustion, whichever comes first.
+The active plan and July 19, 2026 credit start establish that the proposed
+seven-day July 2026 showcase and teardown occur safely inside that window. The
+USD 100 balance also exceeds the local USD 15 deployment gate.
+
 ## Apply Readiness Decision
 
-The infrastructure is **technically ready but financially gated**. The saved
-93-resource plan, immutable application source tag, migration task, reviewer
-provisioner, zero-count services, second service-enablement plan, and teardown
-order are prepared. No workload apply is authorized by this review.
+The infrastructure is **technically and financially ready for a separate apply
+decision**. The saved 93-resource plan, immutable application source tag,
+migration task, reviewer provisioner, zero-count services, second
+service-enablement plan, and teardown order are prepared. No workload apply is
+authorized by this review.
 
-The next step may apply the stopped-first foundation only after both of these
-conditions are satisfied:
-
-1. the account owner supplies the three manual Free Plan values above; and
-2. the account owner gives a separate explicit approval for the cost-bearing
-   93-resource apply.
+The account check is complete. The next step may apply the stopped-first
+foundation only after the account owner gives a separate explicit approval for
+the cost-bearing 93-resource apply.
 
 ## Remaining Application Apply Gates
 
-No application resources may be applied until all of the following are true:
-
-1. Remaining Free Plan credits and the expiration date are confirmed manually.
-2. Separate explicit approval is given for the cost-bearing application apply.
+No application resources may be applied until separate explicit approval is
+given for the cost-bearing application apply.
 
 Current pricing and the immutable image, database migration, reviewer
 provisioning, service-enablement, and teardown order have been checked. The
