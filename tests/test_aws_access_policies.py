@@ -101,8 +101,10 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("iam:PassRole", actions)
         self.assertIn("ec2:Describe*", actions)
         self.assertIn("ec2:GetManagedPrefixListEntries", actions)
+        self.assertIn("s3:Get*Configuration", actions)
         self.assertIn("s3:PutEncryptionConfiguration", actions)
         self.assertIn("s3:PutLifecycleConfiguration", actions)
+        self.assertIn("dynamodb:DescribeTimeToLive", actions)
 
         object_statement = next(
             statement
@@ -110,6 +112,19 @@ class AwsAccessPolicyTests(unittest.TestCase):
             if statement["Action"] == "s3:GetObject"
         )
         self.assertNotIn("*", object_statement["Resource"])
+
+        configuration_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if "s3:Get*Configuration" in statement["Action"]
+        )
+        self.assertEqual(
+            configuration_statement["Resource"],
+            [
+                "arn:aws:s3:::invoiceflow-showcase-*",
+                "arn:aws:s3:::invoiceflow-terraform-state-123456789012-ap-south-1",
+            ],
+        )
 
         create_role_statement = next(
             statement
