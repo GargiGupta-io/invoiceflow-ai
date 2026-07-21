@@ -80,6 +80,8 @@ resource "aws_lb_target_group" "api" {
 }
 
 resource "aws_lb_listener" "http" {
+  count = local.uses_cloudfront_endpoint ? 0 : 1
+
   load_balancer_arn = aws_lb.api.arn
   port              = 80
   protocol          = "HTTP"
@@ -96,6 +98,8 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_lb_listener" "https" {
+  count = local.uses_cloudfront_endpoint ? 0 : 1
+
   load_balancer_arn = aws_lb.api.arn
   port              = 443
   protocol          = "HTTPS"
@@ -105,6 +109,56 @@ resource "aws_lb_listener" "https" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  lifecycle {
+    precondition {
+      condition = (
+        var.certificate_arn != "" &&
+        var.application_domain_name != "" &&
+        length(var.oauth_callback_urls) > 0 &&
+        length(var.oauth_logout_urls) > 0 &&
+        alltrue([for uri in concat(var.oauth_callback_urls, var.oauth_logout_urls) : startswith(uri, "https://${var.application_domain_name}/")])
+      )
+      error_message = "custom_domain mode requires an ACM certificate, application domain, and matching HTTPS Cognito callback/logout URLs."
+    }
+  }
+}
+
+resource "aws_lb_listener" "cloudfront_origin" {
+  count = local.uses_cloudfront_endpoint ? 1 : 0
+
+  load_balancer_arn = aws_lb.api.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Access denied"
+      status_code  = "403"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "cloudfront_origin" {
+  count = local.uses_cloudfront_endpoint ? 1 : 0
+
+  listener_arn = aws_lb_listener.cloudfront_origin[0].arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.api.arn
+  }
+
+  condition {
+    http_header {
+      http_header_name = "X-InvoiceFlow-${random_id.cloudfront_origin_header_name[0].hex}"
+      values           = [random_password.cloudfront_origin_header_value[0].result]
+    }
   }
 }
 
@@ -310,7 +364,11 @@ resource "aws_ecs_service" "api" {
     container_port   = 8000
   }
 
-  depends_on = [aws_lb_listener.https]
+  depends_on = [
+    aws_lb_listener.http,
+    aws_lb_listener.https,
+    aws_lb_listener_rule.cloudfront_origin,
+  ]
 }
 
 resource "aws_ecs_service" "worker" {
