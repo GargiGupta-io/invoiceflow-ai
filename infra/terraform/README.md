@@ -7,7 +7,8 @@ provisioned.
 ## What It Creates
 
 - A two-availability-zone VPC
-- Public subnets for an HTTPS Application Load Balancer
+- Public subnets for an Application Load Balancer
+- An AWS-provided CloudFront HTTPS endpoint for the domain-free showcase
 - Private application subnets for production API, worker, and migration tasks
 - Isolated database subnets for RDS PostgreSQL
 - Zero, one, or two NAT gateways, depending on the deployment profile
@@ -29,7 +30,8 @@ provisioned.
 
 ```text
 Internet
-   -> HTTPS Application Load Balancer (public subnets)
+   -> HTTPS CloudFront endpoint (domain-free showcase)
+      -> restricted HTTP Application Load Balancer origin (public subnets)
       -> FastAPI tasks (private in production; public egress in showcase)
          -> RDS PostgreSQL (isolated database subnets)
          -> private S3 bucket
@@ -46,7 +48,18 @@ addresses. In the lower-cost `showcase` profile, Fargate receives public egress
 in the public subnets so no NAT gateway is required, but inbound application
 traffic is still accepted only from the load balancer security group. RDS is
 isolated and private in both profiles. PostgreSQL accepts port 5432 only from
-the Fargate task security group. HTTP is redirected to HTTPS.
+the Fargate task security group.
+
+The domain-free showcase gives users HTTPS through the AWS-managed
+`*.cloudfront.net` certificate. CloudFront reaches the load balancer over HTTP,
+so this mode is limited to synthetic portfolio data. Direct origin requests
+are restricted to the CloudFront origin-facing managed prefix list and receive
+`403` unless they also contain a generated secret header. The secret is stored
+only in sensitive Terraform state and the CloudFront origin configuration.
+
+The `production` profile uses `custom_domain` mode instead: HTTP redirects to
+an HTTPS load-balancer listener backed by the supplied ACM certificate. Use
+that mode for end-to-end TLS and any non-synthetic environment.
 
 ## Prerequisites
 
@@ -55,10 +68,12 @@ the Fargate task security group. HTTP is redirected to HTTPS.
 2. The administrator-owned `InvoiceFlowTaskBoundary` managed policy described
    in that access guide. Terraform refuses to create runtime roles without it.
 3. Terraform 1.7 or newer.
-4. An ACM certificate in the selected AWS region.
-5. A DNS name that can point to the load balancer after creation.
-6. A separately bootstrapped S3 state bucket and DynamoDB lock table.
-7. Docker and the AWS CLI for building and pushing the application image.
+4. A separately bootstrapped S3 state bucket and DynamoDB lock table.
+5. Docker and the AWS CLI for building and pushing the application image.
+
+The showcase does not require a purchased domain or ACM certificate. The
+production profile additionally requires an ACM certificate in the selected
+region and a matching DNS name.
 
 Do not use a personal long-lived AWS access key in CI. Use GitHub Actions OIDC
 to assume a narrowly scoped deployment role when deployment automation is
@@ -105,9 +120,10 @@ For a production-shaped plan with private Fargate networking and stronger
 deletion protection, start from `terraform.tfvars.example` instead.
 
 ```bash
-# Replace the certificate, application domain, URLs, image tag, email, and
-# account-specific values. Keep task_permissions_boundary_name set to the
-# administrator-created InvoiceFlowTaskBoundary policy.
+# Replace the image tag, email, and account-specific values. For production,
+# also replace the certificate, application domain, and OAuth URLs. Keep
+# task_permissions_boundary_name set to the administrator-created
+# InvoiceFlowTaskBoundary policy.
 
 terraform fmt -check -recursive
 terraform validate
@@ -129,11 +145,17 @@ The sanitized Step 20C findings are recorded in
 A deployable plan must be regenerated after the approved backend bootstrap and
 remote initialization.
 
-The HTTPS listener still requires a real ACM certificate and a DNS name covered
-by that certificate. A syntactically valid placeholder can exercise Terraform
-configuration during local validation, but it is not approval to apply the
-stack. Step 20D remains blocked until the certificate and DNS prerequisite are
-real.
+`public_endpoint_mode = "cloudfront"` derives Cognito callback and logout URLs
+from the generated distribution domain, so the showcase needs no placeholder
+certificate or DNS name. CloudFront's default certificate covers that generated
+hostname. `custom_domain` mode still requires a real ACM certificate, matching
+domain, and explicit HTTPS callback/logout URLs.
+
+The CloudFront adaptation does not approve an apply. Regenerate and inspect a
+real plan after the deployment role policy is updated and the remote backend is
+bootstrapped. Confirm that the showcase contains one CloudFront distribution,
+no HTTPS load-balancer listener, no public CIDR ingress to the load balancer,
+and zero-count ECS services on the first apply.
 
 For the first release, keep `services_enabled = false`. The first apply creates
 the ECR repository, database, queues, identity resources, load balancer, task
@@ -178,8 +200,10 @@ Do not start a new API or worker revision before its migration succeeds.
 5. Run the one-off reviewer provisioner for each approved sample reviewer.
 6. Set `services_enabled = true`, review a second plan, and apply it.
 7. Wait for the API and worker services to stabilize.
-8. Create the application DNS record for the load balancer.
-9. Verify `/health/live`, `/health/ready`, `/reviewer`, and Cognito login.
+8. In `custom_domain` mode, create the application DNS record for the load
+   balancer. The domain-free showcase skips this action.
+9. Verify `/health/live`, `/health/ready`, `/reviewer`, and Cognito login at the
+   `public_base_url` output.
 
 The required cluster, task definition, subnets, and security-group identifiers
 are Terraform outputs. The migration task runs `alembic upgrade head` using the
@@ -278,10 +302,10 @@ gateway. One NAT gateway is a network availability compromise. Set
 `single_nat_gateway = false` for one gateway per availability zone.
 
 The main recurring credit consumers are Fargate tasks, the load balancer, RDS,
-the Cognito Plus tier used for access-token customization and advanced
-security, CloudWatch, public IPv4 addresses, and data transfer. Production also
-adds NAT gateway hourly and data-processing usage. Run `terraform plan` and use
-the AWS Pricing Calculator before applying.
+CloudFront traffic and requests, the Cognito Plus tier used for access-token
+customization and advanced security, CloudWatch, public IPv4 addresses, and
+data transfer. Production also adds NAT gateway hourly and data-processing
+usage. Run `terraform plan` and use the AWS Pricing Calculator before applying.
 
 When `alarm_email` is set, Terraform creates one free monitoring-only AWS
 Budget. It measures account-wide usage before credits and sends actual-usage
@@ -303,8 +327,8 @@ Do not use the showcase teardown policy for customer data.
 
 ## What Is Not Automated Yet
 
-- DNS record creation
-- ACM certificate issuance
+- Production DNS record creation
+- Production ACM certificate issuance
 - GitHub OIDC deployment
 - Terraform apply in CI
 - Scheduled retention Fargate task
