@@ -93,23 +93,36 @@ variable "single_nat_gateway" {
   default     = true
 }
 
-variable "certificate_arn" {
-  description = "ACM certificate ARN for the public HTTPS listener."
+variable "public_endpoint_mode" {
+  description = "Public HTTPS strategy. cloudfront uses the AWS-provided distribution domain for showcase; custom_domain uses an ACM certificate on the load balancer."
   type        = string
+  default     = "custom_domain"
 
   validation {
-    condition     = can(regex("^arn:aws:acm:", var.certificate_arn))
-    error_message = "certificate_arn must be an ACM certificate ARN."
+    condition     = contains(["cloudfront", "custom_domain"], var.public_endpoint_mode)
+    error_message = "public_endpoint_mode must be cloudfront or custom_domain."
+  }
+}
+
+variable "certificate_arn" {
+  description = "ACM certificate ARN for custom_domain mode. Leave empty when CloudFront supplies the showcase certificate."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.certificate_arn == "" || can(regex("^arn:aws:acm:", var.certificate_arn))
+    error_message = "certificate_arn must be empty or an ACM certificate ARN."
   }
 }
 
 variable "application_domain_name" {
-  description = "Public DNS name covered by the ACM certificate. Create its DNS record after apply."
+  description = "Public DNS name covered by the ACM certificate in custom_domain mode."
   type        = string
+  default     = ""
 
   validation {
-    condition     = can(regex("^[a-z0-9][a-z0-9.-]+[a-z0-9]$", var.application_domain_name))
-    error_message = "application_domain_name must be a valid lowercase DNS name."
+    condition     = var.application_domain_name == "" || can(regex("^[a-z0-9][a-z0-9.-]+[a-z0-9]$", var.application_domain_name))
+    error_message = "application_domain_name must be empty or a valid lowercase DNS name."
   }
 }
 
@@ -235,28 +248,24 @@ variable "monthly_cost_budget_usd" {
 }
 
 variable "oauth_callback_urls" {
-  description = "Allowed Cognito authorization-code callback URLs."
+  description = "Allowed Cognito authorization-code callback URLs in custom_domain mode. CloudFront mode derives its callback from the generated distribution URL."
   type        = list(string)
+  default     = []
 
   validation {
-    condition = (
-      length(var.oauth_callback_urls) > 0 &&
-      alltrue([for uri in var.oauth_callback_urls : can(regex("^https://", uri))])
-    )
-    error_message = "oauth_callback_urls must contain at least one HTTPS URL."
+    condition     = alltrue([for uri in var.oauth_callback_urls : can(regex("^https://", uri))])
+    error_message = "Every oauth_callback_urls value must use HTTPS."
   }
 }
 
 variable "oauth_logout_urls" {
-  description = "Allowed Cognito logout return URLs."
+  description = "Allowed Cognito logout return URLs in custom_domain mode. CloudFront mode derives its logout URL from the generated distribution URL."
   type        = list(string)
+  default     = []
 
   validation {
-    condition = (
-      length(var.oauth_logout_urls) > 0 &&
-      alltrue([for uri in var.oauth_logout_urls : can(regex("^https://", uri))])
-    )
-    error_message = "oauth_logout_urls must contain at least one HTTPS URL."
+    condition     = alltrue([for uri in var.oauth_logout_urls : can(regex("^https://", uri))])
+    error_message = "Every oauth_logout_urls value must use HTTPS."
   }
 }
 
