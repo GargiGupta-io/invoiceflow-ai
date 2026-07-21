@@ -65,6 +65,30 @@ The boundary caps the resulting API, worker, execution, provisioner, and
 Cognito hook roles to the runtime services InvoiceFlow needs. Updating an
 inline role policy cannot grant permissions beyond that boundary.
 
+## Updating The Deployment Role
+
+Re-render and replace the role's existing inline policy whenever the tracked
+Terraform stack adds an AWS resource type. Do not create a second overlapping
+policy.
+
+1. Render `.aws-local/terraform-deploy-policy.json` with the current account
+   and environment values.
+2. Open IAM -> Roles -> `InvoiceFlowTerraformDeployRole` -> Permissions.
+3. Expand `InvoiceFlowTerraformDeploy`, choose **Edit**, and open the JSON tab.
+4. Replace the existing document with the newly rendered file, review the
+   summary, and save.
+5. Confirm the role still has only this project policy, then run a plan without
+   applying it.
+
+The domain-free showcase update adds only the CloudFront distribution actions
+and Application Load Balancer listener-rule actions required by
+`cloudfront.tf`. CloudFront updates are restricted to distributions tagged for
+the configured project and environment. Load-balancer resources remain scoped
+to the `invoiceflow-showcase-*` prefix; the generic listener type segment lets
+the same AWS action describe its documented Application and Network listener
+formats, while load-balancer creation itself remains restricted to
+`loadbalancer/app`.
+
 ## Local Role Profile
 
 Keep the browser-based AWS login as the source profile and add a role profile:
@@ -93,6 +117,8 @@ running Terraform.
 - Never paste generated policy files into issues, logs, or screenshots.
 - Never run Terraform as the root account.
 - Never run `terraform apply` while reviewing Step 20C.
+- Never use the generated CloudFront origin-header value in logs, screenshots,
+  or support messages. It is a bearer secret stored in Terraform state.
 - Treat an `AccessDenied` as a request to review one missing action, not as a
   reason to broaden a statement to `Action: "*"`.
 - Remove the deployment role after the showcase is torn down if it is no longer
