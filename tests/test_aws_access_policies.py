@@ -77,9 +77,11 @@ class AwsAccessPolicyTests(unittest.TestCase):
             documents = self._render(Path(temporary_directory))
 
         policy = documents["terraform-deploy-policy.json"]
+        support_policy = documents["terraform-deploy-support-policy.json"]
         actions = {
             action
-            for statement in policy["Statement"]
+            for document in (policy, support_policy)
+            for statement in document["Statement"]
             for action in (
                 statement["Action"]
                 if isinstance(statement["Action"], list)
@@ -102,6 +104,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("iam:PassRole", actions)
         self.assertIn("ec2:Describe*", actions)
         self.assertIn("ec2:GetManagedPrefixListEntries", actions)
+        self.assertIn("ec2:GetSecurityGroupsForVpc", actions)
         self.assertIn("ec2:CreateTags", actions)
         self.assertIn("logs:ListTagsForResource", actions)
         self.assertIn("cloudwatch:ListTagsForResource", actions)
@@ -120,6 +123,50 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("ec2:DeleteNatGateway", actions)
         self.assertNotIn("ec2:DisassociateAddress", actions)
         self.assertNotIn("ec2:ReleaseAddress", actions)
+
+        security_group_rule_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if isinstance(statement["Resource"], str)
+            and statement["Resource"].endswith("security-group-rule/*")
+        )
+        self.assertEqual(
+            set(security_group_rule_statement["Action"]),
+            {
+                "ec2:AuthorizeSecurityGroupEgress",
+                "ec2:AuthorizeSecurityGroupIngress",
+            },
+        )
+        self.assertEqual(
+            security_group_rule_statement["Condition"]["StringEquals"],
+            {
+                "aws:RequestTag/Application": "invoiceflow",
+                "aws:RequestTag/Environment": "showcase",
+                "aws:RequestTag/ManagedBy": "Terraform",
+            },
+        )
+
+        kms_statement = next(
+            statement
+            for statement in support_policy["Statement"]
+            if statement["Action"] == "kms:DescribeKey"
+        )
+        self.assertEqual(
+            kms_statement["Condition"]["ForAnyValue:StringEquals"][
+                "kms:ResourceAliases"
+            ],
+            ["alias/aws/rds", "alias/aws/secretsmanager"],
+        )
+
+        secret_statement = next(
+            statement
+            for statement in support_policy["Statement"]
+            if "secretsmanager:CreateSecret" in statement["Action"]
+        )
+        self.assertEqual(
+            secret_statement["Resource"],
+            "arn:aws:secretsmanager:ap-south-1:123456789012:secret:rds!*",
+        )
 
         object_statement = next(
             statement
@@ -278,9 +325,13 @@ class AwsAccessPolicyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             documents = self._render(Path(temporary_directory))
 
-        policy = documents["terraform-deploy-policy.json"]
-        compact_policy = json.dumps(policy, separators=(",", ":"))
-        self.assertLessEqual(len(compact_policy), 10_240)
+        deployment_policies = [
+            documents["terraform-deploy-policy.json"],
+            documents["terraform-deploy-support-policy.json"],
+        ]
+        for policy in deployment_policies:
+            compact_policy = json.dumps(policy, separators=(",", ":"))
+            self.assertLessEqual(len(compact_policy), 10_240)
 
     def test_rendered_policy_files_are_owner_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -292,7 +343,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
             )
             modes = sorted(path.stat().st_mode & 0o777 for path in output_dir.iterdir())
 
-        self.assertEqual(modes, [0o600, 0o600, 0o600, 0o600])
+        self.assertEqual(modes, [0o600, 0o600, 0o600, 0o600, 0o600])
 
     def test_invalid_account_id_is_rejected(self) -> None:
         self.arguments.account_id = "not-an-account"
