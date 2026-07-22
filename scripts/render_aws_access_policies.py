@@ -14,6 +14,7 @@ TEMPLATE_NAMES = (
     "deployer-trust-policy.json.tpl",
     "task-permissions-boundary-policy.json.tpl",
     "terraform-deploy-policy.json.tpl",
+    "terraform-deploy-support-policy.json.tpl",
 )
 
 

@@ -4,43 +4,6 @@
     {
       "Effect": "Allow",
       "Action": [
-        "application-autoscaling:Describe*",
-        "cloudfront:ListDistributions",
-        "cloudwatch:DescribeAlarms",
-        "cloudwatch:ListTagsForResource",
-        "cognito-idp:Describe*",
-        "cognito-idp:List*",
-        "ec2:Describe*",
-        "ec2:GetManagedPrefixListEntries",
-        "ecr:Describe*",
-        "ecr:Get*",
-        "ecr:List*",
-        "ecs:Describe*",
-        "ecs:List*",
-        "elasticloadbalancing:Describe*",
-        "iam:GetRole",
-        "iam:GetRolePolicy",
-        "iam:List*",
-        "lambda:Get*",
-        "lambda:ListVersionsByFunction",
-        "lambda:ListTags",
-        "logs:DescribeLogGroups",
-        "logs:ListTagsForResource",
-        "rds:Describe*",
-        "rds:ListTagsForResource",
-        "s3:ListAllMyBuckets",
-        "secretsmanager:DescribeSecret",
-        "sns:Get*",
-        "sns:List*",
-        "sqs:GetQueue*",
-        "sqs:List*",
-        "sts:GetCallerIdentity"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
         "s3:Get*Configuration",
         "s3:GetBucket*",
         "s3:ListBucket",
@@ -70,6 +33,21 @@
         "StringEquals": {
           "aws:RequestTag/Application": "__PROJECT_NAME__",
           "aws:RequestTag/Environment": "__ENVIRONMENT__"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupEgress",
+        "ec2:AuthorizeSecurityGroupIngress"
+      ],
+      "Resource": "arn:aws:ec2:__AWS_REGION__:__ACCOUNT_ID__:security-group-rule/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Application": "__PROJECT_NAME__",
+          "aws:RequestTag/Environment": "__ENVIRONMENT__",
+          "aws:RequestTag/ManagedBy": "Terraform"
         }
       }
     },
