@@ -94,18 +94,18 @@ variable "single_nat_gateway" {
 }
 
 variable "public_endpoint_mode" {
-  description = "Public HTTPS strategy. cloudfront uses the AWS-provided distribution domain for showcase; custom_domain uses an ACM certificate on the load balancer."
+  description = "Public HTTPS strategy. api_gateway or cloudfront use an AWS-provided domain for showcase; custom_domain uses an ACM certificate on the load balancer."
   type        = string
   default     = "custom_domain"
 
   validation {
-    condition     = contains(["cloudfront", "custom_domain"], var.public_endpoint_mode)
-    error_message = "public_endpoint_mode must be cloudfront or custom_domain."
+    condition     = contains(["api_gateway", "cloudfront", "custom_domain"], var.public_endpoint_mode)
+    error_message = "public_endpoint_mode must be api_gateway, cloudfront, or custom_domain."
   }
 }
 
 variable "certificate_arn" {
-  description = "ACM certificate ARN for custom_domain mode. Leave empty when CloudFront supplies the showcase certificate."
+  description = "ACM certificate ARN for custom_domain mode. Leave empty when AWS supplies the showcase endpoint certificate."
   type        = string
   default     = ""
 
