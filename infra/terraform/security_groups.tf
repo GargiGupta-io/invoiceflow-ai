@@ -5,14 +5,14 @@ data "aws_ec2_managed_prefix_list" "cloudfront_origin" {
 
 resource "aws_security_group" "alb" {
   name        = "${local.name_prefix}-alb"
-  description = "InvoiceFlow public entry or CloudFront origin"
+  description = "InvoiceFlow public entry or managed HTTPS origin"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${local.name_prefix}-alb" }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_http" {
-  for_each = local.uses_cloudfront_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
+  for_each = local.uses_managed_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
 
   security_group_id = aws_security_group.alb.id
   cidr_ipv4         = each.value
@@ -23,7 +23,7 @@ resource "aws_vpc_security_group_ingress_rule" "alb_http" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "alb_https" {
-  for_each = local.uses_cloudfront_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
+  for_each = local.uses_managed_endpoint ? toset([]) : toset(var.allowed_ingress_cidrs)
 
   security_group_id = aws_security_group.alb.id
   cidr_ipv4         = each.value
@@ -42,6 +42,38 @@ resource "aws_vpc_security_group_ingress_rule" "alb_cloudfront_http" {
   to_port           = 80
   ip_protocol       = "tcp"
   description       = "HTTP origin traffic from CloudFront only"
+}
+
+resource "aws_security_group" "api_gateway_vpc_link" {
+  count = local.uses_api_gateway_endpoint ? 1 : 0
+
+  name        = "${local.name_prefix}-api-gateway-link"
+  description = "API Gateway VPC link to the InvoiceFlow load balancer"
+  vpc_id      = aws_vpc.main.id
+
+  tags = { Name = "${local.name_prefix}-api-gateway-link" }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "alb_api_gateway_http" {
+  count = local.uses_api_gateway_endpoint ? 1 : 0
+
+  security_group_id            = aws_security_group.alb.id
+  referenced_security_group_id = aws_security_group.api_gateway_vpc_link[0].id
+  from_port                    = 80
+  to_port                      = 80
+  ip_protocol                  = "tcp"
+  description                  = "HTTP origin traffic from the API Gateway VPC link only"
+}
+
+resource "aws_vpc_security_group_egress_rule" "api_gateway_to_alb" {
+  count = local.uses_api_gateway_endpoint ? 1 : 0
+
+  security_group_id            = aws_security_group.api_gateway_vpc_link[0].id
+  referenced_security_group_id = aws_security_group.alb.id
+  from_port                    = 80
+  to_port                      = 80
+  ip_protocol                  = "tcp"
+  description                  = "Forward API Gateway requests to the load balancer"
 }
 
 resource "aws_security_group" "tasks" {
