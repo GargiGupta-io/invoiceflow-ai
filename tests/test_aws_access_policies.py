@@ -97,8 +97,10 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("cloudfront:*", actions)
         self.assertNotIn("s3:PutBucketEncryption", actions)
         self.assertNotIn("s3:PutBucketLifecycleConfiguration", actions)
-        self.assertIn("cloudfront:CreateDistribution", actions)
-        self.assertIn("cloudfront:UpdateDistribution", actions)
+        self.assertFalse(any(action.startswith("cloudfront:") for action in actions))
+        self.assertIn("apigateway:GET", actions)
+        self.assertIn("apigateway:PATCH", actions)
+        self.assertIn("apigateway:POST", actions)
         self.assertIn("elasticloadbalancing:Create*", actions)
         self.assertNotIn("elasticloadbalancing:*", actions)
         self.assertIn("iam:PassRole", actions)
@@ -112,6 +114,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("rds:ListTagsForResource", actions)
         self.assertIn("sns:SetTopicAttributes", actions)
         self.assertIn("lambda:ListVersionsByFunction", actions)
+        self.assertIn("cognito-idp:GetUserPoolMfaConfig", actions)
         self.assertIn("budgets:ListTagsForResource", actions)
         self.assertIn("budgets:TagResource", actions)
         self.assertIn("s3:Get*Configuration", actions)
@@ -142,6 +145,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
             {
                 "ec2:AuthorizeSecurityGroupEgress",
                 "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:CreateTags",
             },
         )
         self.assertEqual(
@@ -207,43 +211,52 @@ class AwsAccessPolicyTests(unittest.TestCase):
             "arn:aws:iam::123456789012:policy/InvoiceFlowTaskBoundary",
         )
 
-        create_distribution_statement = next(
+        create_api_gateway_statement = next(
             statement
             for statement in policy["Statement"]
-            if "cloudfront:CreateDistribution"
-            in (
-                statement["Action"]
-                if isinstance(statement["Action"], list)
-                else [statement["Action"]]
-            )
+            if statement["Action"] == "apigateway:POST"
+            and "arn:aws:apigateway:ap-south-1::/apis"
+            in statement["Resource"]
         )
-        self.assertEqual(create_distribution_statement["Resource"], "*")
         self.assertEqual(
-            create_distribution_statement["Condition"]["StringEquals"][
+            create_api_gateway_statement["Resource"],
+            [
+                "arn:aws:apigateway:ap-south-1::/apis",
+                "arn:aws:apigateway:ap-south-1::/vpclinks",
+            ],
+        )
+        self.assertEqual(
+            create_api_gateway_statement["Condition"]["StringEquals"][
                 "aws:RequestTag/Application"
             ],
             "invoiceflow",
         )
 
-        update_distribution_statement = next(
+        manage_api_gateway_statement = next(
             statement
             for statement in policy["Statement"]
-            if "cloudfront:UpdateDistribution"
-            in (
-                statement["Action"]
-                if isinstance(statement["Action"], list)
-                else [statement["Action"]]
-            )
+            if isinstance(statement["Action"], list)
+            and "apigateway:PATCH" in statement["Action"]
         )
         self.assertEqual(
-            update_distribution_statement["Resource"],
-            "arn:aws:cloudfront::123456789012:distribution/*",
-        )
-        self.assertEqual(
-            update_distribution_statement["Condition"]["StringEquals"][
-                "aws:ResourceTag/Environment"
+            manage_api_gateway_statement["Resource"],
+            [
+                "arn:aws:apigateway:ap-south-1::/apis/*",
+                "arn:aws:apigateway:ap-south-1::/tags/*",
+                "arn:aws:apigateway:ap-south-1::/vpclinks/*",
             ],
-            "showcase",
+        )
+
+        service_linked_role_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if statement["Action"] == "iam:CreateServiceLinkedRole"
+        )
+        self.assertIn(
+            "ops.apigateway.amazonaws.com",
+            service_linked_role_statement["Condition"]["StringEquals"][
+                "iam:AWSServiceName"
+            ],
         )
 
         load_balancer_statement = next(
