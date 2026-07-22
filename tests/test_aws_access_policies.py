@@ -108,11 +108,18 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("cloudwatch:TagResource", actions)
         self.assertIn("rds:ListTagsForResource", actions)
         self.assertIn("sns:SetTopicAttributes", actions)
+        self.assertIn("lambda:ListVersionsByFunction", actions)
+        self.assertIn("budgets:ListTagsForResource", actions)
         self.assertIn("budgets:TagResource", actions)
         self.assertIn("s3:Get*Configuration", actions)
         self.assertIn("s3:PutEncryptionConfiguration", actions)
         self.assertIn("s3:PutLifecycleConfiguration", actions)
         self.assertIn("dynamodb:DescribeTimeToLive", actions)
+        self.assertNotIn("ec2:AllocateAddress", actions)
+        self.assertNotIn("ec2:CreateNatGateway", actions)
+        self.assertNotIn("ec2:DeleteNatGateway", actions)
+        self.assertNotIn("ec2:DisassociateAddress", actions)
+        self.assertNotIn("ec2:ReleaseAddress", actions)
 
         object_statement = next(
             statement
@@ -215,15 +222,35 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertEqual(
             create_tag_conditions["ec2:CreateAction"],
             [
-                "AllocateAddress",
                 "CreateInternetGateway",
-                "CreateNatGateway",
                 "CreateRouteTable",
                 "CreateSecurityGroup",
                 "CreateSubnet",
                 "CreateVpc",
                 "CreateVpcEndpoint",
             ],
+        )
+
+        parent_vpc_create_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if {
+                "ec2:CreateRouteTable",
+                "ec2:CreateSecurityGroup",
+                "ec2:CreateSubnet",
+                "ec2:CreateVpcEndpoint",
+            }.issubset(set(statement["Action"]))
+            and "ec2:ResourceTag/Application"
+            in statement.get("Condition", {}).get("StringEquals", {})
+        )
+        self.assertEqual(parent_vpc_create_statement["Resource"], "*")
+        self.assertEqual(
+            parent_vpc_create_statement["Condition"]["StringEquals"],
+            {
+                "ec2:ResourceTag/Application": "invoiceflow",
+                "ec2:ResourceTag/Environment": "showcase",
+                "ec2:ResourceTag/ManagedBy": "Terraform",
+            },
         )
 
     def test_task_boundary_caps_runtime_roles_to_invoiceflow_services(self) -> None:
