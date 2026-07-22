@@ -23,7 +23,7 @@ resource "aws_cognito_user_pool" "main" {
     developer_only_attribute = false
     mutable                  = false
     name                     = "organization_id"
-    required                 = true
+    required                 = false
 
     string_attribute_constraints {
       min_length = 36

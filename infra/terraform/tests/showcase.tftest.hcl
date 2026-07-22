@@ -140,6 +140,14 @@ run "showcase_cost_guardrails" {
   }
 
   assert {
+    condition = one([
+      for attribute in aws_cognito_user_pool.main.schema : attribute
+      if attribute.name == "organization_id"
+    ]).required == false
+    error_message = "Cognito custom organization attributes must be optional in the pool schema and assigned by the trusted reviewer provisioner."
+  }
+
+  assert {
     condition     = aws_s3_bucket.documents.force_destroy
     error_message = "The showcase document bucket must support complete teardown after retention review."
   }
