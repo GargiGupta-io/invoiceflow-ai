@@ -97,10 +97,18 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("s3:PutBucketLifecycleConfiguration", actions)
         self.assertIn("cloudfront:CreateDistribution", actions)
         self.assertIn("cloudfront:UpdateDistribution", actions)
-        self.assertIn("elasticloadbalancing:CreateRule", actions)
+        self.assertIn("elasticloadbalancing:Create*", actions)
+        self.assertNotIn("elasticloadbalancing:*", actions)
         self.assertIn("iam:PassRole", actions)
         self.assertIn("ec2:Describe*", actions)
         self.assertIn("ec2:GetManagedPrefixListEntries", actions)
+        self.assertIn("ec2:CreateTags", actions)
+        self.assertIn("logs:ListTagsForResource", actions)
+        self.assertIn("cloudwatch:ListTagsForResource", actions)
+        self.assertIn("cloudwatch:TagResource", actions)
+        self.assertIn("rds:ListTagsForResource", actions)
+        self.assertIn("sns:SetTopicAttributes", actions)
+        self.assertIn("budgets:TagResource", actions)
         self.assertIn("s3:Get*Configuration", actions)
         self.assertIn("s3:PutEncryptionConfiguration", actions)
         self.assertIn("s3:PutLifecycleConfiguration", actions)
@@ -175,6 +183,47 @@ class AwsAccessPolicyTests(unittest.TestCase):
                 "aws:ResourceTag/Environment"
             ],
             "showcase",
+        )
+
+        load_balancer_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if "elasticloadbalancing:Create*" in statement["Action"]
+        )
+        self.assertTrue(
+            all(
+                "invoiceflow-showcase-" in resource
+                for resource in load_balancer_statement["Resource"]
+            )
+        )
+
+        create_tags_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if statement["Action"] == "ec2:CreateTags"
+        )
+        create_tag_conditions = create_tags_statement["Condition"]["StringEquals"]
+        self.assertEqual(
+            create_tag_conditions["aws:RequestTag/Application"], "invoiceflow"
+        )
+        self.assertEqual(
+            create_tag_conditions["aws:RequestTag/Environment"], "showcase"
+        )
+        self.assertEqual(
+            create_tag_conditions["aws:RequestTag/ManagedBy"], "Terraform"
+        )
+        self.assertEqual(
+            create_tag_conditions["ec2:CreateAction"],
+            [
+                "AllocateAddress",
+                "CreateInternetGateway",
+                "CreateNatGateway",
+                "CreateRouteTable",
+                "CreateSecurityGroup",
+                "CreateSubnet",
+                "CreateVpc",
+                "CreateVpcEndpoint",
+            ],
         )
 
     def test_task_boundary_caps_runtime_roles_to_invoiceflow_services(self) -> None:
