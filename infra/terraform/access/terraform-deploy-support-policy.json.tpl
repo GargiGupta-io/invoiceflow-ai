@@ -4,11 +4,12 @@
     {
       "Effect": "Allow",
       "Action": [
+        "apigateway:GET",
         "application-autoscaling:Describe*",
-        "cloudfront:ListDistributions",
         "cloudwatch:DescribeAlarms",
         "cloudwatch:ListTagsForResource",
         "cognito-idp:Describe*",
+        "cognito-idp:GetUserPoolMfaConfig",
         "cognito-idp:List*",
         "ec2:Describe*",
         "ec2:GetManagedPrefixListEntries",
