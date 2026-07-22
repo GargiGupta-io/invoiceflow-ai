@@ -24,23 +24,37 @@
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "cloudfront:CreateDistribution",
-        "cloudfront:TagResource"
+      "Action": "apigateway:POST",
+      "Resource": [
+        "arn:aws:apigateway:__AWS_REGION__::/apis",
+        "arn:aws:apigateway:__AWS_REGION__::/vpclinks"
       ],
-      "Resource": "*",
       "Condition": {
         "StringEquals": {
           "aws:RequestTag/Application": "__PROJECT_NAME__",
-          "aws:RequestTag/Environment": "__ENVIRONMENT__"
+          "aws:RequestTag/Environment": "__ENVIRONMENT__",
+          "aws:RequestTag/ManagedBy": "Terraform"
         }
       }
     },
     {
       "Effect": "Allow",
       "Action": [
+        "apigateway:PATCH",
+        "apigateway:POST"
+      ],
+      "Resource": [
+        "arn:aws:apigateway:__AWS_REGION__::/apis/*",
+        "arn:aws:apigateway:__AWS_REGION__::/tags/*",
+        "arn:aws:apigateway:__AWS_REGION__::/vpclinks/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
         "ec2:AuthorizeSecurityGroupEgress",
-        "ec2:AuthorizeSecurityGroupIngress"
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:CreateTags"
       ],
       "Resource": "arn:aws:ec2:__AWS_REGION__:__ACCOUNT_ID__:security-group-rule/*",
       "Condition": {
@@ -68,24 +82,6 @@
             "CreateVpc",
             "CreateVpcEndpoint"
           ]
-        }
-      }
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "cloudfront:GetDistribution",
-        "cloudfront:GetDistributionConfig",
-        "cloudfront:ListTagsForResource",
-        "cloudfront:TagResource",
-        "cloudfront:UntagResource",
-        "cloudfront:UpdateDistribution"
-      ],
-      "Resource": "arn:aws:cloudfront::__ACCOUNT_ID__:distribution/*",
-      "Condition": {
-        "StringEquals": {
-          "aws:ResourceTag/Application": "__PROJECT_NAME__",
-          "aws:ResourceTag/Environment": "__ENVIRONMENT__"
         }
       }
     },
@@ -316,6 +312,7 @@
             "ecs.amazonaws.com",
             "ecs.application-autoscaling.amazonaws.com",
             "elasticloadbalancing.amazonaws.com",
+            "ops.apigateway.amazonaws.com",
             "rds.amazonaws.com"
           ]
         }
