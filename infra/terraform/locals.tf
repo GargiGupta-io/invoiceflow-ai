@@ -3,14 +3,18 @@ locals {
   azs         = slice(data.aws_availability_zones.available.names, 0, 2)
   is_showcase = var.deployment_profile == "showcase"
 
-  uses_cloudfront_endpoint = var.public_endpoint_mode == "cloudfront"
+  uses_api_gateway_endpoint = var.public_endpoint_mode == "api_gateway"
+  uses_cloudfront_endpoint  = var.public_endpoint_mode == "cloudfront"
+  uses_managed_endpoint     = local.uses_api_gateway_endpoint || local.uses_cloudfront_endpoint
   public_base_url = local.uses_cloudfront_endpoint ? (
     "https://${aws_cloudfront_distribution.app[0].domain_name}"
+    ) : local.uses_api_gateway_endpoint ? (
+    aws_apigatewayv2_api.showcase[0].api_endpoint
   ) : "https://${var.application_domain_name}"
-  oauth_callback_urls = local.uses_cloudfront_endpoint ? [
+  oauth_callback_urls = local.uses_managed_endpoint ? [
     "${local.public_base_url}/reviewer/callback",
   ] : var.oauth_callback_urls
-  oauth_logout_urls = local.uses_cloudfront_endpoint ? [
+  oauth_logout_urls = local.uses_managed_endpoint ? [
     "${local.public_base_url}/reviewer/",
   ] : var.oauth_logout_urls
 
