@@ -80,7 +80,7 @@ resource "aws_lb_target_group" "api" {
 }
 
 resource "aws_lb_listener" "http" {
-  count = local.uses_cloudfront_endpoint ? 0 : 1
+  count = local.uses_managed_endpoint ? 0 : 1
 
   load_balancer_arn = aws_lb.api.arn
   port              = 80
@@ -98,7 +98,7 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_lb_listener" "https" {
-  count = local.uses_cloudfront_endpoint ? 0 : 1
+  count = local.uses_managed_endpoint ? 0 : 1
 
   load_balancer_arn = aws_lb.api.arn
   port              = 443
@@ -126,7 +126,7 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_lb_listener" "cloudfront_origin" {
-  count = local.uses_cloudfront_endpoint ? 1 : 0
+  count = local.uses_managed_endpoint ? 1 : 0
 
   load_balancer_arn = aws_lb.api.arn
   port              = 80
@@ -144,7 +144,7 @@ resource "aws_lb_listener" "cloudfront_origin" {
 }
 
 resource "aws_lb_listener_rule" "cloudfront_origin" {
-  count = local.uses_cloudfront_endpoint ? 1 : 0
+  count = local.uses_managed_endpoint ? 1 : 0
 
   listener_arn = aws_lb_listener.cloudfront_origin[0].arn
   priority     = 10
