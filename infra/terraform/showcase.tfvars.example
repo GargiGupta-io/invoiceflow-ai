@@ -6,10 +6,10 @@ aws_region         = "ap-south-1"
 # Must already exist as an administrator-owned IAM managed policy.
 task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
 
-# The showcase uses an AWS-provided *.cloudfront.net HTTPS endpoint, so no
-# purchased domain or ACM certificate is required. Terraform derives the
-# Cognito callback and logout URLs from the generated distribution domain.
-public_endpoint_mode = "cloudfront"
+# The showcase uses an AWS-provided execute-api HTTPS endpoint, so no purchased
+# domain or ACM certificate is required. API Gateway reaches the load balancer
+# through a VPC link, and Terraform derives the Cognito callback/logout URLs.
+public_endpoint_mode = "api_gateway"
 
 # The first apply creates zero-count services. Enable only after the image is
 # pushed and both migration and reviewer provisioning tasks succeed.
