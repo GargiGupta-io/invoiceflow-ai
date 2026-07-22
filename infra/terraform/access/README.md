@@ -25,7 +25,7 @@ python3.11 scripts/render_aws_access_policies.py \
 The generated `.aws-local/` directory is ignored by Git and each policy file is
 written with owner-only permissions.
 
-The renderer creates four documents:
+The renderer creates five documents:
 
 - `task-permissions-boundary-policy.json`: administrator-owned maximum
   permissions for every InvoiceFlow runtime role.
@@ -33,6 +33,9 @@ The renderer creates four documents:
   the deployment role.
 - `terraform-deploy-policy.json`: lets the assumed deployment role manage the
   resources declared by this stack.
+- `terraform-deploy-support-policy.json`: grants read-only discovery plus the
+  narrowly scoped KMS and Secrets Manager calls RDS needs when creating its
+  managed master-password secret.
 - `developer-assume-role-policy.json`: gives the developer user permission to
   assume only the InvoiceFlow deployment role.
 
@@ -49,10 +52,13 @@ the developer user an administrator and do not create an access key.
 3. On that role, create an inline permissions policy named
    `InvoiceFlowTerraformDeploy` from
    `.aws-local/terraform-deploy-policy.json`.
-4. On the `invoiceflow-developer` user, create an inline policy named
+4. On that role, create a second inline permissions policy named
+   `InvoiceFlowTerraformDeploySupport` from
+   `.aws-local/terraform-deploy-support-policy.json`.
+5. On the `invoiceflow-developer` user, create an inline policy named
    `InvoiceFlowAssumeTerraformRole` from
    `.aws-local/developer-assume-role-policy.json`.
-5. Sign out of the administrator session when those four changes are saved.
+6. Sign out of the administrator session when those five changes are saved.
 
 The role can manage only the AWS service families used by this Terraform stack.
 IAM writes are restricted to task roles beginning with
@@ -67,17 +73,19 @@ inline role policy cannot grant permissions beyond that boundary.
 
 ## Updating The Deployment Role
 
-Re-render and replace the role's existing inline policy whenever the tracked
-Terraform stack adds an AWS resource type. Do not create a second overlapping
-policy.
+Re-render and replace both deployment-role inline policies whenever the tracked
+Terraform stack adds an AWS resource type. Keep write operations in the core
+policy and discovery or service-integration permissions in the support policy.
 
-1. Render `.aws-local/terraform-deploy-policy.json` with the current account
+1. Render `.aws-local/terraform-deploy-policy.json` and
+   `.aws-local/terraform-deploy-support-policy.json` with the current account
    and environment values.
 2. Open IAM -> Roles -> `InvoiceFlowTerraformDeployRole` -> Permissions.
 3. Expand `InvoiceFlowTerraformDeploy`, choose **Edit**, and open the JSON tab.
 4. Replace the existing document with the newly rendered file, review the
    summary, and save.
-5. Confirm the role still has only this project policy, then run a plan without
+5. Repeat for `InvoiceFlowTerraformDeploySupport` using the support policy.
+6. Confirm the role has only these two project policies, then run a plan without
    applying it.
 
 The domain-free showcase update adds only the CloudFront distribution actions
