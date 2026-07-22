@@ -7,6 +7,7 @@
         "application-autoscaling:Describe*",
         "cloudfront:ListDistributions",
         "cloudwatch:DescribeAlarms",
+        "cloudwatch:ListTagsForResource",
         "cognito-idp:Describe*",
         "cognito-idp:List*",
         "ec2:Describe*",
@@ -19,12 +20,13 @@
         "elasticloadbalancing:Describe*",
         "iam:GetRole",
         "iam:GetRolePolicy",
-        "iam:ListAttachedRolePolicies",
-        "iam:ListRolePolicies",
+        "iam:List*",
         "lambda:Get*",
         "lambda:ListTags",
         "logs:DescribeLogGroups",
+        "logs:ListTagsForResource",
         "rds:Describe*",
+        "rds:ListTagsForResource",
         "s3:ListAllMyBuckets",
         "secretsmanager:DescribeSecret",
         "sns:Get*",
@@ -67,6 +69,28 @@
         "StringEquals": {
           "aws:RequestTag/Application": "__PROJECT_NAME__",
           "aws:RequestTag/Environment": "__ENVIRONMENT__"
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ec2:CreateTags",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestTag/Application": "__PROJECT_NAME__",
+          "aws:RequestTag/Environment": "__ENVIRONMENT__",
+          "aws:RequestTag/ManagedBy": "Terraform",
+          "ec2:CreateAction": [
+            "AllocateAddress",
+            "CreateInternetGateway",
+            "CreateNatGateway",
+            "CreateRouteTable",
+            "CreateSecurityGroup",
+            "CreateSubnet",
+            "CreateVpc",
+            "CreateVpcEndpoint"
+          ]
         }
       }
     },
@@ -274,23 +298,11 @@
       "Effect": "Allow",
       "Action": [
         "elasticloadbalancing:AddTags",
-        "elasticloadbalancing:CreateListener",
-        "elasticloadbalancing:CreateLoadBalancer",
-        "elasticloadbalancing:CreateRule",
-        "elasticloadbalancing:CreateTargetGroup",
-        "elasticloadbalancing:DeleteListener",
-        "elasticloadbalancing:DeleteLoadBalancer",
-        "elasticloadbalancing:DeleteRule",
-        "elasticloadbalancing:DeleteTargetGroup",
-        "elasticloadbalancing:ModifyListener",
-        "elasticloadbalancing:ModifyLoadBalancerAttributes",
-        "elasticloadbalancing:ModifyRule",
-        "elasticloadbalancing:ModifyTargetGroup",
-        "elasticloadbalancing:ModifyTargetGroupAttributes",
+        "elasticloadbalancing:Create*",
+        "elasticloadbalancing:Delete*",
+        "elasticloadbalancing:Modify*",
         "elasticloadbalancing:RemoveTags",
-        "elasticloadbalancing:SetSecurityGroups",
-        "elasticloadbalancing:SetRulePriorities",
-        "elasticloadbalancing:SetSubnets"
+        "elasticloadbalancing:Set*"
       ],
       "Resource": [
         "arn:aws:elasticloadbalancing:__AWS_REGION__:__ACCOUNT_ID__:loadbalancer/app/__RESOURCE_PREFIX__-*/*",
@@ -420,7 +432,9 @@
       "Effect": "Allow",
       "Action": [
         "cloudwatch:DeleteAlarms",
+        "cloudwatch:TagResource",
         "cloudwatch:PutMetricAlarm",
+        "cloudwatch:UntagResource",
         "logs:CreateLogGroup",
         "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy",
@@ -428,6 +442,7 @@
         "logs:UntagResource",
         "sns:CreateTopic",
         "sns:DeleteTopic",
+        "sns:SetTopicAttributes",
         "sns:Subscribe",
         "sns:TagResource",
         "sns:UntagResource"
@@ -464,6 +479,8 @@
       "Effect": "Allow",
       "Action": [
         "budgets:ModifyBudget",
+        "budgets:TagResource",
+        "budgets:UntagResource",
         "budgets:ViewBudget"
       ],
       "Resource": "*"
