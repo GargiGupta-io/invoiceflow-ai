@@ -74,7 +74,6 @@
     {
       "Effect": "Allow",
       "Action": [
-        "cloudfront:DeleteDistribution",
         "cloudfront:GetDistribution",
         "cloudfront:GetDistributionConfig",
         "cloudfront:ListTagsForResource",
@@ -122,16 +121,7 @@
         "ec2:CreateSubnet",
         "ec2:CreateTags",
         "ec2:CreateVpcEndpoint",
-        "ec2:DeleteInternetGateway",
-        "ec2:DeleteRoute",
-        "ec2:DeleteRouteTable",
-        "ec2:DeleteSecurityGroup",
-        "ec2:DeleteSubnet",
         "ec2:DeleteTags",
-        "ec2:DeleteVpc",
-        "ec2:DeleteVpcEndpoints",
-        "ec2:DetachInternetGateway",
-        "ec2:DisassociateRouteTable",
         "ec2:ModifySubnetAttribute",
         "ec2:ModifyVpcAttribute",
         "ec2:ModifyVpcEndpoint",
@@ -151,10 +141,6 @@
       "Effect": "Allow",
       "Action": [
         "s3:CreateBucket",
-        "s3:DeleteBucket",
-        "s3:DeleteBucketPolicy",
-        "s3:DeleteObject",
-        "s3:DeleteObjectVersion",
         "s3:PutBucketOwnershipControls",
         "s3:PutBucketPolicy",
         "s3:PutBucketPublicAccessBlock",
@@ -194,7 +180,6 @@
       "Effect": "Allow",
       "Action": [
         "sqs:CreateQueue",
-        "sqs:DeleteQueue",
         "sqs:SetQueueAttributes",
         "sqs:TagQueue",
         "sqs:UntagQueue"
@@ -207,8 +192,6 @@
         "rds:AddTagsToResource",
         "rds:CreateDBInstance",
         "rds:CreateDBSubnetGroup",
-        "rds:DeleteDBInstance",
-        "rds:DeleteDBSubnetGroup",
         "rds:ModifyDBInstance",
         "rds:ModifyDBSubnetGroup",
         "rds:RemoveTagsFromResource"
@@ -222,8 +205,6 @@
       "Effect": "Allow",
       "Action": [
         "ecr:CreateRepository",
-        "ecr:DeleteLifecyclePolicy",
-        "ecr:DeleteRepository",
         "ecr:PutImageScanningConfiguration",
         "ecr:PutImageTagMutability",
         "ecr:PutLifecyclePolicy",
@@ -237,8 +218,6 @@
       "Action": [
         "ecs:CreateCluster",
         "ecs:CreateService",
-        "ecs:DeleteCluster",
-        "ecs:DeleteService",
         "ecs:TagResource",
         "ecs:UntagResource",
         "ecs:UpdateClusterSettings",
@@ -249,11 +228,6 @@
         "arn:aws:ecs:__AWS_REGION__:__ACCOUNT_ID__:service/__RESOURCE_PREFIX__*/*",
         "arn:aws:ecs:__AWS_REGION__:__ACCOUNT_ID__:task-definition/__RESOURCE_PREFIX__-*:*"
       ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ecs:DeregisterTaskDefinition",
-      "Resource": "*"
     },
     {
       "Effect": "Allow",
@@ -275,7 +249,6 @@
       "Action": [
         "elasticloadbalancing:AddTags",
         "elasticloadbalancing:Create*",
-        "elasticloadbalancing:Delete*",
         "elasticloadbalancing:Modify*",
         "elasticloadbalancing:RemoveTags",
         "elasticloadbalancing:Set*"
@@ -300,8 +273,6 @@
     {
       "Effect": "Allow",
       "Action": [
-        "iam:DeleteRole",
-        "iam:DeleteRolePolicy",
         "iam:PutRolePolicy",
         "iam:TagRole",
         "iam:UntagRole",
@@ -311,10 +282,7 @@
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "iam:AttachRolePolicy",
-        "iam:DetachRolePolicy"
-      ],
+      "Action": "iam:AttachRolePolicy",
       "Resource": "arn:aws:iam::__ACCOUNT_ID__:role/__RESOURCE_PREFIX__-*",
       "Condition": {
         "ArnEquals": {
@@ -358,8 +326,6 @@
       "Action": [
         "lambda:AddPermission",
         "lambda:CreateFunction",
-        "lambda:DeleteFunction",
-        "lambda:RemovePermission",
         "lambda:TagResource",
         "lambda:UntagResource",
         "lambda:UpdateFunctionCode",
@@ -385,10 +351,6 @@
         "cognito-idp:CreateResourceServer",
         "cognito-idp:CreateUserPoolClient",
         "cognito-idp:CreateUserPoolDomain",
-        "cognito-idp:DeleteResourceServer",
-        "cognito-idp:DeleteUserPool",
-        "cognito-idp:DeleteUserPoolClient",
-        "cognito-idp:DeleteUserPoolDomain",
         "cognito-idp:TagResource",
         "cognito-idp:UntagResource",
         "cognito-idp:UpdateResourceServer",
@@ -407,17 +369,14 @@
     {
       "Effect": "Allow",
       "Action": [
-        "cloudwatch:DeleteAlarms",
         "cloudwatch:TagResource",
         "cloudwatch:PutMetricAlarm",
         "cloudwatch:UntagResource",
         "logs:CreateLogGroup",
-        "logs:DeleteLogGroup",
         "logs:PutRetentionPolicy",
         "logs:TagResource",
         "logs:UntagResource",
         "sns:CreateTopic",
-        "sns:DeleteTopic",
         "sns:SetTopicAttributes",
         "sns:Subscribe",
         "sns:TagResource",
@@ -433,14 +392,7 @@
     },
     {
       "Effect": "Allow",
-      "Action": "sns:Unsubscribe",
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
       "Action": [
-        "application-autoscaling:DeleteScalingPolicy",
-        "application-autoscaling:DeregisterScalableTarget",
         "application-autoscaling:PutScalingPolicy",
         "application-autoscaling:RegisterScalableTarget"
       ],
