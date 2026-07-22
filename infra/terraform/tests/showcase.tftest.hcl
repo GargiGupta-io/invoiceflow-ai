@@ -72,7 +72,7 @@ run "showcase_cost_guardrails" {
   variables {
     deployment_profile   = "showcase"
     environment          = "showcase"
-    public_endpoint_mode = "cloudfront"
+    public_endpoint_mode = "api_gateway"
     container_image_tag  = "abcdef123456"
     services_enabled     = true
     api_desired_count    = 1
@@ -82,25 +82,34 @@ run "showcase_cost_guardrails" {
 
   assert {
     condition = (
-      length(aws_cloudfront_distribution.app) == 1 &&
+      length(aws_cloudfront_distribution.app) == 0 &&
+      length(aws_apigatewayv2_api.showcase) == 1 &&
+      length(aws_apigatewayv2_vpc_link.showcase) == 1 &&
+      length(aws_apigatewayv2_integration.showcase) == 1 &&
+      length(aws_apigatewayv2_route.showcase) == 1 &&
+      length(aws_apigatewayv2_stage.showcase) == 1 &&
       length(aws_lb_listener.cloudfront_origin) == 1 &&
       length(aws_lb_listener_rule.cloudfront_origin) == 1 &&
       length(aws_lb_listener.https) == 0 &&
-      length(aws_vpc_security_group_ingress_rule.alb_cloudfront_http) == 1 &&
+      length(aws_vpc_security_group_ingress_rule.alb_cloudfront_http) == 0 &&
+      length(aws_vpc_security_group_ingress_rule.alb_api_gateway_http) == 1 &&
+      length(aws_vpc_security_group_egress_rule.api_gateway_to_alb) == 1 &&
       length(aws_vpc_security_group_ingress_rule.alb_http) == 0 &&
       length(aws_vpc_security_group_ingress_rule.alb_https) == 0
     )
-    error_message = "The domain-free showcase must expose only the CloudFront-restricted HTTP origin."
+    error_message = "The domain-free showcase must expose only the API Gateway VPC-link path to the guarded HTTP origin."
   }
 
   assert {
     condition = (
-      aws_cloudfront_distribution.app[0].viewer_certificate[0].cloudfront_default_certificate &&
-      aws_cloudfront_distribution.app[0].default_cache_behavior[0].cache_policy_id == "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" &&
-      aws_cloudfront_distribution.app[0].default_cache_behavior[0].origin_request_policy_id == "b689b0a8-53d0-40ab-baf2-68738e2966ac" &&
+      !aws_apigatewayv2_api.showcase[0].disable_execute_api_endpoint &&
+      aws_apigatewayv2_integration.showcase[0].connection_type == "VPC_LINK" &&
+      aws_apigatewayv2_integration.showcase[0].integration_type == "HTTP_PROXY" &&
+      aws_apigatewayv2_stage.showcase[0].default_route_settings[0].throttling_burst_limit == 20 &&
+      aws_apigatewayv2_stage.showcase[0].default_route_settings[0].throttling_rate_limit == 10 &&
       aws_lb_listener.cloudfront_origin[0].default_action[0].fixed_response[0].status_code == "403"
     )
-    error_message = "CloudFront must supply viewer TLS, disable caching, forward authenticated requests, and deny direct origin access."
+    error_message = "API Gateway must supply viewer TLS, use the VPC link, preserve the guarded origin, and enforce demo throttles."
   }
 
   assert {
@@ -179,9 +188,12 @@ run "production_security_defaults" {
   assert {
     condition = (
       length(aws_cloudfront_distribution.app) == 0 &&
+      length(aws_apigatewayv2_api.showcase) == 0 &&
+      length(aws_apigatewayv2_vpc_link.showcase) == 0 &&
       length(aws_lb_listener.cloudfront_origin) == 0 &&
       length(aws_lb_listener.https) == 1 &&
       length(aws_vpc_security_group_ingress_rule.alb_cloudfront_http) == 0 &&
+      length(aws_vpc_security_group_ingress_rule.alb_api_gateway_http) == 0 &&
       length(aws_vpc_security_group_ingress_rule.alb_http) == 1 &&
       length(aws_vpc_security_group_ingress_rule.alb_https) == 1
     )
