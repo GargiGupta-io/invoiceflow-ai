@@ -123,6 +123,13 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("ec2:DeleteNatGateway", actions)
         self.assertNotIn("ec2:DisassociateAddress", actions)
         self.assertNotIn("ec2:ReleaseAddress", actions)
+        self.assertNotIn("ec2:DeleteVpc", actions)
+        self.assertNotIn("s3:DeleteBucket", actions)
+        self.assertNotIn("rds:DeleteDBInstance", actions)
+        self.assertNotIn("ecs:DeleteService", actions)
+        self.assertNotIn("iam:DeleteRole", actions)
+        self.assertNotIn("lambda:DeleteFunction", actions)
+        self.assertNotIn("cognito-idp:DeleteUserPool", actions)
 
         security_group_rule_statement = next(
             statement
@@ -329,9 +336,12 @@ class AwsAccessPolicyTests(unittest.TestCase):
             documents["terraform-deploy-policy.json"],
             documents["terraform-deploy-support-policy.json"],
         ]
+        aggregate_size = 0
         for policy in deployment_policies:
             compact_policy = json.dumps(policy, separators=(",", ":"))
             self.assertLessEqual(len(compact_policy), 10_240)
+            aggregate_size += len(compact_policy)
+        self.assertLessEqual(aggregate_size, 10_240)
 
     def test_rendered_policy_files_are_owner_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
