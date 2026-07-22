@@ -1,10 +1,10 @@
 resource "random_id" "cloudfront_origin_header_name" {
-  count       = local.uses_cloudfront_endpoint ? 1 : 0
+  count       = local.uses_managed_endpoint ? 1 : 0
   byte_length = 8
 }
 
 resource "random_password" "cloudfront_origin_header_value" {
-  count   = local.uses_cloudfront_endpoint ? 1 : 0
+  count   = local.uses_managed_endpoint ? 1 : 0
   length  = 48
   special = false
 }
