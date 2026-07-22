@@ -4,8 +4,13 @@ output "api_url" {
 }
 
 output "public_endpoint_mode" {
-  description = "Whether this stack uses the generated CloudFront URL or a custom-domain ALB certificate."
+  description = "Whether this stack uses API Gateway, CloudFront, or a custom-domain ALB certificate."
   value       = var.public_endpoint_mode
+}
+
+output "api_gateway_api_id" {
+  description = "Domain-free showcase HTTP API ID, or null in other endpoint modes."
+  value       = try(aws_apigatewayv2_api.showcase[0].id, null)
 }
 
 output "cloudfront_distribution_id" {
@@ -14,7 +19,7 @@ output "cloudfront_distribution_id" {
 }
 
 output "load_balancer_dns_name" {
-  description = "Origin DNS name. Direct access is blocked when CloudFront mode is active."
+  description = "Origin DNS name. Direct access is blocked when a managed showcase endpoint is active."
   value       = aws_lb.api.dns_name
 }
 
