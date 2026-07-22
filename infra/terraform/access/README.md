@@ -67,6 +67,11 @@ IAM writes are restricted to task roles beginning with
 users, access keys, or additional managed policies. The developer user receives
 only permission to assume this one deployment role.
 
+The default deployment role intentionally excludes stack-destruction actions.
+This keeps routine plans and applies from deleting showcase infrastructure.
+A future teardown must use a separately reviewed, temporary administrator
+elevation and remove that elevation immediately after the approved destroy.
+
 The boundary caps the resulting API, worker, execution, provisioner, and
 Cognito hook roles to the runtime services InvoiceFlow needs. Updating an
 inline role policy cannot grant permissions beyond that boundary.
@@ -124,6 +129,8 @@ running Terraform.
   Terraform applies it only as a boundary on runtime roles.
 - Never paste generated policy files into issues, logs, or screenshots.
 - Never run Terraform as the root account.
+- Never add deletion actions to the normal deployment policies as a shortcut;
+  authorize teardown separately and temporarily.
 - Never run `terraform apply` while reviewing Step 20C.
 - Never use the generated CloudFront origin-header value in logs, screenshots,
   or support messages. It is a bearer secret stored in Terraform state.
