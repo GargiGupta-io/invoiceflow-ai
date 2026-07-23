@@ -222,6 +222,7 @@
       "Action": [
         "ecs:CreateCluster",
         "ecs:CreateService",
+        "ecs:RunTask",
         "ecs:TagResource",
         "ecs:UntagResource",
         "ecs:UpdateClusterSettings",
