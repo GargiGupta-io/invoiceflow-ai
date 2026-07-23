@@ -203,12 +203,17 @@
     {
       "Effect": "Allow",
       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:CompleteLayerUpload",
         "ecr:CreateRepository",
+        "ecr:InitiateLayerUpload",
+        "ecr:PutImage",
         "ecr:PutImageScanningConfiguration",
         "ecr:PutImageTagMutability",
         "ecr:PutLifecyclePolicy",
         "ecr:TagResource",
-        "ecr:UntagResource"
+        "ecr:UntagResource",
+        "ecr:UploadLayerPart"
       ],
       "Resource": "arn:aws:ecr:__AWS_REGION__:__ACCOUNT_ID__:repository/__RESOURCE_PREFIX__*"
     },
