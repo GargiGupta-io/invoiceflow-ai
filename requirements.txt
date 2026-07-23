@@ -12,6 +12,5 @@ pypdf
 pdfplumber
 pytesseract
 pillow
-chromadb
 openai
 jinja2
