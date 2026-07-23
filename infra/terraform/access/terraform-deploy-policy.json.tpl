@@ -41,11 +41,14 @@
       "Effect": "Allow",
       "Action": [
         "apigateway:PATCH",
-        "apigateway:POST"
+        "apigateway:POST",
+        "apigateway:TagResource"
       ],
       "Resource": [
+        "arn:aws:apigateway:__AWS_REGION__::/apis",
         "arn:aws:apigateway:__AWS_REGION__::/apis/*",
         "arn:aws:apigateway:__AWS_REGION__::/tags/*",
+        "arn:aws:apigateway:__AWS_REGION__::/vpclinks",
         "arn:aws:apigateway:__AWS_REGION__::/vpclinks/*"
       ]
     },
