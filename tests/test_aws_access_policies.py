@@ -114,6 +114,10 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("ecr:InitiateLayerUpload", actions)
         self.assertIn("ecr:PutImage", actions)
         self.assertIn("ecr:UploadLayerPart", actions)
+        self.assertIn("ecs:RunTask", actions)
+        self.assertIn("logs:DescribeLogStreams", actions)
+        self.assertIn("logs:FilterLogEvents", actions)
+        self.assertIn("logs:GetLogEvents", actions)
         self.assertIn("logs:ListTagsForResource", actions)
         self.assertIn("cloudwatch:ListTagsForResource", actions)
         self.assertIn("cloudwatch:TagResource", actions)
@@ -253,6 +257,17 @@ class AwsAccessPolicyTests(unittest.TestCase):
                 "arn:aws:apigateway:ap-south-1::/vpclinks",
                 "arn:aws:apigateway:ap-south-1::/vpclinks/*",
             ],
+        )
+
+        run_task_statement = next(
+            statement
+            for statement in policy["Statement"]
+            if isinstance(statement["Action"], list)
+            and "ecs:RunTask" in statement["Action"]
+        )
+        self.assertIn(
+            "arn:aws:ecs:ap-south-1:123456789012:task-definition/invoiceflow-showcase-*:*",
+            run_task_statement["Resource"],
         )
 
         service_linked_role_statement = next(
