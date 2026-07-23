@@ -5,7 +5,7 @@ data "aws_ec2_managed_prefix_list" "cloudfront_origin" {
 
 resource "aws_security_group" "alb" {
   name        = "${local.name_prefix}-alb"
-  description = "InvoiceFlow public entry or managed HTTPS origin"
+  description = "InvoiceFlow public entry or CloudFront origin"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${local.name_prefix}-alb" }
