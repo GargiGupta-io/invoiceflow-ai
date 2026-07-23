@@ -101,6 +101,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertIn("apigateway:GET", actions)
         self.assertIn("apigateway:PATCH", actions)
         self.assertIn("apigateway:POST", actions)
+        self.assertIn("apigateway:TagResource", actions)
         self.assertIn("elasticloadbalancing:Create*", actions)
         self.assertNotIn("elasticloadbalancing:*", actions)
         self.assertIn("iam:PassRole", actions)
@@ -241,8 +242,10 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertEqual(
             manage_api_gateway_statement["Resource"],
             [
+                "arn:aws:apigateway:ap-south-1::/apis",
                 "arn:aws:apigateway:ap-south-1::/apis/*",
                 "arn:aws:apigateway:ap-south-1::/tags/*",
+                "arn:aws:apigateway:ap-south-1::/vpclinks",
                 "arn:aws:apigateway:ap-south-1::/vpclinks/*",
             ],
         )
