@@ -148,6 +148,9 @@ class SQSProcessingQueueTests(unittest.TestCase):
         self.assertEqual(call.args, ("sqs",))
         self.assertEqual(call.kwargs["region_name"], "eu-west-1")
         self.assertEqual(call.kwargs["endpoint_url"], "http://localhost:4566")
+        client_config = call.kwargs["config"]
+        self.assertEqual(client_config.connect_timeout, 5)
+        self.assertGreater(client_config.read_timeout, settings.sqs_wait_time_seconds)
 
     def test_processing_message_round_trips_through_strict_schema(self) -> None:
         parsed = ProcessingMessage.from_body(self.message.to_body())

@@ -26,13 +26,14 @@ class SQSProcessingQueue:
     def from_settings(cls, settings: Settings) -> SQSProcessingQueue:
         if not settings.sqs_configured:
             raise ValueError("SQS processing queue is not configured.")
+        read_timeout_seconds = max(25, settings.sqs_wait_time_seconds + 5)
         client = boto3.client(
             "sqs",
             region_name=settings.aws_region,
             endpoint_url=settings.aws_endpoint_url or None,
             config=Config(
                 connect_timeout=5,
-                read_timeout=10,
+                read_timeout=read_timeout_seconds,
                 retries={"mode": "standard", "max_attempts": 4},
             ),
         )
