@@ -164,6 +164,7 @@ resource "aws_lb_listener_rule" "cloudfront_origin" {
 
 resource "aws_ecs_task_definition" "api" {
   family                   = "${local.name_prefix}-api"
+  skip_destroy             = true
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "512"
@@ -228,6 +229,7 @@ resource "aws_ecs_task_definition" "api" {
 
 resource "aws_ecs_task_definition" "worker" {
   family                   = "${local.name_prefix}-worker"
+  skip_destroy             = true
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "1024"
@@ -275,6 +277,7 @@ resource "aws_ecs_task_definition" "worker" {
 
 resource "aws_ecs_task_definition" "migration" {
   family                   = "${local.name_prefix}-migration"
+  skip_destroy             = true
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -305,6 +308,7 @@ resource "aws_ecs_task_definition" "migration" {
 
 resource "aws_ecs_task_definition" "provisioner" {
   family                   = "${local.name_prefix}-provisioner"
+  skip_destroy             = true
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
