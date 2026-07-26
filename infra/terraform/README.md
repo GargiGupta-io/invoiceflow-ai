@@ -1,16 +1,19 @@
 # InvoiceFlow AWS Infrastructure
 
 This directory defines the production-shaped Version 2 AWS foundation. It is
-validated infrastructure code. The private Terraform state backend is
-provisioned, but the 93-resource InvoiceFlow application plan has not been
-applied.
+validated and applied infrastructure code. The synthetic showcase runs from a
+private, remote-backed Terraform state in `ap-south-1`; a post-deployment plan
+reports no drift.
 
 ## What It Creates
 
 - A two-availability-zone VPC
-- Public subnets for an Application Load Balancer
-- An AWS-provided CloudFront HTTPS endpoint for the domain-free showcase
-- Private application subnets for production API, worker, and migration tasks
+- Public subnets for production load balancing, showcase runtime egress, and
+  optional NAT gateways
+- An AWS-provided API Gateway HTTPS endpoint for the applied domain-free
+  showcase
+- Private application subnets for the showcase internal load balancer and
+  production API, worker, and migration tasks
 - Isolated database subnets for RDS PostgreSQL
 - Zero, one, or two NAT gateways, depending on the deployment profile
 - A private encrypted and versioned S3 document bucket
@@ -31,8 +34,9 @@ applied.
 
 ```text
 Internet
-   -> HTTPS CloudFront endpoint (domain-free showcase)
-      -> restricted HTTP Application Load Balancer origin (public subnets)
+   -> HTTPS API Gateway endpoint (applied domain-free showcase)
+      -> VPC link
+      -> internal HTTP Application Load Balancer (application subnets)
       -> FastAPI tasks (private in production; public egress in showcase)
          -> RDS PostgreSQL (isolated database subnets)
          -> private S3 bucket
@@ -51,12 +55,12 @@ traffic is still accepted only from the load balancer security group. RDS is
 isolated and private in both profiles. PostgreSQL accepts port 5432 only from
 the Fargate task security group.
 
-The domain-free showcase gives users HTTPS through the AWS-managed
-`*.cloudfront.net` certificate. CloudFront reaches the load balancer over HTTP,
-so this mode is limited to synthetic portfolio data. Direct origin requests
-are restricted to the CloudFront origin-facing managed prefix list and receive
-`403` unless they also contain a generated secret header. The secret is stored
-only in sensitive Terraform state and the CloudFront origin configuration.
+The applied domain-free showcase gives users HTTPS through the AWS-managed
+API Gateway endpoint. API Gateway reaches the internal load balancer through a
+VPC link, so the HTTP origin is not publicly routable. This profile is still
+limited to synthetic portfolio data because it trades production redundancy
+for lower showcase cost. The optional CloudFront endpoint mode remains
+available for synthetic environments, but it is not the applied path.
 
 The `production` profile uses `custom_domain` mode instead: HTTP redirects to
 an HTTPS load-balancer listener backed by the supplied ACM certificate. Use
@@ -433,7 +437,8 @@ because S3 cannot remove PostgreSQL extraction, review, or evidence records.
 
 - provisions no NAT gateway;
 - runs one API task and one worker when services are enabled;
-- caps API autoscaling at the configured desired count;
+- creates no API autoscaling target or policy, keeping capacity fixed at the
+  configured desired count;
 - uses single-AZ private RDS with one day of backups and no Performance Insights;
 - disables Container Insights;
 - uses seven-day document and log retention in the example file; and
@@ -449,10 +454,11 @@ gateway. One NAT gateway is a network availability compromise. Set
 `single_nat_gateway = false` for one gateway per availability zone.
 
 The main recurring credit consumers are Fargate tasks, the load balancer, RDS,
-CloudFront traffic and requests, the Cognito Plus tier used for access-token
-customization and advanced security, CloudWatch, public IPv4 addresses, and
-data transfer. Production also adds NAT gateway hourly and data-processing
-usage. Run `terraform plan` and use the AWS Pricing Calculator before applying.
+API Gateway requests, the Cognito Plus tier used for access-token customization
+and advanced security, CloudWatch, public IPv4 addresses on showcase tasks, and
+data transfer. A selected CloudFront mode adds its traffic and request costs.
+Production also adds NAT gateway hourly and data-processing usage. Run
+`terraform plan` and use the AWS Pricing Calculator before applying.
 
 The reviewed showcase estimate uses these current `ap-south-1` rates: USD
 0.021 per RDS `db.t4g.micro` hour, USD 0.131 per RDS GP3 GB-month, USD 0.0239
