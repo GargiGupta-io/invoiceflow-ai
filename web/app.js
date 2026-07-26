@@ -47,15 +47,19 @@ const resultsPanel = document.querySelector(".results-panel");
 const entryWorkflowState = document.getElementById("entry-workflow-state");
 const entryWorkflowDetail = document.getElementById("entry-workflow-detail");
 const entrySampleCount = document.getElementById("entry-sample-count");
+const entryAuditLabel = document.getElementById("entry-audit-label");
 const entryAuditState = document.getElementById("entry-audit-state");
 const entryAuditDetail = document.getElementById("entry-audit-detail");
 const entryCaseDesk = document.getElementById("entry-case-desk");
 const entryCaseParty = document.getElementById("entry-case-party");
 const entryCaseAmount = document.getElementById("entry-case-amount");
 const entryCaseRecommendation = document.getElementById("entry-case-recommendation");
+const entryDecisionLabel = document.getElementById("entry-decision-label");
 const entryDecisionRecommendation = document.getElementById("entry-decision-recommendation");
 const entryDecisionEvidence = document.getElementById("entry-decision-evidence");
+const entryDecisionEvidenceDetail = document.getElementById("entry-decision-evidence-detail");
 const entryDecisionReview = document.getElementById("entry-decision-review");
+const entryDecisionReviewDetail = document.getElementById("entry-decision-review-detail");
 const entryTimelineExtract = document.getElementById("entry-timeline-extract");
 const entryTimelinePolicy = document.getElementById("entry-timeline-policy");
 const entryTimelineDecision = document.getElementById("entry-timeline-decision");
@@ -195,6 +199,9 @@ uploadForm.addEventListener("submit", async (event) => {
   setStatus(uploadStatus, "Uploading", "running");
   setUploadGuidance("Uploading and parsing the document. If OCR is needed, use the text fallback because OCR is not configured in this preview.", false);
   showLoadingCue(buildLoadingStages(`Uploading ${workflowHint.toUpperCase()} file`));
+  entryAuditLabel.textContent = "Latest Decision";
+  entryAuditState.textContent = "In progress";
+  entryAuditDetail.textContent = "Waiting for recommendation, evidence, review gate, and latency.";
   try {
     const response = await fetch("/workflow/upload", {
       method: "POST",
@@ -217,6 +224,7 @@ uploadForm.addEventListener("submit", async (event) => {
     setUploadGuidance(friendlyError, true);
     entryWorkflowState.textContent = "Upload needs attention";
     entryWorkflowDetail.textContent = friendlyError;
+    entryAuditLabel.textContent = "Latest Decision";
     entryAuditState.textContent = "No result generated";
     entryAuditDetail.textContent = "Try a text-based PDF, .txt file, .md file, or one of the sample cases.";
     rawJson.textContent = friendlyError;
@@ -312,16 +320,23 @@ function resetHomeState() {
   } else {
     entryWorkflowDetail.textContent = "Run a sample or upload a finance document to start a reviewed workflow.";
   }
-  entryAuditState.textContent = "No run yet";
-  entryAuditDetail.textContent = "The last recommendation, review gate, evidence count, and latency appear here.";
+  entryAuditLabel.textContent = "AWS included";
+  entryAuditState.textContent = "Cloud workflow ready";
+  entryAuditDetail.textContent = "Private S3, SQS, Fargate, and PostgreSQL keep documents, processing jobs, decisions, and audit history durable.";
 
   entryCaseDesk.textContent = "AP invoice or AR follow-up";
   entryCaseParty.textContent = "Vendor, customer, amount";
   entryCaseAmount.textContent = "Policy + risk signals";
   entryCaseRecommendation.textContent = "Approve, review, or follow up";
-  entryDecisionRecommendation.textContent = "Evidence first";
-  entryDecisionEvidence.textContent = "Policy";
-  entryDecisionReview.textContent = "Human";
+  entryDecisionLabel.textContent = "AWS workflow";
+  entryDecisionRecommendation.textContent = "Durable processing";
+  entryDecisionEvidence.textContent = "Private S3";
+  entryDecisionEvidenceDetail.textContent = "document storage";
+  entryDecisionReview.textContent = "SQS";
+  entryDecisionReviewDetail.textContent = "processing queue";
+  entryTimelineExtract.textContent = "Fargate";
+  entryTimelinePolicy.textContent = "PostgreSQL";
+  entryTimelineDecision.textContent = "Audit";
   markTimelineStep(entryTimelineExtract, false, false);
   markTimelineStep(entryTimelinePolicy, false, false);
   markTimelineStep(entryTimelineDecision, false, false);
@@ -784,6 +799,7 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
   showLoadingCue(buildLoadingStages(`Reading ${sampleFamily} sample`));
   entryWorkflowState.textContent = "Running sample";
   entryWorkflowDetail.textContent = `Processing ${sampleName} through extraction, retrieval, validation, and decisioning.`;
+  entryAuditLabel.textContent = "Latest Decision";
   entryAuditState.textContent = "In progress";
   entryAuditDetail.textContent = "Waiting for recommendation, evidence, review gate, and latency.";
 
@@ -810,6 +826,7 @@ async function runSampleWorkflow(sampleId, extractorMode, triggerButton = null) 
     setStatus(sampleStatus, "Run failed", "error");
     entryWorkflowState.textContent = "Sample failed";
     entryWorkflowDetail.textContent = `${sampleName} could not complete.`;
+    entryAuditLabel.textContent = "Latest Decision";
     entryAuditState.textContent = "Run failed";
     entryAuditDetail.textContent = formatError(error);
     rawJson.textContent = formatError(error);
@@ -1260,6 +1277,7 @@ function updateEntryRunSummary(workflow, finalDecision, evidence, audit, extract
 
   entryWorkflowState.textContent = workflowName;
   entryWorkflowDetail.textContent = `Current workflow finished with ${formattedDecision.toLowerCase()}.`;
+  entryAuditLabel.textContent = "Latest Decision";
   entryAuditState.textContent = `${formattedDecision} | ${review}`;
   entryAuditDetail.textContent = `${evidence.length} evidence sources | ${latency}`;
 
@@ -1267,9 +1285,15 @@ function updateEntryRunSummary(workflow, finalDecision, evidence, audit, extract
   entryCaseParty.textContent = party || "Unknown party";
   entryCaseAmount.textContent = amount || "Amount not found";
   entryCaseRecommendation.textContent = formattedDecision;
+  entryDecisionLabel.textContent = "Decision output";
   entryDecisionRecommendation.textContent = formattedDecision;
   entryDecisionEvidence.textContent = String(evidence.length);
+  entryDecisionEvidenceDetail.textContent = "evidence sources";
   entryDecisionReview.textContent = audit.human_review && audit.human_review.required ? "Required" : "No";
+  entryDecisionReviewDetail.textContent = "human review";
+  entryTimelineExtract.textContent = "Extract";
+  entryTimelinePolicy.textContent = "Policy";
+  entryTimelineDecision.textContent = "Decision";
   markTimelineStep(entryTimelineExtract, true, false);
   markTimelineStep(entryTimelinePolicy, evidence.length > 0, evidence.length === 0);
   markTimelineStep(entryTimelineDecision, true, audit.human_review && audit.human_review.required);
