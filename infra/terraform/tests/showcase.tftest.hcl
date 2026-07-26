@@ -143,6 +143,16 @@ run "showcase_cost_guardrails" {
 
   assert {
     condition = (
+      aws_ecs_task_definition.api.skip_destroy &&
+      aws_ecs_task_definition.worker.skip_destroy &&
+      aws_ecs_task_definition.migration.skip_destroy &&
+      aws_ecs_task_definition.provisioner.skip_destroy
+    )
+    error_message = "ECS task definition revisions must be retained for least-privilege deploys and rollback."
+  }
+
+  assert {
+    condition = (
       !aws_db_instance.main.publicly_accessible &&
       !aws_db_instance.main.multi_az &&
       aws_db_instance.main.backup_retention_period == 1 &&
