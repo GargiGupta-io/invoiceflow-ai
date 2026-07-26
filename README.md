@@ -9,6 +9,9 @@ and deterministic evaluations.
 Live demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)  
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 
+AWS Version 2 showcase: [Open UI](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui) |
+[Readiness](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready)
+
 Finance Reviewer Demo Pack: [docs/demo-pack.md](docs/demo-pack.md)
 
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
@@ -249,10 +252,12 @@ documented separately:
 - [Version 2 reliability model](docs/reliability.md)
 - [Terraform deployment guide](infra/terraform/README.md)
 
-The private Terraform state backend is provisioned on AWS, and the application
-stack has a validated 93-resource remote-backed plan on the feature branch. The
-application plan has not been applied, so the hosted Render URL remains the
-deterministic Version 1 portfolio demo.
+The Version 2 showcase is deployed in `ap-south-1` from the private,
+remote-backed Terraform state. API Gateway terminates public HTTPS, reaches an
+internal Application Load Balancer through a VPC link, and routes to the
+FastAPI service on ECS/Fargate. PostgreSQL, private S3, SQS/DLQ, Cognito, and
+CloudWatch are active behind that path. The Render URL remains available as the
+lighter deterministic Version 1 portfolio demo.
 
 ```text
 [Document Input: PDF / text / email fixture]
@@ -428,17 +433,22 @@ Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoicef
 Note: Render free-tier deployments may take up to a minute to wake on first
 load.
 
-Version 2 AWS deployment is intentionally separate from the public demo. Its
-Terraform stack defines private Fargate tasks, private RDS PostgreSQL, private
-S3, SQS/DLQ, Cognito, scoped IAM roles, HTTPS ingress, and CloudWatch alarms.
-The synthetic Free Plan showcase can use an AWS-provided CloudFront HTTPS URL,
-so it does not require a purchased domain or ACM certificate. The production
-profile retains a custom domain and end-to-end HTTPS at the load balancer.
-Follow [the infrastructure guide](infra/terraform/README.md) to review costs,
-bootstrap remote state, build an immutable image, plan the stack, and run the
-database migration and reviewer-provisioning tasks. The first release keeps API
-and worker services at zero until the image exists and the migration succeeds.
-No paid AWS resources are created by this repository automatically.
+Version 2 is also live as a synthetic AWS showcase:
+
+- UI: [https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui)
+- Readiness: [https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready)
+
+The applied Free Plan profile uses an AWS-managed API Gateway HTTPS endpoint,
+a VPC link, and an internal Application Load Balancer, so it does not require
+a purchased domain or ACM certificate. It runs one API task and one worker
+task with no autoscaling resources, plus private RDS PostgreSQL, private S3,
+SQS/DLQ, Cognito, scoped IAM roles, and CloudWatch alarms. The production
+profile remains a separate custom-domain design with end-to-end HTTPS at the
+load balancer, private Fargate networking, stronger database availability, and
+autoscaling. Follow [the infrastructure guide](infra/terraform/README.md) for
+the reviewed apply, migration, verification, cost, and teardown procedures.
+Terraform changes still require an explicit reviewed plan and apply; cloning
+the repository does not create AWS resources.
 
 ## Technical UI And API Reference
 
@@ -650,11 +660,12 @@ embedding or vector retrieval pipeline.
 - The optional LLM gateway currently covers extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
-- The Version 2 state backend is provisioned, but the 93-resource application
-  plan has not been applied to AWS.
-- The React reviewer workspace is connected to tenant document intake, case
-  results, evidence, review decisions, private access, and audit history, but it
-  still requires the unapplied AWS/Cognito stack for a live multi-user deployment.
+- The Version 2 AWS showcase is applied, but it is a cost-limited,
+  single-capacity synthetic environment rather than a production SLA claim.
+- The React reviewer workspace is connected to the deployed Cognito, tenant
+  document intake, case results, evidence, review decisions, private access,
+  and audit history; only synthetic showcase identities and documents are
+  approved.
 - The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
   the Fargate worker.
 - Production validation still requires a real tenant policy pack, approved
