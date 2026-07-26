@@ -143,6 +143,9 @@ class AwsAccessPolicyTests(unittest.TestCase):
         self.assertNotIn("iam:DeleteRole", actions)
         self.assertNotIn("lambda:DeleteFunction", actions)
         self.assertNotIn("cognito-idp:DeleteUserPool", actions)
+        self.assertNotIn("elasticloadbalancing:DeleteListener", actions)
+        self.assertNotIn("elasticloadbalancing:DeleteLoadBalancer", actions)
+        self.assertNotIn("elasticloadbalancing:DeleteRule", actions)
 
         security_group_rule_statement = next(
             statement
@@ -343,6 +346,42 @@ class AwsAccessPolicyTests(unittest.TestCase):
             },
         )
 
+    def test_elb_lifecycle_policy_only_replaces_project_load_balancers(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            documents = self._render(Path(temporary_directory))
+
+        policy = documents["terraform-elb-lifecycle-policy.json"]
+        self.assertEqual(
+            policy["Statement"],
+            [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "elasticloadbalancing:DeleteListener",
+                        "elasticloadbalancing:DeleteLoadBalancer",
+                        "elasticloadbalancing:DeleteRule",
+                    ],
+                    "Resource": [
+                        (
+                            "arn:aws:elasticloadbalancing:ap-south-1:"
+                            "123456789012:loadbalancer/app/"
+                            "invoiceflow-showcase-*/*"
+                        ),
+                        (
+                            "arn:aws:elasticloadbalancing:ap-south-1:"
+                            "123456789012:listener/*/"
+                            "invoiceflow-showcase-*/*/*"
+                        ),
+                        (
+                            "arn:aws:elasticloadbalancing:ap-south-1:"
+                            "123456789012:listener-rule/*/"
+                            "invoiceflow-showcase-*/*/*/*"
+                        ),
+                    ],
+                }
+            ],
+        )
+
     def test_task_boundary_caps_runtime_roles_to_invoiceflow_services(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             documents = self._render(Path(temporary_directory))
@@ -389,7 +428,7 @@ class AwsAccessPolicyTests(unittest.TestCase):
             )
             modes = sorted(path.stat().st_mode & 0o777 for path in output_dir.iterdir())
 
-        self.assertEqual(modes, [0o600, 0o600, 0o600, 0o600, 0o600])
+        self.assertEqual(modes, [0o600] * len(POLICY_RENDERER.TEMPLATE_NAMES))
 
     def test_invalid_account_id_is_rejected(self) -> None:
         self.arguments.account_id = "not-an-account"
