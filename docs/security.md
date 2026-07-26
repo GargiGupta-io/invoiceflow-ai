@@ -14,11 +14,13 @@ This is a focused threat model for the tenant-isolated document pipeline.
 
 ## Main Trust Boundaries
 
-1. Browser to public HTTPS load balancer
-2. Load balancer to private FastAPI tasks
-3. FastAPI/worker to private PostgreSQL
-4. FastAPI/worker to private S3 and SQS through IAM task roles
-5. Authenticated tenant context to tenant-filtered repositories
+1. Browser to the API Gateway HTTPS endpoint in the showcase, or the
+   custom-domain HTTPS load balancer in production
+2. API Gateway VPC link to the internal showcase load balancer
+3. Load balancer to security-group-restricted FastAPI tasks
+4. FastAPI/worker to private PostgreSQL
+5. FastAPI/worker to private S3 and SQS through IAM task roles
+6. Authenticated tenant context to tenant-filtered repositories
 
 ## Threats And Controls
 
@@ -33,7 +35,7 @@ This is a focused threat model for the tenant-isolated document pipeline.
 | Duplicate queue delivery | Tenant-scoped idempotency key and atomic job claim in PostgreSQL. |
 | Audit tampering | Append-only audit repository and PostgreSQL update/delete trigger. |
 | Retained sensitive data | User deletion, bounded retention worker, page/result/review purge, S3 lifecycle backstops. |
-| Plain HTTP | Load balancer redirects HTTP to TLS 1.2/1.3 HTTPS listener. |
+| Plain HTTP | The showcase exposes only the AWS-managed API Gateway HTTPS endpoint; its VPC link reaches an internal HTTP listener that is not publicly routable. Production redirects public HTTP to a TLS 1.2/1.3 HTTPS load-balancer listener. |
 | Public database access | RDS has no public address and accepts PostgreSQL only from the task security group. |
 
 ## Authentication Versus Authorization
@@ -54,8 +56,10 @@ queue receipt handles, S3 keys, or presigned URLs.
 
 ## Residual Risks
 
-- Terraform apply permissions and remote state controls must be reviewed in the
-  target AWS account.
+- The applied showcase uses a dedicated assumed Terraform role. Its core and
+  support policies exclude broad delete access; a separate customer-managed
+  policy permits only replacement of InvoiceFlow-prefixed load balancers,
+  listeners, and rules.
 - Cognito users must be provisioned together with matching internal tenant rows.
 - Local Tesseract quality must be validated against representative scans before
   finance use; managed Textract remains a future adapter.
