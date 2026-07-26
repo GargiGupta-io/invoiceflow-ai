@@ -15,6 +15,7 @@ TEMPLATE_NAMES = (
     "task-permissions-boundary-policy.json.tpl",
     "terraform-deploy-policy.json.tpl",
     "terraform-deploy-support-policy.json.tpl",
+    "terraform-elb-lifecycle-policy.json.tpl",
 )
 
 
