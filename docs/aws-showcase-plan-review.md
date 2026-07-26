@@ -1,9 +1,15 @@
 # AWS Showcase Plan Review
 
-Reviewed through July 22, 2026 from `feature/version-2-pipeline` with Terraform
-1.9.8. The plans used the dedicated `InvoiceFlowTerraformDeployRole` and
-short-lived browser-login credentials. Only the state bootstrap was applied;
-no InvoiceFlow application resources were applied.
+This file preserves the pre-deployment review performed through July 22, 2026.
+Its original resource counts and public-ALB/CloudFront discussion are
+historical and must not be treated as the current deployed state.
+
+The synthetic application stack was applied by July 26, 2026 using the
+dedicated `InvoiceFlowTerraformDeployRole` and short-lived browser-login
+credentials. The final public path is API Gateway HTTPS -> VPC link -> internal
+Application Load Balancer -> ECS/Fargate. A post-apply plan reports no changes.
+See [architecture.md](architecture.md), [reliability.md](reliability.md), and
+the [Terraform guide](../infra/terraform/README.md) for the current state.
 
 ## State Bootstrap
 
