@@ -13,3 +13,12 @@ coverage/
 tmp/
 *.log
 eval-results.json
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+*.tfplan
+*.tfplan.json
+.aws-local/
+crash.log

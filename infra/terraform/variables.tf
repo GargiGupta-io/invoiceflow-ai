@@ -1,0 +1,276 @@
+variable "project_name" {
+  description = "Short name used in AWS resource names."
+  type        = string
+  default     = "invoiceflow"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9-]{2,20}$", var.project_name))
+    error_message = "project_name must be 3-21 lowercase letters, numbers, or hyphens."
+  }
+}
+
+variable "environment" {
+  description = "Deployment environment name."
+  type        = string
+  default     = "production"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9-]{1,15}$", var.environment))
+    error_message = "environment must be 2-16 lowercase letters, numbers, or hyphens."
+  }
+}
+
+variable "deployment_profile" {
+  description = "Cost and availability profile. Showcase minimizes recurring credit use; production preserves private runtime networking and stronger deletion protection."
+  type        = string
+  default     = "production"
+
+  validation {
+    condition     = contains(["showcase", "production"], var.deployment_profile)
+    error_message = "deployment_profile must be showcase or production."
+  }
+}
+
+variable "aws_region" {
+  description = "AWS region for the complete stack."
+  type        = string
+  default     = "ap-south-1"
+}
+
+variable "task_permissions_boundary_name" {
+  description = "Administrator-owned IAM permissions boundary required on every InvoiceFlow runtime role."
+  type        = string
+  default     = "InvoiceFlowTaskBoundary"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9+=,.@_-]{1,128}$", var.task_permissions_boundary_name))
+    error_message = "task_permissions_boundary_name must be a valid IAM managed policy name."
+  }
+}
+
+variable "vpc_cidr" {
+  description = "CIDR range for the InvoiceFlow VPC."
+  type        = string
+  default     = "10.42.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  description = "Two public subnet CIDRs for the load balancer, NAT gateways, and showcase runtime tasks."
+  type        = list(string)
+  default     = ["10.42.0.0/24", "10.42.1.0/24"]
+
+  validation {
+    condition     = length(var.public_subnet_cidrs) == 2
+    error_message = "Exactly two public subnet CIDRs are required."
+  }
+}
+
+variable "app_subnet_cidrs" {
+  description = "Two private subnet CIDRs for production Fargate tasks."
+  type        = list(string)
+  default     = ["10.42.10.0/24", "10.42.11.0/24"]
+
+  validation {
+    condition     = length(var.app_subnet_cidrs) == 2
+    error_message = "Exactly two application subnet CIDRs are required."
+  }
+}
+
+variable "database_subnet_cidrs" {
+  description = "Two isolated subnet CIDRs for PostgreSQL."
+  type        = list(string)
+  default     = ["10.42.20.0/24", "10.42.21.0/24"]
+
+  validation {
+    condition     = length(var.database_subnet_cidrs) == 2
+    error_message = "Exactly two database subnet CIDRs are required."
+  }
+}
+
+variable "single_nat_gateway" {
+  description = "Use one NAT gateway to reduce demo cost. Disable for one NAT gateway per AZ."
+  type        = bool
+  default     = true
+}
+
+variable "public_endpoint_mode" {
+  description = "Public HTTPS strategy. api_gateway or cloudfront use an AWS-provided domain for showcase; custom_domain uses an ACM certificate on the load balancer."
+  type        = string
+  default     = "custom_domain"
+
+  validation {
+    condition     = contains(["api_gateway", "cloudfront", "custom_domain"], var.public_endpoint_mode)
+    error_message = "public_endpoint_mode must be api_gateway, cloudfront, or custom_domain."
+  }
+}
+
+variable "certificate_arn" {
+  description = "ACM certificate ARN for custom_domain mode. Leave empty when AWS supplies the showcase endpoint certificate."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.certificate_arn == "" || can(regex("^arn:aws:acm:", var.certificate_arn))
+    error_message = "certificate_arn must be empty or an ACM certificate ARN."
+  }
+}
+
+variable "application_domain_name" {
+  description = "Public DNS name covered by the ACM certificate in custom_domain mode."
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = var.application_domain_name == "" || can(regex("^[a-z0-9][a-z0-9.-]+[a-z0-9]$", var.application_domain_name))
+    error_message = "application_domain_name must be empty or a valid lowercase DNS name."
+  }
+}
+
+variable "allowed_ingress_cidrs" {
+  description = "IPv4 CIDRs allowed to reach the public HTTPS load balancer."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "container_image_tag" {
+  description = "Immutable image tag deployed to API, worker, and migration tasks."
+  type        = string
+
+  validation {
+    condition     = var.container_image_tag != "latest" && can(regex("^[A-Za-z0-9_.-]{7,128}$", var.container_image_tag))
+    error_message = "container_image_tag must be an immutable tag of at least 7 characters and cannot be latest."
+  }
+}
+
+variable "services_enabled" {
+  description = "Start API and worker tasks only after the image exists and migrations succeed."
+  type        = bool
+  default     = false
+}
+
+variable "api_desired_count" {
+  description = "Number of API tasks."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.api_desired_count >= 1
+    error_message = "api_desired_count must be at least 1."
+  }
+}
+
+variable "worker_desired_count" {
+  description = "Number of document worker tasks."
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.worker_desired_count >= 1
+    error_message = "worker_desired_count must be at least 1."
+  }
+}
+
+variable "database_name" {
+  description = "Initial PostgreSQL database name."
+  type        = string
+  default     = "invoiceflow"
+}
+
+variable "database_username" {
+  description = "PostgreSQL master/application username."
+  type        = string
+  default     = "invoiceflow_app"
+}
+
+variable "database_instance_class" {
+  description = "RDS instance class."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "database_multi_az" {
+  description = "Run a standby RDS instance in another availability zone."
+  type        = bool
+  default     = true
+}
+
+variable "database_allocated_storage" {
+  description = "Initial encrypted RDS storage in GiB."
+  type        = number
+  default     = 20
+}
+
+variable "database_max_allocated_storage" {
+  description = "RDS storage autoscaling limit in GiB."
+  type        = number
+  default     = 100
+}
+
+variable "database_deletion_protection" {
+  description = "Protect the database from accidental Terraform deletion."
+  type        = bool
+  default     = true
+}
+
+variable "database_skip_final_snapshot" {
+  description = "Skip the final RDS snapshot. Use false for production."
+  type        = bool
+  default     = false
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch log retention."
+  type        = number
+  default     = 30
+}
+
+variable "document_retention_days" {
+  description = "Application and S3 document retention period."
+  type        = number
+  default     = 90
+}
+
+variable "alarm_email" {
+  description = "Optional email subscription for the CloudWatch alarm topic."
+  type        = string
+  default     = ""
+}
+
+variable "monthly_cost_budget_usd" {
+  description = "Monthly pre-credit AWS usage amount that triggers budget alerts when alarm_email is set."
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.monthly_cost_budget_usd > 0
+    error_message = "monthly_cost_budget_usd must be greater than zero."
+  }
+}
+
+variable "oauth_callback_urls" {
+  description = "Allowed Cognito authorization-code callback URLs in custom_domain mode. CloudFront mode derives its callback from the generated distribution URL."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for uri in var.oauth_callback_urls : can(regex("^https://", uri))])
+    error_message = "Every oauth_callback_urls value must use HTTPS."
+  }
+}
+
+variable "oauth_logout_urls" {
+  description = "Allowed Cognito logout return URLs in custom_domain mode. CloudFront mode derives its logout URL from the generated distribution URL."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for uri in var.oauth_logout_urls : can(regex("^https://", uri))])
+    error_message = "Every oauth_logout_urls value must use HTTPS."
+  }
+}
+
+variable "tags" {
+  description = "Additional tags applied to all supported resources."
+  type        = map(string)
+  default     = {}
+}

@@ -1,0 +1,49 @@
+project_name = "invoiceflow"
+environment  = "production"
+aws_region   = "ap-south-1"
+
+# Must already exist as an administrator-owned IAM managed policy.
+task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
+
+# Production keeps Fargate in private subnets behind NAT, enables Multi-AZ RDS,
+# and retains stronger deletion protection. Use showcase.tfvars.example for the
+# lower-cost Free Plan deployment.
+deployment_profile = "production"
+public_endpoint_mode = "custom_domain"
+
+# Create/import an ACM certificate in the same region before planning.
+certificate_arn         = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
+application_domain_name = "invoiceflow.example.com"
+
+# Replace the host with the final reviewer application domain.
+oauth_callback_urls = ["https://invoiceflow.example.com/reviewer/callback"]
+oauth_logout_urls   = ["https://invoiceflow.example.com/reviewer/"]
+
+# One NAT gateway is cheaper for a portfolio environment. Set false for
+# one gateway per availability zone when higher network availability matters.
+single_nat_gateway = true
+
+api_desired_count    = 2
+worker_desired_count = 1
+container_image_tag  = "replace-with-git-sha"
+
+# First apply: false. Change to true only after the image is pushed and the
+# one-off Alembic migration exits successfully.
+services_enabled = false
+
+database_instance_class       = "db.t4g.micro"
+database_multi_az             = true
+database_deletion_protection  = true
+database_skip_final_snapshot  = false
+document_retention_days       = 90
+log_retention_days            = 30
+
+alarm_email = "finance-platform-alerts@example.com"
+
+# Tracks account usage before credits are applied. Alerts do not stop resources.
+monthly_cost_budget_usd = 10
+
+tags = {
+  Owner      = "GargiGupta"
+  Repository = "invoiceflow-ai"
+}

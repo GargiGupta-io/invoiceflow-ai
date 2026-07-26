@@ -117,6 +117,7 @@ class Document(UUIDPrimaryKeyMixin, CreatedAtMixin, UpdatedAtMixin, Base):
         CheckConstraint("page_count IS NULL OR page_count > 0", name="positive_page_count"),
         Index("ix_documents_organization_created", "organization_id", "created_at"),
         Index("ix_documents_organization_status", "organization_id", "status"),
+        Index("ix_documents_retention_deleted", "retention_until", "deleted_at"),
     )
 
     organization_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
@@ -134,6 +135,37 @@ class Document(UUIDPrimaryKeyMixin, CreatedAtMixin, UpdatedAtMixin, Base):
     )
     retention_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DocumentPage(UUIDPrimaryKeyMixin, CreatedAtMixin, Base):
+    __tablename__ = "document_pages"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["document_id", "organization_id"],
+            ["documents.id", "documents.organization_id"],
+            name="fk_document_pages_document_tenant",
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint("document_id", "page_number", name="uq_document_pages_page"),
+        CheckConstraint("page_number > 0", name="positive_page_number"),
+        Index(
+            "ix_document_pages_organization_document",
+            "organization_id",
+            "document_id",
+            "page_number",
+        ),
+    )
+
+    organization_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
+    document_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    text_content: Mapped[str] = mapped_column(Text, nullable=False)
+    extraction_method: Mapped[str] = mapped_column(String(20), nullable=False)
+    warnings: Mapped[list[str]] = mapped_column(
+        json_document(),
+        default=list,
+        nullable=False,
+    )
 
 
 class ProcessingJob(UUIDPrimaryKeyMixin, CreatedAtMixin, UpdatedAtMixin, Base):

@@ -9,6 +9,9 @@ and deterministic evaluations.
 Live demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-ai-a9yq.onrender.com/ui)  
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 
+AWS Version 2 showcase: [Open UI](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui) |
+[Readiness](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready)
+
 Finance Reviewer Demo Pack: [docs/demo-pack.md](docs/demo-pack.md)
 
 InvoiceFlow AI helps operations teams review AP invoices, detect missing or
@@ -204,7 +207,7 @@ generic chat. The main story is:
 
 Implemented:
 - sample and upload ingestion
-- PDF parsing with OCR fallback hooks
+- page-aware PDF parsing and open-source OCR for scanned pages, PNG, and JPEG uploads
 - strict extraction schema
 - deterministic development extractor
 - optional LLM extraction path with schema-shaped JSON responses and validation repair
@@ -218,6 +221,13 @@ Implemented:
 - confidence-based human review gate for risky, low-evidence, or missing-information cases
 - TTS-safe AR follow-up variants for dates, amounts, and identifiers
 - workflow audit trail with prompt version, stage timings, retrieved chunks, and final action
+- redacted JSON worker events with request/job correlation and CloudWatch metric fields
+- separate liveness and PostgreSQL/S3/SQS readiness endpoints for Version 2 deployment checks
+- configurable document expiry, tenant-authorized deletion, and idempotent retention cleanup
+- tenant-isolated page text storage with PostgreSQL full-text search and page locations
+- one non-root Python 3.11 container image for API, worker, and migration tasks
+- validated Terraform for private S3, SQS/DLQ, RDS PostgreSQL, Cognito, IAM, ECS/Fargate, and CloudWatch
+- React reviewer workspace with Cognito authorization-code/PKCE login, session-only token storage, tenant identity verification, secure document upload, persistent history, live processing states, decision-first case detail, extracted pages, policy evidence, review actions, and audit history
 - shared anomaly and escalation assessment
 - FastAPI backend
 - operator UI at `/ui`
@@ -233,6 +243,21 @@ Still worth improving:
 - cost and token tracking for LLM mode
 
 ## Technical Architecture
+
+The current finance workflow and the Version 2 production-shaped AWS design are
+documented separately:
+
+- [Version 2 architecture](docs/architecture.md)
+- [Version 2 security model](docs/security.md)
+- [Version 2 reliability model](docs/reliability.md)
+- [Terraform deployment guide](infra/terraform/README.md)
+
+The Version 2 showcase is deployed in `ap-south-1` from the private,
+remote-backed Terraform state. API Gateway terminates public HTTPS, reaches an
+internal Application Load Balancer through a VPC link, and routes to the
+FastAPI service on ECS/Fargate. PostgreSQL, private S3, SQS/DLQ, Cognito, and
+CloudWatch are active behind that path. The Render URL remains available as the
+lighter deterministic Version 1 portfolio demo.
 
 ```text
 [Document Input: PDF / text / email fixture]
@@ -313,7 +338,12 @@ invoiceflow-ai/
 |- api/
 |  `- main.py
 |- docs/
+|  |- architecture.md
+|  |- security.md
+|  |- reliability.md
 |  `- showcase.md
+|- infra/
+|  `- terraform/
 |- app/
 |  |- agents/
 |  |- eval/
@@ -350,6 +380,26 @@ Then open:
 - API root: `http://127.0.0.1:8000/`
 - Operator UI: `http://127.0.0.1:8000/ui`
 
+The Version 2 reviewer shell is built separately and served by FastAPI:
+
+```bash
+cd reviewer
+npm install
+npm run build
+cd ..
+uvicorn api.main:app --reload
+```
+
+Then open `http://127.0.0.1:8000/reviewer`. An authenticated reviewer can upload
+PDF, PNG, or JPEG documents, dispatch processing, and follow saved cases through
+queued, processing, completed, or failed states. Completed cases expose the
+recommendation, structured facts, policy evidence, extracted source pages,
+short-lived private document access, human review controls, and append-only
+audit history. Browser login requires the
+`AUTH_ISSUER`, `AUTH_CLIENT_ID`, `AUTH_BROWSER_DOMAIN`, `AUTH_REDIRECT_URI`,
+and `AUTH_LOGOUT_URI` settings. Without them, the reviewer shell returns a safe
+unavailable state and the public `/ui` demo remains usable.
+
 ## Deployment
 
 InvoiceFlow is prepared for a hosted demo with deterministic sample data. The
@@ -367,6 +417,9 @@ The repo includes:
 
 - `runtime.txt` for Python 3.11 pinning
 - `render.yaml` for Render blueprint deployment
+- `Dockerfile` for the API, worker, and migration commands
+- `reviewer/` for the React/Cognito reviewer shell bundled into the production image
+- `infra/terraform/` for production and cost-limited Free Plan AWS profiles
 
 Deploy from GitHub:
 
@@ -379,6 +432,23 @@ Hosted demo: [https://invoiceflow-ai-a9yq.onrender.com/ui](https://invoiceflow-a
 Health check: [https://invoiceflow-ai-a9yq.onrender.com/health](https://invoiceflow-ai-a9yq.onrender.com/health)
 Note: Render free-tier deployments may take up to a minute to wake on first
 load.
+
+Version 2 is also live as a synthetic AWS showcase:
+
+- UI: [https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/ui)
+- Readiness: [https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready](https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com/health/ready)
+
+The applied Free Plan profile uses an AWS-managed API Gateway HTTPS endpoint,
+a VPC link, and an internal Application Load Balancer, so it does not require
+a purchased domain or ACM certificate. It runs one API task and one worker
+task with no autoscaling resources, plus private RDS PostgreSQL, private S3,
+SQS/DLQ, Cognito, scoped IAM roles, and CloudWatch alarms. The production
+profile remains a separate custom-domain design with end-to-end HTTPS at the
+load balancer, private Fargate networking, stronger database availability, and
+autoscaling. Follow [the infrastructure guide](infra/terraform/README.md) for
+the reviewed apply, migration, verification, cost, and teardown procedures.
+Terraform changes still require an explicit reviewed plan and apply; cloning
+the repository does not create AWS resources.
 
 ## Technical UI And API Reference
 
@@ -403,13 +473,51 @@ For screenshots or quick demos, the UI also supports:
 
 - `GET /`
 - `GET /ui`
+- `GET /reviewer` - React reviewer shell; Cognito configuration is loaded at runtime
 - `GET /health`
+- `GET /health/live` - process liveness without external dependency checks
+- `GET /health/ready` - PostgreSQL, private S3, and SQS readiness for Version 2
 - `GET /samples`
 - `GET /review-queue`
 - `GET /eval/summary`
 - `GET /eval-results.json`
 - `POST /workflow/sample`
 - `POST /workflow/upload`
+
+Version 2 protected routes use verified tenant identity and scope checks:
+
+- `GET /v2/auth/config` - public, non-secret browser login configuration
+- `GET /v2/me`
+- `GET /v2/documents`
+- `POST /v2/documents` - requires `invoiceflow.upload`
+- `GET /v2/documents/{document_id}` - requires `invoiceflow.read`
+- `GET /v2/documents/{document_id}/pages` - requires `invoiceflow.read`
+- `DELETE /v2/documents/{document_id}` - requires `invoiceflow.delete`
+- `POST /v2/documents/{document_id}/access` - requires `invoiceflow.read`
+- `POST /v2/documents/{document_id}/processing-jobs` - requires `invoiceflow.process`
+- `GET|POST /v2/documents/{document_id}/reviews`
+- `GET /v2/documents/{document_id}/audit`
+- `POST /v2/search` - tenant-scoped page search, requires `invoiceflow.read`
+
+Search results return an excerpt, source page number, and the protected access
+route for the document. The client must still request a short-lived private URL;
+search never returns an S3 key or presigned URL directly. Search text is sent in
+the request body so it does not appear in normal URL access logs. PostgreSQL uses
+a GIN full-text index, while SQLite provides a portable fallback for local tests
+only.
+
+Uploads receive a configurable expiry date through `DOCUMENT_RETENTION_DAYS`.
+Run one bounded cleanup batch with:
+
+```bash
+python -m app.retention.main
+```
+
+The cleanup removes both possible private object locations, erases processing
+results, extracted page text, and reviewer data, hides the document from normal
+history, and appends a safe deletion event. Repeated cleanup is a no-op. S3
+Lifecycle configuration is kept as a second infrastructure-level cleanup layer
+for abandoned objects.
 
 <details>
 <summary>Workflow response metadata</summary>
@@ -511,12 +619,13 @@ The current heuristic baseline already shows:
 - `100%` citation coverage and grounding support on the bundled synthetic eval set
 - review-gate and tool-like trace metrics for workflow observability
 
-## CI/CD Eval Gate
+## CI/CD Quality Gates
 
 GitHub Actions runs `.github/workflows/eval.yml` on pushes, pull requests, and
-manual dispatches. The workflow installs dependencies, runs the eval threshold
-gate, fails the build if quality drops below configured minimums, and uploads
-`eval-results.json` as an artifact for inspection.
+manual dispatches. The workflow installs dependencies, runs backend tests and
+the eval threshold gate, uploads `eval-results.json`, tests and builds the React
+reviewer shell, checks Terraform format and validity without contacting a
+deployment backend, and builds the production container without publishing it.
 
 <details>
 <summary>Default CI thresholds</summary>
@@ -551,15 +660,25 @@ embedding or vector retrieval pipeline.
 - The optional LLM gateway currently covers extraction and repair calls; AP/AR
   decision generation is still deterministic.
 - TTS-safe output is currently implemented for AR follow-up text only.
+- The Version 2 AWS showcase is applied, but it is a cost-limited,
+  single-capacity synthetic environment rather than a production SLA claim.
+- The React reviewer workspace is connected to the deployed Cognito, tenant
+  document intake, case results, evidence, review decisions, private access,
+  and audit history; only synthetic showcase identities and documents are
+  approved.
+- The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
+  the Fargate worker.
+- Production validation still requires a real tenant policy pack, approved
+  historical cases, cross-tenant tests against Cognito/RDS, and load tests.
 
 ## Next Improvements
 
-- add real OCR support for scanned invoices using Tesseract or a hosted OCR service
-- add role-based access for reviewers and operators
-- add a persistent case store with approval history and audit lookups
+- add a managed OCR adapter such as Textract for production deployments
+- add page-level evidence highlighting and side-by-side PDF annotation
 - add vendor risk scoring and a PDF annotation view for invoice review
 - add email, Slack, and Teams notifications for escalations
-- add multi-tenant organization support
+- provision and test the Terraform stack in an approved AWS account
+- add GitHub OIDC deployment after the manual deployment path is verified
 - add cost tracking for LLM calls and per-case runtime metadata
 - add real tool-calling agent behavior after the current deterministic baseline
 - record a short walkthrough video for portfolio sharing

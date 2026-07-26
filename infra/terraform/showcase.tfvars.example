@@ -1,0 +1,34 @@
+project_name       = "invoiceflow"
+environment        = "showcase"
+deployment_profile = "showcase"
+aws_region         = "ap-south-1"
+
+# Must already exist as an administrator-owned IAM managed policy.
+task_permissions_boundary_name = "InvoiceFlowTaskBoundary"
+
+# The showcase uses an AWS-provided execute-api HTTPS endpoint, so no purchased
+# domain or ACM certificate is required. API Gateway reaches the load balancer
+# through a VPC link, and Terraform derives the Cognito callback/logout URLs.
+public_endpoint_mode = "api_gateway"
+
+# The first apply creates zero-count services. Enable only after the image is
+# pushed and both migration and reviewer provisioning tasks succeed.
+services_enabled     = false
+api_desired_count    = 1
+worker_desired_count = 1
+container_image_tag  = "replace-with-git-sha"
+
+database_instance_class = "db.t4g.micro"
+document_retention_days = 7
+log_retention_days      = 7
+
+# Use an email you actively monitor. The budget measures account usage before
+# Free Plan credits and alerts at 50%, 80%, and 100%; it is not a hard cap.
+alarm_email            = "replace-with-your-email@example.com"
+monthly_cost_budget_usd = 10
+
+tags = {
+  Owner      = "GargiGupta"
+  Repository = "invoiceflow-ai"
+  Purpose    = "PortfolioShowcase"
+}

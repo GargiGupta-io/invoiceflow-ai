@@ -1,0 +1,12 @@
+aws_region  = "ap-south-1"
+environment = "showcase"
+
+# Replace the account placeholder before planning. S3 bucket names are global.
+state_bucket_name = "invoiceflow-terraform-state-123456789012-ap-south-1"
+lock_table_name   = "invoiceflow-terraform-locks"
+
+tags = {
+  Owner      = "GargiGupta"
+  Repository = "invoiceflow-ai"
+  Purpose    = "TerraformState"
+}

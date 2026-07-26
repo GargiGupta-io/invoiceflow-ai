@@ -145,25 +145,31 @@
             </div>
             </article>
             <article class="entry-card latest-decision-card">
-            <div class="entry-visual decision-preview" aria-label="Latest decision guide">
+            <div class="entry-visual decision-preview" aria-label="AWS cloud workflow and latest decision">
               <div class="decision-meter">
-                <span>Decision output</span>
-                <strong id="entry-decision-recommendation">Evidence first</strong>
+                <span id="entry-decision-label">AWS workflow</span>
+                <strong id="entry-decision-recommendation">Durable processing</strong>
               </div>
               <div class="decision-facts">
-                <span><strong id="entry-decision-evidence">Policy</strong> evidence used</span>
-                <span><strong id="entry-decision-review">Human</strong> review gate</span>
+                <span>
+                  <strong id="entry-decision-evidence">Private S3</strong>
+                  <small id="entry-decision-evidence-detail">document storage</small>
+                </span>
+                <span>
+                  <strong id="entry-decision-review">SQS</strong>
+                  <small id="entry-decision-review-detail">processing queue</small>
+                </span>
               </div>
               <ol class="audit-mini-timeline" aria-label="Mini audit timeline">
-                <li id="entry-timeline-extract">Extract</li>
-                <li id="entry-timeline-policy">Policy</li>
-                <li id="entry-timeline-decision">Decision</li>
+                <li id="entry-timeline-extract">Fargate</li>
+                <li id="entry-timeline-policy">PostgreSQL</li>
+                <li id="entry-timeline-decision">Audit</li>
               </ol>
             </div>
             <div class="entry-copy">
-              <span class="result-label">Latest Decision</span>
-              <strong id="entry-audit-state">No run yet</strong>
-              <p id="entry-audit-detail">The last recommendation, review gate, evidence count, and latency appear here.</p>
+              <span class="result-label" id="entry-audit-label">AWS included</span>
+              <strong id="entry-audit-state">Cloud workflow ready</strong>
+              <p id="entry-audit-detail">Private S3, SQS, Fargate, and PostgreSQL keep documents, processing jobs, decisions, and audit history durable.</p>
             </div>
             </article>
           </div>

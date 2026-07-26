@@ -18,6 +18,7 @@ class DatabaseModelTests(unittest.TestCase):
                 "organizations",
                 "users",
                 "documents",
+                "document_pages",
                 "processing_jobs",
                 "review_decisions",
                 "audit_events",
@@ -28,6 +29,7 @@ class DatabaseModelTests(unittest.TestCase):
         for table_name in (
             "users",
             "documents",
+            "document_pages",
             "processing_jobs",
             "review_decisions",
             "audit_events",
@@ -39,6 +41,7 @@ class DatabaseModelTests(unittest.TestCase):
     def test_child_records_use_tenant_scoped_foreign_keys(self) -> None:
         expected_constraints = {
             "documents": {"fk_documents_uploader_tenant"},
+            "document_pages": {"fk_document_pages_document_tenant"},
             "processing_jobs": {
                 "fk_processing_jobs_document_tenant",
                 "fk_processing_jobs_requester_tenant",
@@ -76,12 +79,14 @@ class DatabaseModelTests(unittest.TestCase):
         jobs = Base.metadata.tables["processing_jobs"]
         reviews = Base.metadata.tables["review_decisions"]
         audits = Base.metadata.tables["audit_events"]
+        pages = Base.metadata.tables["document_pages"]
 
         for column in (
             jobs.c.extraction_result,
             jobs.c.evidence,
             reviews.c.decision_payload,
             audits.c.safe_metadata,
+            pages.c.warnings,
         ):
             with self.subTest(column=column.name):
                 compiled = column.type.dialect_impl(postgresql.dialect())

@@ -36,6 +36,16 @@ def ocr_pdf_page(page: Any, page_index: int) -> tuple[str, list[str]]:
     return "\n\n".join(image_texts).strip(), warnings
 
 
+def ocr_image(image_bytes: bytes) -> tuple[str, list[str]]:
+    """Run OCR on a standalone PNG or JPEG document."""
+
+    extracted_text = _ocr_image_blob(image_bytes)
+    normalized_text = _normalize_ocr_text(extracted_text)
+    if not normalized_text:
+        return "", ["image_ocr_no_text"]
+    return normalized_text, []
+
+
 def _ocr_image_blob(image_bytes: bytes) -> str:
     pytesseract = _resolve_pytesseract()
     image_class = _resolve_pil_image()

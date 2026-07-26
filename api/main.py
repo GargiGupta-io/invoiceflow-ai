@@ -2,19 +2,29 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlparse
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from api.v2 import router as v2_router
+from app.auth.dependencies import get_database
+from app.config import get_settings
 from app.eval.dashboard import EVAL_RESULTS_PATH, build_eval_dashboard
 from app.ingest import IngestionError, supported_extensions
 from app.orchestrator import list_sample_documents, run_workflow_from_sample, run_workflow_from_upload
 from app.orchestrator import build_review_queue
+from app.observability import ReadinessChecker
+from app.queue import get_processing_queue
+from app.storage import get_object_storage
 
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
+REVIEWER_DIR = Path(__file__).resolve().parents[1] / "reviewer" / "dist"
+REVIEWER_INDEX = REVIEWER_DIR / "index.html"
 ALLOWED_EXTRACTOR_MODES = {"auto", "heuristic", "llm"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
@@ -28,6 +38,13 @@ app = FastAPI(
 )
 
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+if (REVIEWER_DIR / "assets").is_dir():
+    app.mount(
+        "/reviewer/assets",
+        StaticFiles(directory=REVIEWER_DIR / "assets"),
+        name="reviewer-assets",
+    )
+app.include_router(v2_router)
 
 
 class SampleWorkflowRequest(BaseModel):
@@ -86,11 +103,58 @@ def _validate_upload_file(filename: str, content: bytes) -> None:
             status_code=400,
             detail=_error(
                 "unsupported_file_type",
-                "Unsupported file type. Upload a text-based PDF, .txt, or .md file.",
+                "Unsupported file type. Upload a PDF, PNG, JPEG, .txt, or .md file.",
                 allowed_extensions=list(allowed_extensions),
-                ocr_note="OCR is not configured in this environment. Text-based PDFs and pasted text still work.",
+                ocr_note="OCR for scanned PDFs and images requires Tesseract in the runtime environment.",
             ),
         )
+
+
+def _url_origin(value: str) -> str:
+    parsed = urlparse(value)
+    return f"{parsed.scheme}://{parsed.netloc}" if parsed.scheme and parsed.netloc else ""
+
+
+def _reviewer_security_headers() -> dict[str, str]:
+    settings = get_settings()
+    connect_sources = {"'self'"}
+    form_sources = {"'self'"}
+    if settings.auth_browser_configured:
+        connect_sources.add(_url_origin(settings.auth_issuer))
+        connect_sources.add(_url_origin(settings.auth_browser_domain))
+        form_sources.add(_url_origin(settings.auth_browser_domain))
+
+    connect_policy = " ".join(sorted(source for source in connect_sources if source))
+    form_policy = " ".join(sorted(source for source in form_sources if source))
+    return {
+        "Cache-Control": "no-store",
+        "Content-Security-Policy": (
+            "default-src 'self'; "
+            "base-uri 'self'; "
+            f"connect-src {connect_policy}; "
+            f"form-action {form_policy}; "
+            "frame-ancestors 'none'; "
+            "img-src 'self' data:; "
+            "object-src 'none'; "
+            "script-src 'self'; "
+            "style-src 'self'"
+        ),
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+    }
+
+
+@lru_cache
+def get_readiness_checker() -> ReadinessChecker:
+    settings = get_settings()
+    storage_factory = get_object_storage if settings.s3_configured else None
+    queue_factory = get_processing_queue if settings.sqs_configured else None
+    return ReadinessChecker(
+        database=get_database(),
+        storage_factory=storage_factory,
+        queue_factory=queue_factory,
+    )
 
 
 @app.get("/")
@@ -100,13 +164,20 @@ def root() -> dict:
         "version": "0.1.0",
         "endpoints": [
             "/ui",
+            "/reviewer",
             "/health",
+            "/health/live",
+            "/health/ready",
             "/samples",
             "/review-queue",
             "/eval/summary",
             "/eval-results.json",
             "/workflow/sample",
             "/workflow/upload",
+            "/v2/me",
+            "/v2/auth/config",
+            "/v2/documents",
+            "/v2/search",
         ],
     }
 
@@ -116,12 +187,43 @@ def ui() -> FileResponse:
     return FileResponse(WEB_DIR / "index.html")
 
 
+@app.get("/reviewer", response_class=FileResponse)
+@app.get("/reviewer/", response_class=FileResponse)
+@app.get("/reviewer/callback", response_class=FileResponse)
+def reviewer_ui() -> FileResponse:
+    if not REVIEWER_INDEX.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "code": "reviewer_ui_unavailable",
+                "message": "The reviewer application has not been built in this environment.",
+            },
+        )
+    return FileResponse(REVIEWER_INDEX, headers=_reviewer_security_headers())
+
+
 @app.get("/health")
 def health() -> dict:
     return {
         "status": "ok",
         "sample_count": len(list_sample_documents()),
     }
+
+
+@app.get("/health/live")
+def health_live() -> dict[str, str]:
+    return {"status": "ok", "service": "invoiceflow-api"}
+
+
+@app.get("/health/ready")
+def health_ready(
+    checker: ReadinessChecker = Depends(get_readiness_checker),
+) -> JSONResponse:
+    report = checker.check()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK if report.ready else status.HTTP_503_SERVICE_UNAVAILABLE,
+        content=report.to_dict(),
+    )
 
 
 @app.get("/samples")
@@ -190,7 +292,7 @@ async def workflow_from_upload(
             detail=_error(
                 "ingestion_failed",
                 str(exc),
-                fallback="Try a text-based PDF, .txt, .md, or pasted text converted to .txt.",
+                fallback="Try a readable PDF/image, .txt, .md, or pasted text converted to .txt.",
             ),
         ) from exc
     except Exception as exc:

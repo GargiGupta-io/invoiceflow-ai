@@ -105,6 +105,7 @@ def run_workflow_from_upload(
     *,
     extractor_mode: str = "auto",
     workflow_hint: str | None = None,
+    include_document_pages: bool = False,
 ) -> dict[str, Any]:
     """Run the workflow for an uploaded file via a temporary staged path."""
 
@@ -120,6 +121,7 @@ def run_workflow_from_upload(
             source_kind="upload",
             original_filename=filename,
             workflow_hint=workflow_hint,
+            include_document_pages=include_document_pages,
         )
     finally:
         temp_path.unlink(missing_ok=True)
@@ -133,6 +135,7 @@ def run_workflow_from_path(
     source_kind: str = "file",
     original_filename: str | None = None,
     workflow_hint: str | None = None,
+    include_document_pages: bool = False,
 ) -> dict[str, Any]:
     """Run ingestion, extraction, routing, retrieval, and final decision flow."""
 
@@ -218,7 +221,7 @@ def run_workflow_from_path(
         total_latency_ms=total_latency_ms,
     )
 
-    return {
+    payload = {
         "source": {
             "kind": source_kind,
             "path": str(source_path),
@@ -232,6 +235,17 @@ def run_workflow_from_path(
         "policy_assessment": assessment_payload,
         "workflow_result": workflow_result.model_dump(mode="json"),
     }
+    if include_document_pages:
+        payload["_document_pages"] = [
+            {
+                "page_number": page.page_number,
+                "text": page.text,
+                "extraction_method": page.extraction_method,
+                "warnings": list(page.warnings),
+            }
+            for page in document.pages
+        ]
+    return payload
 
 
 def _load_or_build_knowledge_index():
