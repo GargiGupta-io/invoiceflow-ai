@@ -83,7 +83,7 @@ The July 26, 2026 deployment verification established:
 - The processing queue and DLQ are empty.
 - The pushed ECR image scan completed with zero findings.
 - A post-apply Terraform plan reports no changes.
-- 188 backend tests, 21 reviewer tests, seven deterministic evaluation cases,
+- 189 backend tests, 21 reviewer tests, seven deterministic evaluation cases,
   the reviewer production build, and both Terraform tests pass.
 
 ## Evidence Still Required
