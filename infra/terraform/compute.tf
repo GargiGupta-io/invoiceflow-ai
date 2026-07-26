@@ -48,10 +48,10 @@ resource "aws_ecs_cluster" "main" {
 
 resource "aws_lb" "api" {
   name                       = substr("${local.name_prefix}-api", 0, 32)
-  internal                   = false
+  internal                   = local.uses_api_gateway_endpoint
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.alb.id]
-  subnets                    = aws_subnet.public[*].id
+  subnets                    = local.uses_api_gateway_endpoint ? aws_subnet.app[*].id : aws_subnet.public[*].id
   drop_invalid_header_fields = true
   enable_deletion_protection = local.load_balancer_deletion_protection
 

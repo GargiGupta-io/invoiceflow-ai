@@ -113,6 +113,11 @@ run "showcase_cost_guardrails" {
   }
 
   assert {
+    condition     = aws_lb.api.internal
+    error_message = "The API Gateway VPC link must target an internal load balancer."
+  }
+
+  assert {
     condition     = length(aws_nat_gateway.main) == 0 && length(aws_eip.nat) == 0
     error_message = "The showcase profile must not provision NAT gateways or their elastic IPs."
   }
@@ -198,6 +203,11 @@ run "production_security_defaults" {
       length(aws_vpc_security_group_ingress_rule.alb_https) == 1
     )
     error_message = "Production must retain the custom-domain HTTPS load balancer path."
+  }
+
+  assert {
+    condition     = !aws_lb.api.internal
+    error_message = "Production custom-domain mode must retain an internet-facing load balancer."
   }
 
   assert {
