@@ -25,7 +25,7 @@ python3.11 scripts/render_aws_access_policies.py \
 The generated `.aws-local/` directory is ignored by Git and each policy file is
 written with owner-only permissions.
 
-The renderer creates five documents:
+The renderer creates six documents:
 
 - `task-permissions-boundary-policy.json`: administrator-owned maximum
   permissions for every InvoiceFlow runtime role.
@@ -36,6 +36,9 @@ The renderer creates five documents:
 - `terraform-deploy-support-policy.json`: grants read-only discovery plus the
   narrowly scoped KMS and Secrets Manager calls RDS needs when creating its
   managed master-password secret.
+- `terraform-elb-lifecycle-policy.json`: allows Terraform to replace only
+  InvoiceFlow-prefixed Application Load Balancers, listeners, and listener
+  rules without granting broader stack-deletion permissions.
 - `developer-assume-role-policy.json`: gives the developer user permission to
   assume only the InvoiceFlow deployment role.
 
@@ -55,10 +58,14 @@ the developer user an administrator and do not create an access key.
 4. On that role, create a second inline permissions policy named
    `InvoiceFlowTerraformDeploySupport` from
    `.aws-local/terraform-deploy-support-policy.json`.
-5. On the `invoiceflow-developer` user, create an inline policy named
+5. Create a customer-managed policy named
+   `InvoiceFlowTerraformElbLifecycle` from
+   `.aws-local/terraform-elb-lifecycle-policy.json`, then attach it to
+   `InvoiceFlowTerraformDeployRole`.
+6. On the `invoiceflow-developer` user, create an inline policy named
    `InvoiceFlowAssumeTerraformRole` from
    `.aws-local/developer-assume-role-policy.json`.
-6. Sign out of the administrator session when those five changes are saved.
+7. Sign out of the administrator session when those changes are saved.
 
 The role can manage only the AWS service families used by this Terraform stack.
 IAM writes are restricted to task roles beginning with
@@ -67,10 +74,12 @@ IAM writes are restricted to task roles beginning with
 users, access keys, or additional managed policies. The developer user receives
 only permission to assume this one deployment role.
 
-The default deployment role intentionally excludes stack-destruction actions.
-This keeps routine plans and applies from deleting showcase infrastructure.
-A future teardown must use a separately reviewed, temporary administrator
-elevation and remove that elevation immediately after the approved destroy.
+The two inline deployment policies intentionally exclude stack-destruction
+actions. The attached lifecycle policy grants only the three ELB delete actions
+Terraform needs when replacing the InvoiceFlow-prefixed load-balancer path. It
+does not permit teardown of RDS, S3, SQS, Cognito, ECS, IAM, VPC, or the rest of
+the stack. A future full teardown still requires a separately reviewed,
+temporary administrator elevation that is removed immediately afterward.
 
 The boundary caps the resulting API, worker, execution, provisioner, and
 Cognito hook roles to the runtime services InvoiceFlow needs. Updating an
@@ -78,9 +87,11 @@ inline role policy cannot grant permissions beyond that boundary.
 
 ## Updating The Deployment Role
 
-Re-render and replace both deployment-role inline policies whenever the tracked
-Terraform stack adds an AWS resource type. Keep write operations in the core
-policy and discovery or service-integration permissions in the support policy.
+Re-render and replace the deployment-role policies whenever the tracked
+Terraform stack adds an AWS resource type. Keep normal write operations in the
+core policy, discovery or service-integration permissions in the support
+policy, and the narrowly scoped ELB replacement actions in the lifecycle
+managed policy.
 
 1. Render `.aws-local/terraform-deploy-policy.json` and
    `.aws-local/terraform-deploy-support-policy.json` with the current account
@@ -90,17 +101,20 @@ policy and discovery or service-integration permissions in the support policy.
 4. Replace the existing document with the newly rendered file, review the
    summary, and save.
 5. Repeat for `InvoiceFlowTerraformDeploySupport` using the support policy.
-6. Confirm the role has only these two project policies, then run a plan without
+6. If the ELB lifecycle document changed, create a new version of
+   `InvoiceFlowTerraformElbLifecycle`, set it as default, and delete obsolete
+   non-default versions after review.
+7. Confirm the role has the two inline project policies and the one
+   `InvoiceFlowTerraformElbLifecycle` attachment, then run a plan without
    applying it.
 
-The domain-free showcase update adds only the CloudFront distribution actions
-and Application Load Balancer listener-rule actions required by
-`cloudfront.tf`. CloudFront updates are restricted to distributions tagged for
-the configured project and environment. Load-balancer resources remain scoped
-to the `invoiceflow-showcase-*` prefix; the generic listener type segment lets
-the same AWS action describe its documented Application and Network listener
-formats, while load-balancer creation itself remains restricted to
-`loadbalancer/app`.
+The applied domain-free showcase uses API Gateway, a VPC link, and an internal
+Application Load Balancer. Load-balancer resources remain scoped to the
+`invoiceflow-showcase-*` prefix. The generic listener type segment lets the
+same AWS action cover AWS's documented listener ARN shapes, while load-balancer
+deletion remains restricted to `loadbalancer/app`. Optional CloudFront actions
+in the core policy remain tag-restricted for the alternative synthetic
+endpoint mode.
 
 ## Local Role Profile
 
@@ -129,11 +143,15 @@ running Terraform.
   Terraform applies it only as a boundary on runtime roles.
 - Never paste generated policy files into issues, logs, or screenshots.
 - Never run Terraform as the root account.
-- Never add deletion actions to the normal deployment policies as a shortcut;
-  authorize teardown separately and temporarily.
-- Never run `terraform apply` while reviewing Step 20C.
-- Never use the generated CloudFront origin-header value in logs, screenshots,
-  or support messages. It is a bearer secret stored in Terraform state.
+- Never add deletion actions to the normal inline deployment policies as a
+  shortcut; keep the reviewed ELB replacement exception isolated in
+  `InvoiceFlowTerraformElbLifecycle`, and authorize full teardown separately
+  and temporarily.
+- Never apply a Terraform plan before reviewing its exact additions, changes,
+  replacements, and deletions.
+- When CloudFront mode is selected, never use the generated origin-header value
+  in logs, screenshots, or support messages. It is a bearer secret stored in
+  Terraform state.
 - Treat an `AccessDenied` as a request to review one missing action, not as a
   reason to broaden a statement to `Action: "*"`.
 - Remove the deployment role after the showcase is torn down if it is no longer
