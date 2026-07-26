@@ -395,7 +395,7 @@ resource "aws_ecs_service" "worker" {
 }
 
 resource "aws_appautoscaling_target" "api" {
-  count = var.services_enabled ? 1 : 0
+  count = var.services_enabled && !local.is_showcase ? 1 : 0
 
   max_capacity       = local.api_max_capacity
   min_capacity       = var.api_desired_count
@@ -405,7 +405,7 @@ resource "aws_appautoscaling_target" "api" {
 }
 
 resource "aws_appautoscaling_policy" "api_cpu" {
-  count = var.services_enabled ? 1 : 0
+  count = var.services_enabled && !local.is_showcase ? 1 : 0
 
   name               = "${local.name_prefix}-api-cpu"
   policy_type        = "TargetTrackingScaling"

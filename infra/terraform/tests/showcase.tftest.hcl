@@ -133,8 +133,12 @@ run "showcase_cost_guardrails" {
   }
 
   assert {
-    condition     = aws_appautoscaling_target.api[0].max_capacity == 1
-    error_message = "Showcase API autoscaling must be capped at one task."
+    condition = (
+      aws_ecs_service.api.desired_count == 1 &&
+      length(aws_appautoscaling_target.api) == 0 &&
+      length(aws_appautoscaling_policy.api_cpu) == 0
+    )
+    error_message = "Showcase API capacity must stay fixed at one task without optional autoscaling resources."
   }
 
   assert {
@@ -218,6 +222,16 @@ run "production_security_defaults" {
   assert {
     condition     = !aws_ecs_service.api.network_configuration[0].assign_public_ip && !aws_ecs_service.worker.network_configuration[0].assign_public_ip
     error_message = "Production Fargate services must not receive public IP addresses."
+  }
+
+  assert {
+    condition = (
+      length(aws_appautoscaling_target.api) == 1 &&
+      length(aws_appautoscaling_policy.api_cpu) == 1 &&
+      aws_appautoscaling_target.api[0].min_capacity == 2 &&
+      aws_appautoscaling_target.api[0].max_capacity == 6
+    )
+    error_message = "Production API services must retain CPU autoscaling from the requested baseline to six tasks."
   }
 
   assert {
