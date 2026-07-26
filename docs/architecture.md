@@ -8,8 +8,10 @@ keeps every persistent resource inside an authenticated organization boundary.
 ```text
 Reviewer browser
   -> Cognito authorization-code login
-  -> HTTPS load balancer
-  -> FastAPI on private Fargate
+  -> API Gateway HTTPS endpoint
+  -> VPC link
+  -> internal Application Load Balancer
+  -> FastAPI on Fargate
        -> validate tenant and scope
        -> validate upload
        -> private S3 quarantine object
@@ -68,8 +70,15 @@ SQS messages carry identifiers, not document contents or credentials.
 
 ## Deployment Shape
 
-- Public: HTTPS Application Load Balancer only
-- Private with outbound NAT: API, worker, and migration Fargate tasks
+- Showcase public edge: API Gateway HTTPS endpoint only
+- Showcase private ingress: VPC link to an internal load balancer in the
+  application subnets
+- Showcase runtime: one API and one worker Fargate task in public subnets for
+  outbound access without NAT; inbound traffic remains security-group-limited
+  to the internal load balancer
+- Production public edge: custom-domain HTTPS Application Load Balancer
+- Production runtime: API, worker, and migration Fargate tasks in private
+  application subnets with outbound NAT
 - Isolated: RDS PostgreSQL subnets with no internet route
 - Managed identity: Cognito users and scoped access tokens
 - Service identity: separate API, worker, and execution IAM roles
@@ -84,7 +93,17 @@ only after the migration exits successfully.
 
 ## Current Status
 
-The application contracts and Terraform definition exist on the
-`feature/version-2-pipeline` branch. The existing Render site remains the
-Version 1 deterministic portfolio demo. This document does not claim that the
-AWS stack has been applied or that production users are connected.
+The synthetic Version 2 showcase is deployed in `ap-south-1` from the
+`feature/version-2-pipeline` branch:
+
+- API Gateway base URL:
+  `https://rwudt83b2h.execute-api.ap-south-1.amazonaws.com`
+- internal load balancer target health: healthy
+- API and worker services: one desired and one running task each
+- PostgreSQL, S3, and SQS readiness: ready
+- Terraform post-apply plan: no changes
+
+The Render site remains the lighter Version 1 deterministic portfolio demo.
+The AWS deployment uses synthetic data and proves the architecture and
+operational path; it does not claim production finance accuracy or connected
+customer use.
