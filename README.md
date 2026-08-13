@@ -648,37 +648,3 @@ measures repair of missing lexical policy evidence; it does not imply an
 embedding or vector retrieval pipeline.
 
 </details>
-
-## Known Limitations
-
-- The hosted demo defaults to deterministic extraction and lexical token-overlap
-  policy retrieval; it does not use embedding or vector retrieval.
-- OCR fallback depends on Tesseract being installed on the host machine.
-- The `heuristic` extractor path is intentionally tuned for the sample fixtures.
-- The `llm` extractor/repair path requires an OpenAI-compatible API key and
-  runtime configuration.
-- The optional LLM gateway currently covers extraction and repair calls; AP/AR
-  decision generation is still deterministic.
-- TTS-safe output is currently implemented for AR follow-up text only.
-- The Version 2 AWS showcase is applied, but it is a cost-limited,
-  single-capacity synthetic environment rather than a production SLA claim.
-- The React reviewer workspace is connected to the deployed Cognito, tenant
-  document intake, case results, evidence, review decisions, private access,
-  and audit history; only synthetic showcase identities and documents are
-  approved.
-- The current hosted Render demo does not use Cognito, RDS, private S3, SQS, or
-  the Fargate worker.
-- Production validation still requires a real tenant policy pack, approved
-  historical cases, cross-tenant tests against Cognito/RDS, and load tests.
-
-## Next Improvements
-
-- add a managed OCR adapter such as Textract for production deployments
-- add page-level evidence highlighting and side-by-side PDF annotation
-- add vendor risk scoring and a PDF annotation view for invoice review
-- add email, Slack, and Teams notifications for escalations
-- provision and test the Terraform stack in an approved AWS account
-- add GitHub OIDC deployment after the manual deployment path is verified
-- add cost tracking for LLM calls and per-case runtime metadata
-- add real tool-calling agent behavior after the current deterministic baseline
-- record a short walkthrough video for portfolio sharing
